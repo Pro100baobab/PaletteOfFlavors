@@ -1,5 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Основные цвета -->
+
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="red">#FFFF0000</color>
+    <color name="green">#FF00FF00</color>
+    <color name="blue">#FF0000FF</color>
+    <color name="yellow">#FFFFFF00</color>
+    <color name="cyan">#FF00FFFF</color>
+    <color name="magenta">#FFFF00FF</color>
+
+    <!-- Оттенки серого -->
+    <color name="gray">#FF808080</color>
+    <color name="light_gray">#FFD3D3D3</color>
+    <color name="dark_gray">#FFA9A9A9</color>
+
+    <!-- Пастельные цвета -->
+    <color name="light_pink">#FFFFB6C1</color>
+    <color name="light_blue">#FFADD8E6</color>
+    <color name="light_green">#FF90EE90</color>
+    <color name="light_yellow">#FFFFFFA0</color>
+
+    <!-- Цвета для акцентов -->
+    <color name="primary_color">#FF6200EE</color>
+    <color name="secondary_color">#FF03DAC5</color>
+
+    <color name="text_color_primary">#DE000000</color> <!-- Темный текст для светлого фона (87% непрозрачности) -->
+    <color name="text_color_secondary">#8A000000</color> <!-- Светлый текст для темного фона (54% непрозрачности) -->
+
+    <color name="dark_red">#FF8B0000</color>
+    <color name="bright_red">#FFFF4500</color>
+
 </resources>
