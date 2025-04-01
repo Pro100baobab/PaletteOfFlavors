@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.fragment)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -64,5 +65,9 @@ dependencies {
     androidTestImplementation("androidx.navigation:navigation-testing:$nav_version")
     // JSON serialization library, works with the Kotlin serialization plugin
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+
+
+    implementation("com.github.bumptech.glide:glide:4.16.0")  // Используйте последнюю версию
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0") // Используйте последнюю версию
 
 }

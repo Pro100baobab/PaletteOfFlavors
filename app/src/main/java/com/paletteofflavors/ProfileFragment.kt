@@ -1,10 +1,13 @@
 package com.paletteofflavors
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -21,6 +24,9 @@ class ProfileFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private var textViewProfileName: TextView? = null
+    private var imageViewProfile: ImageView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -34,9 +40,29 @@ class ProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false)
+        val view = inflater.inflate(R.layout.fragment_profile, container, false)
+
+        textViewProfileName = view.findViewById(R.id.profile_text)
+        imageViewProfile = view.findViewById(R.id.profile_Image)
+
+        // Set data (example)
+        textViewProfileName?.text = "John Doe"
+        imageViewProfile?.setImageResource(R.drawable.favorites_icon)
+        return view
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        textViewProfileName = null
+        imageViewProfile = null
+    }
+
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+    }
     companion object {
         /**
          * Use this factory method to create a new instance of
