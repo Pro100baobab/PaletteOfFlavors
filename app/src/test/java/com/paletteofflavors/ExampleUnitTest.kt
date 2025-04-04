@@ -1,4 +1,4 @@
-package com.presentation
+package com.paletteofflavors
 
 import org.junit.Test
 

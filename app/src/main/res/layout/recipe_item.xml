@@ -5,12 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="150dp"
     android:layout_margin="8dp"
+    android:clickable="true"
     app:cardBackgroundColor="@color/white"
-    app:cardElevation="50dp"
     app:cardCornerRadius="25dp"
-    android:clickable="true">
+    app:cardElevation="50dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/recipeCardView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/light_pink">

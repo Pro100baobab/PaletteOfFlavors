@@ -11,6 +11,8 @@ data class DatabaseRecipe(
     val recipeinstructions: String,
     val imageUrl: String?,
     val cookTime: Int,
+    val recipecomments: Int,
+    val recipelikes: Int
 )
 
 // Data Layer (преобразование из DatabaseRecipe в Recipe)
@@ -22,6 +24,8 @@ fun DatabaseRecipe.toRecipe(): Recipe {
         ingredients = ingredients.split(","), // Разделение строки на список ингредиентов
         instruction = recipeinstructions,
         imageUrl = imageUrl,
-        cookTime = cookTime
+        cookTime = cookTime,
+        comments = recipecomments,
+        likes = recipelikes
     )
 }

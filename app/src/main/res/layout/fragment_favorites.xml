@@ -15,7 +15,7 @@
         <EditText
             android:id="@+id/favorites_fragment_search_recipe_string"
             android:layout_width="340dp"
-            android:layout_height="46dp"
+            android:layout_height="48dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"

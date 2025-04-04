@@ -1,4 +1,4 @@
-package com.presentation
+package com.paletteofflavors
 
 import android.os.Bundle
 import android.view.Menu
@@ -11,8 +11,10 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.navigation.NavigationView
-import com.presentation.databinding.ActivityMainBinding
+import com.paletteofflavors.databinding.ActivityMainBinding
+import domain.Recipe
 
 
 class MainActivity : AppCompatActivity() {
@@ -53,7 +55,38 @@ class MainActivity : AppCompatActivity() {
             when (it.itemId) {
                 R.id.navigation_home -> replaceMainFragment(HomeFragment())
                 R.id.navigation_search -> replaceMainFragment(SearchFragment())
-                R.id.navigation_favorites -> replaceMainFragment(FavoritesFragment())
+                R.id.navigation_favorites -> {
+                    replaceMainFragment(FavoritesFragment())
+                    /*
+                    val recipelist = arrayListOf<Recipe>(
+                        Recipe(
+                            id = 1,
+                            title = "Пример 1",
+                            ingredients = List<String>(2, {"биба"; "боба"}),
+                            instruction = "Инструкция",
+                            cookTime = 60,
+                            comments = 4,
+                            likes = 5,
+                            imageUrl = null
+                        ),
+                        Recipe(
+                            id = 2,
+                            title = "Пример 2",
+                            ingredients = List<String>(2, {"бибаF"; "бобаF"}),
+                            instruction = "Инструкция 2",
+                            cookTime = 120,
+                            comments = 7,
+                            likes = 3,
+                            imageUrl = null
+                        )
+
+                    )
+
+                    recyclerView = findViewById(R.id.recipesRecyclerView)
+
+                    recyclerView?.adapter = RecipeAdapter(recipelist)
+                    recyclerView?.layoutManager = LinearLayoutManager(this)*/
+                }
                 R.id.navigation_pantry -> replaceMainFragment(FridgeFragment())
                 R.id.navigation_profile -> replaceMainFragment(ProfileFragment())
 

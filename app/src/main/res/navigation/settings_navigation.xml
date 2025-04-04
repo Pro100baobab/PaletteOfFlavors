@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.presentation.HomeFragment"
+        android:name="com.paletteofflavors.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/nav_gallery"
-        android:name="com.presentation.SearchFragment"
+        android:name="com.paletteofflavors.SearchFragment"
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_search" />
 
     <fragment
         android:id="@+id/nav_slideshow"
-        android:name="com.presentation.FavoritesFragment"
+        android:name="com.paletteofflavors.FavoritesFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_favorites" />
 </navigation>

@@ -9,6 +9,8 @@ data class NetworkRecipe(
     val recipeInstructions: String,
     val recipeImageUrl: String?,
     val cookingTime: Int,
+    val recipecomments: Int,
+    val recipelikes: Int
 )
 
 fun NetworkRecipe.toRecipe(): Recipe {
@@ -19,5 +21,7 @@ fun NetworkRecipe.toRecipe(): Recipe {
         instruction = recipeInstructions,
         imageUrl = recipeImageUrl,
         cookTime = cookingTime,
+        comments = recipecomments,
+        likes = recipelikes
     )
 }

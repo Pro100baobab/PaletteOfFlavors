@@ -1,4 +1,4 @@
-package com.presentation
+package com.paletteofflavors
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
