@@ -1,10 +1,12 @@
 package com.paletteofflavors
 
+import ViewModels.NavBottomViewModel
 import android.os.Bundle
 import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -22,12 +24,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var appBarConfiguration: AppBarConfiguration
 
+    private lateinit var navBottomViewModel: NavBottomViewModel
+    private var isFromUserInteraction = true // Флаг для определения источника изменения
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.appBarMain.toolbar)
+
+        navBottomViewModel = ViewModelProvider(this)[NavBottomViewModel::class.java]
+
 
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
@@ -48,54 +56,35 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        replaceMainFragment(HomeFragment())
 
 
-        binding.bottomNavigation.setOnItemSelectedListener {
-            when (it.itemId) {
-                R.id.navigation_home -> replaceMainFragment(HomeFragment())
-                R.id.navigation_search -> replaceMainFragment(SearchFragment())
-                R.id.navigation_favorites -> {
-                    replaceMainFragment(FavoritesFragment())
-                    /*
-                    val recipelist = arrayListOf<Recipe>(
-                        Recipe(
-                            id = 1,
-                            title = "Пример 1",
-                            ingredients = List<String>(2, {"биба"; "боба"}),
-                            instruction = "Инструкция",
-                            cookTime = 60,
-                            comments = 4,
-                            likes = 5,
-                            imageUrl = null
-                        ),
-                        Recipe(
-                            id = 2,
-                            title = "Пример 2",
-                            ingredients = List<String>(2, {"бибаF"; "бобаF"}),
-                            instruction = "Инструкция 2",
-                            cookTime = 120,
-                            comments = 7,
-                            likes = 3,
-                            imageUrl = null
-                        )
-
-                    )
-
-                    recyclerView = findViewById(R.id.recipesRecyclerView)
-
-                    recyclerView?.adapter = RecipeAdapter(recipelist)
-                    recyclerView?.layoutManager = LinearLayoutManager(this)*/
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            if(isFromUserInteraction){
+                when (item.itemId) {
+                    R.id.navigation_home -> replaceMainFragment(HomeFragment())
+                    R.id.navigation_search -> replaceMainFragment(SearchFragment())
+                    R.id.navigation_favorites -> replaceMainFragment(FavoritesFragment())
+                    R.id.navigation_pantry -> replaceMainFragment(FridgeFragment())
+                    R.id.navigation_profile -> replaceMainFragment(ProfileFragment())
                 }
-                R.id.navigation_pantry -> replaceMainFragment(FridgeFragment())
-                R.id.navigation_profile -> replaceMainFragment(ProfileFragment())
-
-                else -> {
-
-                }
+            navBottomViewModel.setSelectedNavItem(item.itemId)
             }
+
             true
         }
+
+        navBottomViewModel.selectedNavItem.observe(this){
+            itemId ->
+            isFromUserInteraction = false // Говорим, что изменение программное
+            binding.bottomNavigation.selectedItemId = itemId ?: R.id.navigation_home
+            isFromUserInteraction = true // Возвращаем флаг в исходное состояние
+        }
+
+        if (supportFragmentManager.findFragmentById(R.id.frame_layout) == null) {
+            replaceMainFragment(HomeFragment())
+            binding.bottomNavigation.selectedItemId = R.id.navigation_home
+        }
+
     }
     // Settings
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -112,8 +101,8 @@ class MainActivity : AppCompatActivity() {
 
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.frame_layout, fragment)
-        fragmentTransaction.commit()
+            .replace(R.id.frame_layout, fragment)
+            .commit()
 
     }
 }

@@ -5,19 +5,30 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.paletteofflavors.databinding.ActivityMainBinding
 import domain.Recipe
 
 //private const val ARG_PARAM1 = "param1"
 //private const val ARG_PARAM2 = "param2"
 
 
-class FavoritesFragment : Fragment() {
+class FavoritesFragment() : Fragment() {
 
-    private lateinit var recipesRececlerView: RecyclerView
+    private lateinit var recipesRecyclerView: RecyclerView
     private lateinit var recipeAdapter: RecipeAdapter
+    private lateinit var hintRecipe: TextView
+    private lateinit var hintuserRecipe: TextView
+
+    private lateinit var savedRadioButton: RadioButton
+    private lateinit var userRadioButton: RadioButton
+    private lateinit var radioGroup: RadioGroup
+
 
     //private var param1: String? = null
     //private var param2: String? = null
@@ -39,9 +50,70 @@ class FavoritesFragment : Fragment() {
         // Inflate the layout for this fragment
 
         val view = inflater.inflate(R.layout.fragment_favorites, container, false)
-        recipesRececlerView = view.findViewById(R.id.recipesRecyclerView)
-        recipesRececlerView.layoutManager = LinearLayoutManager(context)
 
+        hintRecipe = view.findViewById(R.id.favorites_fragment_missing_item_hint)
+        hintuserRecipe = view.findViewById(R.id.favorites_fragment_missing_item_hint2)
+        radioGroup = view.findViewById(R.id.favorites_fragment_radioGroup)
+        savedRadioButton = view.findViewById(R.id.favorites_fragment_savedRecipes)
+        userRadioButton = view.findViewById(R.id.favorites_fragment_myRecipes)
+
+        recipesRecyclerView = view.findViewById(R.id.recipesRecyclerView)
+        recipesRecyclerView.layoutManager = LinearLayoutManager(context)
+
+
+        return view
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        hintRecipe.visibility = View.INVISIBLE
+        hintuserRecipe.visibility = View.INVISIBLE
+
+        val checkedRadioButtonId = radioGroup.checkedRadioButtonId
+        when (checkedRadioButtonId) {
+            R.id.favorites_fragment_savedRecipes -> updateSavedRecipes()
+            R.id.favorites_fragment_myRecipes -> updateMyRecipes()
+        }
+
+        radioGroup.setOnCheckedChangeListener { radioGroup, i ->
+
+            when(i){
+                R.id.favorites_fragment_savedRecipes -> updateSavedRecipes()
+                R.id.favorites_fragment_myRecipes -> updateMyRecipes()
+            }
+        }
+    }
+
+    private fun updateMyRecipes() {
+        hintuserRecipe.visibility = View.INVISIBLE
+        hintRecipe.visibility = View.INVISIBLE
+
+        val recipelist = getUserRecipeList()
+        recipeAdapter = RecipeAdapter(recipelist)
+        recipesRecyclerView.adapter = recipeAdapter
+
+        if(recipelist.size == 0){
+            hintuserRecipe.visibility = View.VISIBLE
+        }
+    }
+
+    private fun updateSavedRecipes() {
+        hintuserRecipe.visibility = View.INVISIBLE
+        hintRecipe.visibility = View.INVISIBLE
+
+        val recipelist = getSavedRecipeList()
+        recipeAdapter = RecipeAdapter(recipelist)
+        recipesRecyclerView.adapter = recipeAdapter
+
+        if(recipelist.size == 0){
+            hintRecipe.visibility = View.VISIBLE
+        }
+    }
+
+
+    private fun getSavedRecipeList(): ArrayList<Recipe> {
+        // TODO(): Inclement logic of getting data from local database(saved recipes)
         val recipelist = arrayListOf<Recipe>(
             Recipe(
                 id = 1,
@@ -59,14 +131,12 @@ class FavoritesFragment : Fragment() {
                 null,120, 7, likes = 3)
         )
 
-        recipeAdapter = RecipeAdapter(recipelist)
-        recipesRececlerView.adapter = recipeAdapter
-
-        return view
+        return recipelist
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    private fun getUserRecipeList(): ArrayList<Recipe> {
+        // TODO(): Inclement logic of getting data from local database(user recipes)
+        return ArrayList<Recipe>()
     }
 
     companion object {
