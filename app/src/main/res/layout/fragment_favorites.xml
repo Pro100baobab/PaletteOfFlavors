@@ -14,11 +14,11 @@
 
         <EditText
             android:id="@+id/favorites_fragment_search_recipe_string"
-            android:layout_width="340dp"
+            android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="32dp"
+            android:layout_marginEnd="48dp"
             android:background="@drawable/search_background"
             android:hint="@string/favorites_search_hint"
             android:inputType="text"
@@ -84,7 +84,7 @@
             android:id="@+id/favorites_fragment_search_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="28dp"
             android:contentDescription="@string/search_icon"
             android:src="@drawable/icon_magnifier"
