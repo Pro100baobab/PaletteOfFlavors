@@ -6,6 +6,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".SearchFragment">
 
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -46,13 +51,13 @@
 
         <GridLayout
             android:id="@+id/search_fragment_main_categories"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="259dp"
+            android:layout_marginTop="16dp"
             android:columnCount="2"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
             android:rowCount="2"
-            android:layout_marginTop="48dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_fragment_filter_button">
@@ -63,69 +68,143 @@
                 android:layout_height="wrap_content"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
-                android:layout_margin="0dp">
+                android:layout_margin="3dp">
 
                 <ImageView
                     android:id="@+id/breakfastImageView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
                     android:background="@drawable/rounded_image"
-                    android:src="@mipmap/ic_breakfast"
                     android:clipToOutline="true"
-                    android:outlineProvider="background"/>
+                    android:outlineProvider="background"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/ic_breakfast" />
 
                 <TextView
                     android:id="@+id/breakfastTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="@string/breakfast"
-                    android:textColor="@android:color/white"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
+                    android:layout_marginBottom="0dp"
                     android:shadowColor="@color/black"
                     android:shadowDx="2"
                     android:shadowDy="2"
-                    android:shadowRadius="5" />
+                    android:shadowRadius="5"
+                    android:text="@string/breakfast"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
             </FrameLayout>
 
-
-            <Button
-                android:id="@+id/search_fragment_lunch_button"
+            <FrameLayout
+                android:id="@+id/search_fragment_launch_button"
                 android:layout_width="0dp"
-                android:layout_height="100dp"
+                android:layout_height="wrap_content"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
-                android:layout_margin="4dp"
-                android:backgroundTint="#FFC107"
-                android:text="@string/lunch"
-                android:textColor="#FFFFFF" />
+                android:layout_margin="3dp">
 
-            <Button
+                <ImageView
+                    android:id="@+id/launchImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/rounded_image"
+                    android:clipToOutline="true"
+                    android:outlineProvider="background"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/ic_launch" />
+
+                <TextView
+                    android:id="@+id/launchTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:shadowColor="@color/black"
+                    android:shadowDx="2"
+                    android:shadowDy="2"
+                    android:shadowRadius="5"
+                    android:text="@string/launch"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+            <FrameLayout
                 android:id="@+id/search_fragment_dinner_button"
                 android:layout_width="0dp"
-                android:layout_height="100dp"
+                android:layout_height="wrap_content"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
-                android:layout_margin="4dp"
-                android:backgroundTint="#2196F3"
-                android:text="@string/dinner"
-                android:textColor="#FFFFFF" />
+                android:layout_margin="3dp">
 
-            <Button
-                android:id="@+id/search_fragment_dessert_button"
+                <ImageView
+                    android:id="@+id/dinnerImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/rounded_image"
+                    android:clipToOutline="true"
+                    android:outlineProvider="background"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/ic_dinner" />
+
+                <TextView
+                    android:id="@+id/dinnerTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:shadowColor="@color/black"
+                    android:shadowDx="2"
+                    android:shadowDy="2"
+                    android:shadowRadius="5"
+                    android:text="@string/dinner"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/search_fragment_desserts_button"
                 android:layout_width="0dp"
-                android:layout_height="100dp"
+                android:layout_height="wrap_content"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
-                android:layout_margin="4dp"
-                android:backgroundTint="#9E9E9E"
-                android:text="@string/desserts"
-                android:textColor="#FFFFFF" />
+                android:layout_margin="3dp">
+
+                <ImageView
+                    android:id="@+id/dessertsImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/rounded_image"
+                    android:clipToOutline="true"
+                    android:outlineProvider="background"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/ic_desserts" />
+
+                <TextView
+                    android:id="@+id/dessertsTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:shadowColor="@color/black"
+                    android:shadowDx="2"
+                    android:shadowDy="2"
+                    android:shadowRadius="5"
+                    android:text="@string/desserts"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+            </FrameLayout>
 
         </GridLayout>
 
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <include
+            layout="@layout/bottom_sheet_layout"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/search_fragment_main_categories" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </FrameLayout>

@@ -71,4 +71,6 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")  // Используйте последнюю версию
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0") // Используйте последнюю версию
 
+    implementation(libs.material.v1110) // или более позднюю версию
+
 }

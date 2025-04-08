@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.NestedScrollView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -34,7 +36,13 @@ class SearchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false)
+        val view =  inflater.inflate(R.layout.fragment_search, container, false)
+
+        val bottomSheet = view.findViewById<NestedScrollView>(R.id.bottomSheet)
+        val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+        //bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED //  Развернуть
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED // Свернуть
+        return view
     }
 
     companion object {
