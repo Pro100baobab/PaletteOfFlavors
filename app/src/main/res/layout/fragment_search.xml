@@ -204,6 +204,7 @@
             layout="@layout/bottom_sheet_layout"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
             app:layout_constraintEnd_toEndOf="@+id/search_fragment_main_categories" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

@@ -32,5 +32,6 @@
 
     <color name="dark_red">#FF8B0000</color>
     <color name="bright_red">#FFFF4500</color>
+    <color name="gray_for_filters">#EFEFEF</color>
 
 </resources>

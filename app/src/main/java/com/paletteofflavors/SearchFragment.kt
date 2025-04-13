@@ -13,11 +13,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [SearchFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+
 class SearchFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
@@ -41,7 +37,8 @@ class SearchFragment : Fragment() {
         val bottomSheet = view.findViewById<NestedScrollView>(R.id.bottomSheet)
         val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
         //bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED //  Развернуть
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED // Свернуть
+        //bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED // Свернуть
+        bottomSheetBehavior.peekHeight = 350
         return view
     }
 

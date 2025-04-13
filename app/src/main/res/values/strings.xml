@@ -26,4 +26,5 @@
     <string name="dinner">Ужин</string>
     <string name="desserts">Десерты</string>
     <string name="launch">Обед</string>
+    <string name="category_catalog">Категории</string>
 </resources>

@@ -1,117 +1,205 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/bottomSheet"
-    android:layout_width="match_parent"
-    android:layout_height="100dp"
-    android:background="@android:color/white"
-    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/bottomSheet"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="300dp"
+        android:maxHeight="400dp"
+        android:minHeight="200dp"
+        android:background="@drawable/bottom_sheet_background"
+        android:clipToPadding="false"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Фильтры"
-            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-            android:layout_marginBottom="16dp"/>
+            <LinearLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bottom_sheet_background"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:paddingTop="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Сложность"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:layout_marginBottom="8dp"/>
+                <View
+                    android:id="@+id/view2"
+                    android:layout_width="40dp"
+                    android:layout_height="4dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="8dp"
+                    android:background="@color/dark_gray"/>
 
-        <RatingBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Время приготовления"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/category_catalog"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
 
-        <SeekBar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/white"
+                    android:text="Холодные закуски"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-        <!-- Добавьте другие элементы фильтрации -->
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/gray_for_filters"
+                    android:text="Горячие закуски"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Фильтры"
-            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-            android:layout_marginBottom="16dp"/>
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/white"
+                    android:text="Овощные салаты"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Сложность"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:layout_marginBottom="8dp"/>
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/gray_for_filters"
+                    android:text="Мясные салаты"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-        <RatingBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"/>
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/white"
+                    android:text="Салаты с птицей"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Время приготовления"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"/>
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/gray_for_filters"
+                    android:text="Рыбные салаты"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-        <SeekBar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/white"
+                    android:text="Супы"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Фильтры"
-            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-            android:layout_marginBottom="16dp"/>
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/gray_for_filters"
+                    android:text="Овощные блюда"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Сложность"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:layout_marginBottom="8dp"/>
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/white"
+                    android:text="Блюда с мясом"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-        <RatingBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"/>
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/gray_for_filters"
+                    android:text="Блюда с птицей"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Время приготовления"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"/>
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/white"
+                    android:text="Блюда с рыбой"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-        <SeekBar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/gray_for_filters"
+                    android:text="Гарниры"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-    </LinearLayout>
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/white"
+                    android:text="Выпечка"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-</androidx.core.widget.NestedScrollView>
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/gray_for_filters"
+                    android:text="Напитки"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/white"
+                    android:text="Первые блюда"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+
+                <TextView
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:background="@color/gray_for_filters"
+                    android:text="Вторые блюда"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+
+            </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
