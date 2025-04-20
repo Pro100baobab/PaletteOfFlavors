@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.room.common)
+    implementation(libs.androidx.media3.common.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -68,9 +69,20 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
 
-    implementation("com.github.bumptech.glide:glide:4.16.0")  // Используйте последнюю версию
-    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0") // Используйте последнюю версию
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 
-    implementation(libs.material.v1110) // или более позднюю версию
+    implementation(libs.material.v1110)
 
+
+    // Корутины
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+
+    implementation(libs.material)
+    implementation(files("src/libsql_android-release.aar"))
+    //implementation(libs.core.ktx)
+    testImplementation(libs.junit)
+    //androidTestImplementation(libs.ext.junit)
 }

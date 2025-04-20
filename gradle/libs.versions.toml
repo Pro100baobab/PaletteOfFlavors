@@ -7,6 +7,8 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
 kotlinxSerializationJson = "1.7.3"
+libsql = "0.1.0"
+libsqlClientAndroid = "0.1.0"
 material = "1.12.0"
 constraintlayout = "2.2.1"
 materialdrawer = "10.0.0"
@@ -16,6 +18,7 @@ navigationFragmentKtx = "2.8.9"
 navigationUiKtx = "2.8.9"
 fragment = "1.8.6"
 roomCommon = "2.6.1"
+media3CommonKtx = "1.6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -28,6 +31,8 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+libsql = { module = "tech.turso.libsql:libsql", version.ref = "libsql" }
+libsql-client-android = { module = "io.libsql:libsql-client-android", version.ref = "libsqlClientAndroid" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
@@ -36,6 +41,7 @@ androidx-fragment = { group = "androidx.fragment", name = "fragment", version.re
 material-v1110 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
 materialdrawer = { module = "com.mikepenz:materialdrawer", version.ref = "materialdrawerVersion" }
 androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
+androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

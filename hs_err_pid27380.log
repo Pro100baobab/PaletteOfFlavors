@@ -1,0 +1,85 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 1054608 bytes. Error detail: Chunk::new
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   This process is running with CompressedOops enabled, and the Java Heap may be blocking the growth of the native heap
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Decrease Java heap size (-Xmx/-Xms)
+#
+#  Out of Memory Error
+#
+# Class kotlin.sequences.SequencesKt___SequencesKt$flatMap$2                            : loaded 2 times (x 121B)
+Class com.google.common.util.concurrent.AbstractFuture$UnsafeAtomicHelper$1           : loaded 2 times (x 72B)
+Class com.google.common.collect.Ordering                                              : loaded 2 times (x 110B)
+Class com.amazon.ion.impl.bin.utf8.Poolable                                           : loaded 2 times (x 75B)
+Class com.amazon.ion.IonSymbol                                                        : loaded 2 times (x 66B)
+Class org.jetbrains.plugins.gradle.tooling.serialization.AnnotationProcessingModelSerializationService$WriteContext: loaded 2 times (x 68B)
+Class org.gradle.internal.impldep.gnu.trove.THash                                     : loaded 2 times (x 77B)
+Class kotlin.io.TerminateException                                                    : loaded 2 times (x 78B)
+Class kotlin.io.FilesKt__FilePathComponentsKt                                         : loaded 2 times (x 67B)
+Class kotlin.reflect.KCallable                                                        : loaded 2 times (x 66B)
+Class com.google.common.base.Optional                                                 : loaded 2 times (x 76B)
+Class org.jetbrains.plugins.gradle.tooling.serialization.internal.IdeaProjectSerializationService: loaded 2 times (x 73B)
+Class com.google.common.util.concurrent.AbstractFuture$Trusted                        : loaded 2 times (x 66B)
+Class org.jetbrains.kotlin.idea.projectModel.KotlinTaskProperties                     : loaded 2 times (x 66B)
+Class com.google.common.base.CharMatcher$RangesMatcher                                : loaded 2 times (x 108B)
+Class org.jetbrains.kotlin.idea.gradleTooling.KotlinGradlePluginVersion               : loaded 2 times (x 66B)
+Class com.amazon.ion.impl.lite.IonStructLite                                          : loaded 2 times (x 294B)
+Class com.amazon.ion.impl._Private_ReaderWriter                                       : loaded 2 times (x 66B)
+Class com.amazon.ion.impl.bin.AbstractSymbolTable                                     : loaded 2 times (x 103B)
+Class com.amazon.ion.Decimal                                                          : loaded 2 times (x 129B)
+Class com.amazon.ion.impl.bin._Private_IonManagedBinaryWriterBuilder$AllocatorMode$1  : loaded 2 times (x 76B)
+Class org.jetbrains.plugins.gradle.tooling.serialization.ProjectDependenciesSerializationService$WriteContext: loaded 2 times (x 68B)
+Class org.jetbrains.plugins.gradle.tooling.serialization.ProjectDependenciesSerializationService: loaded 2 times (x 73B)
+Class kotlin.collections.AbstractIterator                                             : loaded 2 times (x 79B)
+Class kotlin.text.CharsKt                                                             : loaded 2 times (x 67B)
+Class org.gradle.tooling.model.kotlin.dsl.KotlinDslScriptModel                        : loaded 2 times (x 66B)
+Class org.gradle.tooling.internal.adapter.CollectionMapper                            : loaded 2 times (x 69B)
+Class org.jetbrains.kotlin.tooling.core.KotlinToolingVersion                          : loaded 2 times (x 71B)
+Class [Lcom.android.builder.model.v2.ide.LibraryType;                                 : loaded 2 times (x 65B)
+Class com.android.builder.model.v2.ide.LibraryType                                    : loaded 2 times (x 75B)
+Class com.google.common.io.ByteSink$AsCharSink                                        : loaded 2 times (x 76B)
+Class com.google.common.util.concurrent.UncheckedExecutionException                   : loaded 2 times (x 78B)
+Class [Lcom.android.ide.common.repository.AgpVersion$PreviewKind;                     : loaded 2 times (x 65B)
+Class org.gradle.kotlin.dsl.VersionCatalogAccessorsKt                                 : loaded 2 times (x 67B)
+Class jdk.internal.jimage.ImageLocation                                               : loaded 2 times (x 86B)
+Class jdk.internal.jrtfs.JrtDirectoryStream$1                                         : loaded 2 times (x 79B)
+Class com.amazon.ion.impl.lite.IonFloatLite                                           : loaded 2 times (x 182B)
+Class com.amazon.ion.impl._Private_IonTextWriterBuilder                               : loaded 2 times (x 98B)
+Class com.amazon.ion.impl.bin._Private_IonManagedBinaryWriterBuilder$AllocatorMode$2  : loaded 2 times (x 76B)
+Class org.gradle.internal.impldep.gnu.trove.Equality                                  : loaded 2 times (x 66B)
+Class com.android.ide.gradle.model.ArtifactIdentifierImpl                             : loaded 2 times (x 73B)
+Class com.google.common.collect.ExplicitOrdering                                      : loaded 2 times (x 111B)
+Class com.google.common.collect.ImmutableSortedSetFauxverideShim                      : loaded 2 times (x 143B)
+Class com.google.common.base.CharMatcher$JavaLetterOrDigit                            : loaded 2 times (x 107B)
+Class org.jetbrains.plugins.gradle.ExternalDependencyId                               : loaded 2 times (x 66B)
+Class com.amazon.ion.impl._Private_RecyclingStack                                     : loaded 2 times (x 75B)
+Class com.amazon.ion.impl._Private_IonReaderBuilder                                   : loaded 2 times (x 91B)
+Class com.amazon.ion.IonMutableCatalog                                                : loaded 2 times (x 66B)
+Class com.intellij.gradle.toolingExtension.impl.model.buildScriptClasspathModel.GradleBuildScriptClasspathSerializationService$WriteContext: loaded 2 times (x 68B)
+Class org.gradle.tooling.internal.adapter.ProtocolToModelAdapter                      : loaded 2 times (x 76B)
+Class org.gradle.internal.InternalTransformer                                         : loaded 2 times (x 66B)
+Class com.android.builder.model.v2.ide.AndroidGradlePluginProjectFlags$BooleanFlag    : loaded 2 times (x 75B)
+Class com.google.common.collect.AbstractMapBasedMultimap$KeySet$1                     : loaded 2 times (x 78B)
+Class com.android.ide.common.gradle.Separator                                         : loaded 2 times (x 75B)
+Class org.objectweb.asm.ClassWriter                                                   : loaded 2 times (x 102B)
+Class com.google.common.cache.CacheLoader$UnsupportedLoadingOperationException        : loaded 2 times (x 78B)
+Class org.gradle.internal.classloader.ClassLoaderVisitor                              : loaded 2 times (x 72B)
+Class jdk.internal.jimage.ImageBufferCache$1                                          : loaded 2 times (x 79B)
+Class org.gradle.internal.impldep.gnu.trove.TObjectCanonicalHashingStrategy           : loaded 2 times (x 76B)
+Class kotlin.collections.ArraysKt___ArraysKt$asSequence$$inlined$Sequence$1           : loaded 2 times (x 71B)
+Class kotlin.collections.MapsKt__MapsJVMKt                                            : loaded 2 times (x 67B)
+Class kotlin.collections.EmptyList                                                    : loaded 2 times (x 170B)
+Class org.gradle.internal.time.DefaultTimer                                           : loaded 2 times (x 76B)
+Class org.gradle.internal.classloader.ClasspathUtil$1                                 : loaded 2 times (x 72B)
+Class com.google.common.collect.FluentIterable$1                                      : loaded 2 times (x 77B)
+Class com.google.common.base.Objects                                                  : loaded 2 times (x 67B)
+
+---------------  S Y S T E M  ---------------
+
+OS:
+ Windows 11
