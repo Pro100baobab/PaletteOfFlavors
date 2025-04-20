@@ -90,7 +90,7 @@ class MainActivity : AppCompatActivity() {
 
         initDatabase()
         replaceMainFragment(HomeFragment())
-        showFullscreenFragment(RegistrationFragment())
+        showFullscreenFragment(LoginFragment())
     }
 
 

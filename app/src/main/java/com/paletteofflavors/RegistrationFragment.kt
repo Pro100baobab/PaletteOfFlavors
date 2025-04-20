@@ -47,7 +47,7 @@ class RegistrationFragment : Fragment() {
 
         binding.tvLogin.setOnClickListener {
             Toast.makeText(requireContext(), "VALUES('$username', '${password.hashCode()}')", Toast.LENGTH_SHORT).show()
-            //(activity as? MainActivity)?.replaceMainFragment(HomeFragment())
+            (activity as? MainActivity)?.showFullscreenFragment(LoginFragment())
         }
     }
 
@@ -76,7 +76,7 @@ class RegistrationFragment : Fragment() {
                         activity?.runOnUiThread {
                             Toast.makeText(requireContext(), "Registration successful", Toast.LENGTH_SHORT).show()
                             // После успешной регистрации переходим на главный экран или экран логина
-                            //(activity as? MainActivity)?.replaceMainFragment(LoginFragment())
+                            (activity as? MainActivity)?.showFullscreenFragment(LoginFragment())
                         }
                     }
                 }

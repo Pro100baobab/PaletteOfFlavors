@@ -154,17 +154,16 @@
 
             </LinearLayout>
 
-
+            <!--#FD4400-->
             <androidx.appcompat.widget.AppCompatButton
-                android:background="#FD4400"
                 android:backgroundTint="#FD4400"
                 android:textColor="@color/white"
                 android:id="@+id/btnRegister"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
                 android:text="@string/end_create_account"
                 android:elevation="5dp"
-                android:layout_marginTop="20dp"/>
+                android:layout_marginTop="15dp"/>
 
             <TextView
                 android:id="@+id/tvLogin"
