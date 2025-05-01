@@ -56,7 +56,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-
+    implementation(libs.androidx.fragment.ktx) // or the latest stable version
     val nav_version = "2.8.9"
     // Views/Fragments integration
     implementation("androidx.navigation:navigation-fragment:$nav_version")
