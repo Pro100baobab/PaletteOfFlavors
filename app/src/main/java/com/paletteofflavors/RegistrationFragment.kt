@@ -18,8 +18,11 @@ class RegistrationFragment : Fragment() {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var fullname: String
     private lateinit var username: String
     private lateinit var password: String
+    private lateinit var phone_number: String
+    private lateinit var email: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,24 +37,33 @@ class RegistrationFragment : Fragment() {
 
 
         binding.btnRegister.setOnClickListener {
+
+            fullname = binding.etFullname.text.toString().trim()
             username = binding.etUsername.text.toString().trim()
+            email = binding.etEmail.text.toString().trim()
+            phone_number = binding.etPhoneNumber.text.toString().trim()
             password = binding.etPassword.text.toString().trim()
 
-            if (username.isEmpty() || password.isEmpty()) {
+
+
+            if (fullname.isEmpty() || username.isEmpty() || email.isEmpty() || phone_number.isEmpty() || password.isEmpty()) {
                 Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            registerUser(username, password)
+            registerUser(fullname, username, phone_number, email, password)
         }
 
         binding.tvLogin.setOnClickListener {
-            Toast.makeText(requireContext(), "VALUES('$username', '${password.hashCode()}')", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(requireContext(), "VALUES('$username', '${password.hashCode()}')", Toast.LENGTH_SHORT).show()
             (activity as? MainActivity)?.showFullscreenFragment(LoginFragment())
         }
+
     }
 
-    private fun registerUser(username: String, password: String) {
+    //TODO: make a validation check for the input values.
+    //TODO: change datatype of phone_number and ui for this view.
+    private fun registerUser(fullname: String, username: String, phone_number: String, email: String, password: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val dbUrl = (activity as MainActivity).TURSO_DATABASE_URL
@@ -69,10 +81,13 @@ class RegistrationFragment : Fragment() {
                             }
                         }
 
+                        // TODO: Alter table users in turso for default CURRENT_TIMESTAMP
                         // Регистрируем нового пользователя
                         conn.query(
-                            "INSERT INTO users (username, password) VALUES('$username', '${password.hashCode()}')")
+                            "INSERT INTO users (fullname, username, email, phone_number, password, created_at) VALUES('$fullname','$username', '$email', '$phone_number', '${password.hashCode()}', CURRENT_TIMESTAMP)")
 
+
+                        //TODO: Add progress bar for connection time.
                         activity?.runOnUiThread {
                             Toast.makeText(requireContext(), "Registration successful", Toast.LENGTH_SHORT).show()
                             // После успешной регистрации переходим на главный экран или экран логина

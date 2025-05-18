@@ -32,8 +32,8 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnLogin.setOnClickListener {
-            username = binding.etUsername.text.toString().trim()
-            password = binding.etPassword.text.toString().trim()
+            username = binding.etLoginUsername.text.toString().trim()
+            password = binding.etLoginPassword.text.toString().trim()
 
             if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
@@ -43,7 +43,7 @@ class LoginFragment : Fragment() {
             loginUser(username, password)
         }
 
-        binding.tvLogin.setOnClickListener {
+        binding.tvRegistration.setOnClickListener {
             (activity as? MainActivity)?.showFullscreenFragment(RegistrationFragment())
         }
     }
@@ -63,7 +63,8 @@ class LoginFragment : Fragment() {
                         """.trimIndent()
 
                         conn.query(query).use { rows ->
-                            if (rows.nextRow() != null) {
+                            val nextRow = rows.nextRow()
+                            if ( nextRow != null) {
                                 activity?.runOnUiThread {
                                     Toast.makeText(requireContext(), "Login successful", Toast.LENGTH_SHORT).show()
                                     (activity as? MainActivity)?.showNormalFragment(HomeFragment())
