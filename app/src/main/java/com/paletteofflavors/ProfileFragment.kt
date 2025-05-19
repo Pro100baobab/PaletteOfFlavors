@@ -1,5 +1,6 @@
 package com.paletteofflavors
 
+import DataSource.Local.SessionManager
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -44,8 +45,11 @@ class ProfileFragment : Fragment() {
         textViewProfileName = view.findViewById(R.id.profile_text)
         imageViewProfile = view.findViewById(R.id.profile_Image)
 
-        // Set data (example)
-        textViewProfileName?.text = "John Doe"
+        // Получение данных сессии
+        val usersDetails: HashMap<String, String?> = (activity as MainActivity).sessionManager.getUsersDetailFromSession()
+
+
+        textViewProfileName?.text = usersDetails[SessionManager.KEY_FULLNAME]
         imageViewProfile?.setImageResource(R.drawable.favorites_icon)
         return view
     }
@@ -81,4 +85,5 @@ class ProfileFragment : Fragment() {
                 }
             }
     }
+
 }

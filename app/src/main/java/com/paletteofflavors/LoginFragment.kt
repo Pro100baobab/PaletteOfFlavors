@@ -1,5 +1,6 @@
 package com.paletteofflavors
 
+import DataSource.Local.SessionManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -57,7 +58,7 @@ class LoginFragment : Fragment() {
                 Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
                     db.connect().use { conn ->
                         val query = """
-                            SELECT id FROM users 
+                            SELECT * FROM users 
                             WHERE username = '$username' 
                             AND password = '${password.hashCode()}'
                         """.trimIndent()
@@ -65,8 +66,23 @@ class LoginFragment : Fragment() {
                         conn.query(query).use { rows ->
                             val nextRow = rows.nextRow()
                             if ( nextRow != null) {
+
+                                //val _id = nextRow[0].toString()
+                                val _username = nextRow[1].toString()
+                                val _password = nextRow[2].toString()
+                                val _fullName = nextRow[3].toString()
+                                val _email = nextRow[4].toString()
+                                val _phoneNumber = nextRow[5].toString()
+
                                 activity?.runOnUiThread {
-                                    Toast.makeText(requireContext(), "Login successful", Toast.LENGTH_SHORT).show()
+
+                                    // Create a Session by SessionManager
+                                    (activity as MainActivity).sessionManager = SessionManager(requireContext())
+                                    (activity as MainActivity).sessionManager.createLoginSession(fullName = _fullName, username = _username, email = _email, phoneNumber = _phoneNumber, password = _password)
+
+                                    Toast.makeText(requireContext(),
+                                        "Login successful: $_username $_fullName $_phoneNumber", Toast.LENGTH_SHORT).show()
+
                                     (activity as? MainActivity)?.showNormalFragment(HomeFragment())
                                 }
                             } else {
@@ -94,4 +110,5 @@ class LoginFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
 }

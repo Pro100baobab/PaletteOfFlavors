@@ -1,5 +1,6 @@
 package com.paletteofflavors
 
+import DataSource.Local.SessionManager
 import ViewModels.NavBottomViewModel
 import android.os.Bundle
 import android.util.Log
@@ -34,6 +35,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var navBottomViewModel: NavBottomViewModel
     private var isFromUserInteraction = true // Флаг для определения источника изменения
+
+    lateinit var sessionManager: SessionManager;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
