@@ -1,4 +1,4 @@
-package com.paletteofflavors
+package com.paletteofflavors.logIn
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,12 +8,13 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.paletteofflavors.databinding.FragmentRegistrationBinding
 import android.util.Log
-import androidx.core.text.set
+import com.paletteofflavors.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tech.turso.libsql.Libsql
 
+//TODO: Add ViewModel with liveData
 class RegistrationFragment : Fragment() {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding get() = _binding!!

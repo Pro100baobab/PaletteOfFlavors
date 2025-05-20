@@ -1,4 +1,4 @@
-package com.paletteofflavors
+package com.paletteofflavors.logIn
 
 import DataSource.Local.SessionManager
 import android.content.Context
@@ -11,14 +11,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.Toast
-import androidx.core.text.set
 import androidx.fragment.app.Fragment
+import com.paletteofflavors.HomeFragment
+import com.paletteofflavors.MainActivity
 import com.paletteofflavors.databinding.FragmentLoginBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tech.turso.libsql.Libsql
 
+//TODO: Add ViewModel with liveData
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
@@ -51,20 +53,30 @@ class LoginFragment : Fragment() {
         }
 
         binding.btnLogin.setOnClickListener {
+
+            it.isEnabled = false
+
             username = binding.etLoginUsername.text.toString().trim()
             password = binding.etLoginPassword.text.toString().trim()
             rememberMe = binding.rememberMe
 
             if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
+                it.isEnabled = true
+
                 return@setOnClickListener
             }
 
-            if(!checkInternetConnection(requireContext()))
+            if(!checkInternetConnection(requireContext())){
+                it.isEnabled = true
                 return@setOnClickListener
+            }
+
 
             loginUser(username, password)
             //TODO: progress bar
+
+            it.isEnabled = true
         }
 
         binding.tvRegistration.setOnClickListener {

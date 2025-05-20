@@ -3,7 +3,6 @@ package com.paletteofflavors
 import DataSource.Local.SessionManager
 import ViewModels.NavBottomViewModel
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -18,10 +17,10 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import com.paletteofflavors.databinding.ActivityMainBinding
+import com.paletteofflavors.logIn.LoginFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import tech.turso.libsql.Libsql
 
 class MainActivity : AppCompatActivity() {
 

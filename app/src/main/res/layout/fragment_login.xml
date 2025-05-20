@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/light_yellow"
     style="@style/Theme.ПалитраВкусов.NoActionBar"
-    tools:context=".LoginFragment"
+    tools:context=".logIn.LoginFragment"
     >
 
     <FrameLayout

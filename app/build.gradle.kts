@@ -85,4 +85,7 @@ dependencies {
     //implementation(libs.core.ktx)
     testImplementation(libs.junit)
     //androidTestImplementation(libs.ext.junit)
+
+    //Implementation for PIN View Design
+    implementation(libs.chaosleung.pinview)
 }

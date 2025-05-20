@@ -44,5 +44,12 @@
     <string name="don_t_have_an_account_yet_sign_up">Don\'t have an account yet? Sign up</string>
     <string name="remember_me">Запомнить меня</string>
     <string name="forget_password">Забыли пароль?</string>
+    <string name="verify_code">Проверить код</string>
+    <string name="Continue">продолжить</string>
+    <string name="reset_password">Восстановить пароль</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="confirm">Подтвердить</string>
+    <string name="password_updated">Пароль обновлен</string>
 
 </resources>
