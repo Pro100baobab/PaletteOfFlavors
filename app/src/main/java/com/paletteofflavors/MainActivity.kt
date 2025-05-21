@@ -17,6 +17,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import com.paletteofflavors.databinding.ActivityMainBinding
+import com.paletteofflavors.logIn.AuthorizationFragment
 import com.paletteofflavors.logIn.LoginFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -92,7 +93,17 @@ class MainActivity : AppCompatActivity() {
 
         initDatabase()
         replaceMainFragment(HomeFragment())
-        showFullscreenFragment(LoginFragment())
+
+
+        // Проверка авторизации
+        sessionManager = SessionManager(this, SessionManager.SESSION_USERSESSION)
+        if(sessionManager.checkLogin()) {
+            val rememberMeDetails: HashMap<String, String?> = sessionManager.getUsersDetailFromSession()
+        }
+        else{
+            //showFullscreenFragment(LoginFragment())
+            showFullscreenFragment(AuthorizationFragment())
+        }
     }
 
 
@@ -128,6 +139,7 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
+    // Возвращение нижнего меню
     fun showNormalFragment(fragment: Fragment) {
         binding.bottomNavigation.visibility = View.VISIBLE
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)

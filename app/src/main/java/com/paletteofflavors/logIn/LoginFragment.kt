@@ -12,8 +12,10 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.paletteofflavors.HomeFragment
 import com.paletteofflavors.MainActivity
+import com.paletteofflavors.R
 import com.paletteofflavors.databinding.FragmentLoginBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,6 +54,14 @@ class LoginFragment : Fragment() {
             binding.rememberMe.isChecked = true
         }
 
+        binding.forgetPassword.setOnClickListener{
+            findNavController().navigate(R.id.action_loginFragment_to_forgetPassword)
+        }
+
+        binding.tvRegistration.setOnClickListener{
+            findNavController().navigate(R.id.action_loginFragment_to_registrationFragment)
+        }
+
         binding.btnLogin.setOnClickListener {
 
             it.isEnabled = false
@@ -79,9 +89,9 @@ class LoginFragment : Fragment() {
             it.isEnabled = true
         }
 
-        binding.tvRegistration.setOnClickListener {
+        /*binding.tvRegistration.setOnClickListener {
             (activity as? MainActivity)?.showFullscreenFragment(RegistrationFragment())
-        }
+        }*/
 
     }
 

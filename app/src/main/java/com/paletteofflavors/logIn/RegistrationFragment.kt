@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.paletteofflavors.databinding.FragmentRegistrationBinding
 import android.util.Log
+import androidx.navigation.fragment.findNavController
 import com.paletteofflavors.MainActivity
+import com.paletteofflavors.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -57,7 +59,11 @@ class RegistrationFragment : Fragment() {
 
         binding.tvLogin.setOnClickListener {
             //Toast.makeText(requireContext(), "VALUES('$username', '${password.hashCode()}')", Toast.LENGTH_SHORT).show()
-            (activity as? MainActivity)?.showFullscreenFragment(LoginFragment())
+            findNavController().navigate(R.id.action_registrationFragment_to_loginFragment)
+        }
+
+        binding.btnRegister.setOnClickListener {
+            findNavController().navigate(R.id.action_registrationFragment_to_verifyOTP)
         }
 
     }
@@ -110,22 +116,4 @@ class RegistrationFragment : Fragment() {
         _binding = null
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment RegistrationFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            RegistrationFragment().apply {
-                arguments = Bundle().apply {
-
-                }
-            }
-    }
 }
