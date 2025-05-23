@@ -108,10 +108,7 @@
                 android:textColor="@color/black"
                 android:textStyle="bold" />
 
-            <View
-                android:layout_width="5dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
+
 
             <Button
                 android:id="@+id/forget_password"
@@ -121,7 +118,9 @@
                 android:layout_weight="1"
                 android:background="#00000000"
                 android:text="@string/forget_password"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textAlignment="textEnd"
+                android:textStyle="bold"
+                style="@style/Widget.AppCompat.CompoundButton.CheckBox"
                 android:textColor="@color/black">
 
             </Button>

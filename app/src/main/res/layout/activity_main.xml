@@ -38,6 +38,7 @@
         app:menu="@menu/activity_main_drawer" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/app_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#FBF38D"

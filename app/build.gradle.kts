@@ -4,6 +4,11 @@ plugins {
 
     // Kotlin serialization plugin for type safe routes and navigation arguments
     kotlin("plugin.serialization") version "2.0.21"
+
+
+    id("androidx.navigation.safeargs.kotlin")
+
+
 }
 
 android {
@@ -74,7 +79,6 @@ dependencies {
 
     implementation(libs.material.v1110)
 
-
     // Корутины
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
@@ -88,4 +92,9 @@ dependencies {
 
     //Implementation for PIN View Design
     implementation(libs.chaosleung.pinview)
+
+    /*implementation(libs.navigation.safe.args.gradle.plugin)
+    // Save Arguments for Graph Navigation
+    implementation("androidx.navigation.safeargs.kotlin")
+    id 'androidx.navigation.safeargs' version '2.4.2' apply false*/
 }

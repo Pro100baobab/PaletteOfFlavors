@@ -11,8 +11,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.transition.Visibility
 import com.paletteofflavors.HomeFragment
 import com.paletteofflavors.MainActivity
 import com.paletteofflavors.R
@@ -89,9 +91,10 @@ class LoginFragment : Fragment() {
             it.isEnabled = true
         }
 
-        /*binding.tvRegistration.setOnClickListener {
-            (activity as? MainActivity)?.showFullscreenFragment(RegistrationFragment())
-        }*/
+
+        binding.signupBackButtonLogin.setOnClickListener {
+            findNavController().navigate(R.id.action_loginFragment_to_authorizationFragment)
+        }
 
     }
 
@@ -132,7 +135,8 @@ class LoginFragment : Fragment() {
                                     // Save LogIn Settings if checked
                                     rememberMe(username, password)
 
-                                    (activity as? MainActivity)?.showNormalFragment(HomeFragment())
+                                    (activity as? MainActivity)?.binding?.appContent?.isVisible = true
+                                    //(activity as? MainActivity)?.showNormalFragment(HomeFragment())
                                 }
                             } else {
                                 activity?.runOnUiThread {

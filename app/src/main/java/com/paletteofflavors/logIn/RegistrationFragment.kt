@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.paletteofflavors.databinding.FragmentRegistrationBinding
 import android.util.Log
+import android.util.Patterns
+import android.widget.EditText
 import androidx.navigation.fragment.findNavController
 import com.paletteofflavors.MainActivity
 import com.paletteofflavors.R
@@ -21,11 +23,7 @@ class RegistrationFragment : Fragment() {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var fullname: String
-    private lateinit var username: String
-    private lateinit var password: String
-    private lateinit var phone_number: String
-    private lateinit var email: String
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,18 +39,19 @@ class RegistrationFragment : Fragment() {
 
         binding.btnRegister.setOnClickListener {
 
-            fullname = binding.etFullname.text.toString().trim()
-            username = binding.etUsername.text.toString().trim()
-            email = binding.etEmail.text.toString().trim()
-            phone_number = binding.etPhoneNumber.text.toString().trim()
-            password = binding.etPassword.text.toString().trim()
 
-
-
-            if (fullname.isEmpty() || username.isEmpty() || email.isEmpty() || phone_number.isEmpty() || password.isEmpty()) {
-                Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
+            // Check validation for all fills
+            if (!isFillsValid(fullName =  binding.etFullname, username = binding.etUsername, email = binding.etEmail,
+                phoneNumber = binding.etPhoneNumber, password = binding.etPassword)) {
                 return@setOnClickListener
             }
+
+            // If success start registration process
+            val fullname = binding.etFullname.text.toString().trim()
+            val username = binding.etUsername.text.toString().trim()
+            val email = binding.etEmail.text.toString().trim()
+            val phone_number = binding.etPhoneNumber.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
 
             registerUser(fullname, username, phone_number, email, password)
         }
@@ -62,14 +61,25 @@ class RegistrationFragment : Fragment() {
             findNavController().navigate(R.id.action_registrationFragment_to_loginFragment)
         }
 
-        binding.btnRegister.setOnClickListener {
-            findNavController().navigate(R.id.action_registrationFragment_to_verifyOTP)
+
+        binding.signupBackButtonRegistration.setOnClickListener {
+            findNavController().navigate(R.id.action_registrationFragment_to_authorizationFragment)
         }
 
     }
 
-    //TODO: make a validation check for the input values.
-    //TODO: change datatype of phone_number and ui for this view.
+
+    private fun isFillsValid(fullName: EditText, username: EditText, email: EditText, phoneNumber: EditText, password: EditText): Boolean {
+
+        return isValidFullName(fullName) && isValidUsername(username) && isValidEmail(email)
+                && isValidPhone(phoneNumber) && isValidPassword(password)
+    }
+
+
+
+    //TODO: Change datatype of phone_number and ui for this view.
+
+    //TODO: Check that email and phone number are unique.
     private fun registerUser(fullname: String, username: String, phone_number: String, email: String, password: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -97,8 +107,10 @@ class RegistrationFragment : Fragment() {
                         //TODO: Add progress bar for connection time.
                         activity?.runOnUiThread {
                             Toast.makeText(requireContext(), "Registration successful", Toast.LENGTH_SHORT).show()
-                            // После успешной регистрации переходим на главный экран или экран логина
-                            (activity as? MainActivity)?.showFullscreenFragment(LoginFragment())
+
+                            // If success go to the next fragment
+                            val destination = RegistrationFragmentDirections.actionRegistrationFragmentToVerifyOTP(email, phone_number, "")
+                            findNavController().navigate(destination)
                         }
                     }
                 }

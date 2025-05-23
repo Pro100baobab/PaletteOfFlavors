@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     //TODO: replace location of variables
 
 
-    private lateinit var binding: ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     private lateinit var navBottomViewModel: NavBottomViewModel
