@@ -18,6 +18,8 @@ class SessionManager(
         //Session names
         const val SESSION_USERSESSION = "userLoginSession"
         const val SESSION_REMEMBERME = "rememberMe"
+        const val SESSION_CODE = "verificationSession"
+
 
         //LogIn variables
         const val IS_LOGIN = "IsLoggedIn"
@@ -33,6 +35,13 @@ class SessionManager(
         const val IS_REMEMBERME = "IsRememberMe"
         const val KEY_SESSION_USERNAME = "username"
         const val KEY_SESSION_PASSWORD = "password"
+
+        //Verification veriables
+        const val IS_VERIFICATION_CODE = "IsVerificationCode"
+        const val KEY_CODE = "verificationCode"
+        const val KEY_TIME = "timerEndTime"
+        const val TIMER_DURATION: Long = 60000 // 1 минута
+
     }
 
     // function for LogIn Session
@@ -94,6 +103,41 @@ class SessionManager(
 
     public fun checkRememberMe(): Boolean{
         return usersSession.getBoolean(IS_REMEMBERME, false)
+    }
+
+
+
+
+    // function for VerificationCode Session
+
+    public fun createCodeVerificationSession(verificationCode: String){
+
+        editor.putBoolean(IS_VERIFICATION_CODE, true)
+        editor.putLong(KEY_TIME, System.currentTimeMillis()+TIMER_DURATION)
+        editor.putString(KEY_CODE, verificationCode)
+
+        editor.apply()
+    }
+
+    public fun checkVerificationCode(): Boolean{
+        return usersSession.getBoolean(IS_VERIFICATION_CODE, false)
+    }
+
+    public fun getVerificationCodeSessionDetails(): String? {
+        return usersSession.getString(KEY_CODE, null)
+    }
+
+    public fun getVerificationCodeTimer(): Long{
+        return usersSession.getLong(KEY_TIME, 0)
+    }
+
+    public fun clearVerificationCodeTimer() {
+        editor.remove(KEY_TIME)
+        editor.apply()
+    }
+
+    public fun isVerificationCodeTimerRunning(): Boolean {
+        return usersSession.getLong(KEY_TIME, 0) > System.currentTimeMillis()
     }
 
 }

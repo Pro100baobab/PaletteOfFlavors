@@ -13,41 +13,37 @@ import com.paletteofflavors.databinding.FragmentMakeSelectionBinding
 // For sending password on email
 import android.content.Intent
 import android.net.Uri
+import android.provider.ContactsContract.CommonDataKinds.Phone
 import android.util.Patterns
+import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.navigation.fragment.navArgs
 import androidx.core.content.edit
-
-
-object EmailSender {
-    fun sendVerificationEmail(context: Context, email: String, code: String): Boolean {
-        return try {
-            val intent = Intent(Intent.ACTION_SENDTO).apply {
-                data = "mailto:".toUri()
-                putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
-                putExtra(Intent.EXTRA_SUBJECT, "Код подтверждения")
-                putExtra(Intent.EXTRA_TEXT, "Ваш код подтверждения: $code")
-            }
-
-            context.startActivity(Intent.createChooser(intent, "Отправить код через"))
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-}
-
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseException
+import com.google.firebase.FirebaseTooManyRequestsException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.auth.auth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class MakeSelection : Fragment() {
 
     //Save Arg navigation
     private val args: MakeSelectionArgs by navArgs()
 
-    private lateinit var _binding: FragmentMakeSelectionBinding
-    private val binding get() = _binding
+    private var _binding: FragmentMakeSelectionBinding? = null
+    private val binding get() = _binding!!
+
+    //private lateinit var viewModel: AuthViewModel // ViewModel
 
 
-    private var verificationCode = ""
 
     var email: String = ""
     var phone: String = ""
@@ -70,42 +66,35 @@ class MakeSelection : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMakeSelectionBinding.inflate(inflater, container, false)
-        return _binding.root
+        return _binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //TODO: Add *** for phone_number on the next layout
+        // Инициализация ViewModel
+        //viewModel = ViewModelProvider(this)[AuthViewModel::class.java]
+
 
         binding.currentEmail.text = email
         binding.currentPhone.text = maskHideChars(phone)
 
+
+        //TODO: make sending of verification on email
+
         binding.viaEmail.setOnClickListener {
+            //sendVerificationCode(email)
 
-            verificationCode = generateVerificationCode()
-
-            if (EmailSender.sendVerificationEmail(requireContext(), email, verificationCode)) {
-                saveCodeLocally(email, verificationCode)
-
-                val destination = MakeSelectionDirections.actionMakeSelectionToVerifyOTP(email, phone, "email")
-                findNavController().navigate(destination)
-            }
-
+            val destination = MakeSelectionDirections.actionMakeSelectionToVerifyOTP(email, phone, "email")
+            findNavController().navigate(destination)
         }
 
-        //TODO: make sending of verification on phone_number
 
         binding.viaPhoneNumber.setOnClickListener {
+            //sendVerificationCodeOnPhone(phone)
 
-            verificationCode = generateVerificationCode()
-
-            if (EmailSender.sendVerificationEmail(requireContext(), email, verificationCode)) {
-                saveCodeLocally(email, verificationCode)
-
-                val destination = MakeSelectionDirections.actionMakeSelectionToVerifyOTP(email, phone, "phone")
-                findNavController().navigate(destination)
-            }
+            val destination = MakeSelectionDirections.actionMakeSelectionToVerifyOTP(email, phone, "phone")
+            findNavController().navigate(destination)
         }
 
         binding.backButtonMakeSelection.setOnClickListener {
@@ -123,10 +112,9 @@ class MakeSelection : Fragment() {
 
 
     // TODO: This is a Local realization of sending verify code. Adding of server is required.
-    fun generateVerificationCode(): String {
-        return (100000..999999).random().toString()
-    }
 
+
+    /*
     private fun saveCodeLocally(email: String, code: String) {
         val prefs = requireContext().getSharedPreferences("AuthPrefs", Context.MODE_PRIVATE)
         prefs.edit() {
@@ -134,6 +122,41 @@ class MakeSelection : Fragment() {
                 .putString("verification_code", code)
                 .putLong("code_timestamp", System.currentTimeMillis())
         }
+    }*/
+
+    private fun sendVerificationCode(email: String) {
+
     }
+    /*
+    private fun sendVerificationCode(email: String) {
+
+        // Запуск корутины через lifecycleScope (привязан к жизненному циклу фрагмента)
+        lifecycleScope.launch {
+
+            verificationCode = generateVerificationCode()
+
+
+            viewModel.sendVerificationCode(email, verificationCode)
+
+
+            viewModel.sendVerificationCode(email, verificationCode).collect { response ->
+
+                if (response.success) {
+                    Toast.makeText(requireContext(), "Код отправлен на $email", Toast.LENGTH_SHORT).show()
+
+                    val destination = MakeSelectionDirections.actionMakeSelectionToVerifyOTP(email, phone, "phone")
+                    findNavController().navigate(destination)
+                } else {
+                    Toast.makeText(requireContext(), "Ошибка: ${response.error}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }*/
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
 
 }

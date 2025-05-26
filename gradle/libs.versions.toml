@@ -23,6 +23,9 @@ pinview = "1.4.3"
 pinviewVersion = "1.4.4"
 roomCommon = "2.6.1"
 media3CommonKtx = "1.6.1"
+googleGmsGoogleServices = "4.4.2"
+firebaseDatabase = "21.0.0"
+firebaseAuthKtx = "23.2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -54,4 +57,5 @@ pinview-v144 = { module = "com.chaos.view:pinview", version.ref = "pinviewVersio
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 

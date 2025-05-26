@@ -7,6 +7,7 @@ plugins {
 
 
     id("androidx.navigation.safeargs.kotlin")
+    alias(libs.plugins.google.gms.google.services)
 
 
 }
@@ -57,9 +58,15 @@ dependencies {
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.room.common)
     implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.auth.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Firebase BoM (Bill of Materials)
+    implementation(platform(libs.firebase.bom))
+
 
     implementation(libs.androidx.fragment.ktx) // or the latest stable version
     val nav_version = "2.8.9"
@@ -93,8 +100,11 @@ dependencies {
     //Implementation for PIN View Design
     implementation(libs.chaosleung.pinview)
 
-    /*implementation(libs.navigation.safe.args.gradle.plugin)
-    // Save Arguments for Graph Navigation
-    implementation("androidx.navigation.safeargs.kotlin")
-    id 'androidx.navigation.safeargs' version '2.4.2' apply false*/
+    // for GoogleScript API
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+
+    implementation("com.hbb20:ccp:2.7.3")
+
 }

@@ -2,6 +2,7 @@ package com.paletteofflavors.logIn
 
 import android.util.Patterns
 import android.widget.EditText
+import com.hbb20.CountryCodePicker
 
 // Validation functions
 
@@ -73,8 +74,9 @@ fun isValidEmail(emailEditText: EditText): Boolean {
     return result
 }
 
-fun isValidPhone(phoneEditText: EditText): Boolean {
-    val phone = phoneEditText.text.toString().trim()
+fun isValidPhone(phoneEditText: EditText, ccp: CountryCodePicker): Boolean {
+
+    val phone = ccp.selectedCountryCodeWithPlus + phoneEditText.text.toString().trim()
     val pattern = Regex("""^\+?[0-9]{10,15}$""") // Между 10-15 цифрами, + опционален
 
     return when {
@@ -90,3 +92,7 @@ fun isValidPhone(phoneEditText: EditText): Boolean {
     }
 }
 
+/*
+fun generateVerificationCode(): String {
+    return (100000..999999).random().toString()
+}*/

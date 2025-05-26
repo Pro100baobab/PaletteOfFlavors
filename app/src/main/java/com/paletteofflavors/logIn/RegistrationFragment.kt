@@ -11,6 +11,7 @@ import android.util.Log
 import android.util.Patterns
 import android.widget.EditText
 import androidx.navigation.fragment.findNavController
+import com.hbb20.CountryCodePicker
 import com.paletteofflavors.MainActivity
 import com.paletteofflavors.R
 import kotlinx.coroutines.CoroutineScope
@@ -40,9 +41,12 @@ class RegistrationFragment : Fragment() {
         binding.btnRegister.setOnClickListener {
 
 
+
+
             // Check validation for all fills
             if (!isFillsValid(fullName =  binding.etFullname, username = binding.etUsername, email = binding.etEmail,
-                phoneNumber = binding.etPhoneNumber, password = binding.etPassword)) {
+                phoneNumber = binding.etPhoneNumber, ccp = binding.countryCodePiker,
+                    password = binding.etPassword)) {
                 return@setOnClickListener
             }
 
@@ -50,7 +54,7 @@ class RegistrationFragment : Fragment() {
             val fullname = binding.etFullname.text.toString().trim()
             val username = binding.etUsername.text.toString().trim()
             val email = binding.etEmail.text.toString().trim()
-            val phone_number = binding.etPhoneNumber.text.toString().trim()
+            val phone_number = binding.countryCodePiker.selectedCountryCodeWithPlus + binding.etPhoneNumber.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
 
             registerUser(fullname, username, phone_number, email, password)
@@ -69,10 +73,10 @@ class RegistrationFragment : Fragment() {
     }
 
 
-    private fun isFillsValid(fullName: EditText, username: EditText, email: EditText, phoneNumber: EditText, password: EditText): Boolean {
+    private fun isFillsValid(fullName: EditText, username: EditText, email: EditText, phoneNumber: EditText, password: EditText, ccp: CountryCodePicker): Boolean {
 
         return isValidFullName(fullName) && isValidUsername(username) && isValidEmail(email)
-                && isValidPhone(phoneNumber) && isValidPassword(password)
+                && isValidPhone(phoneEditText = phoneNumber, ccp = ccp) && isValidPassword(password)
     }
 
 
