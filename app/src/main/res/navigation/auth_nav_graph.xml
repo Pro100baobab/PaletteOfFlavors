@@ -30,12 +30,8 @@
             app:destination="@id/verifyOTP">
 
             <argument
-                android:name="email"
+                android:name="typeOfOperation"
                 app:argType="string" />
-            <argument
-                android:name="phone"
-                app:argType="string" />
-
         </action>
 
         <action
@@ -134,6 +130,10 @@
             android:name="typeOfConnection"
             app:argType="string" />
 
+        <argument
+            android:name="typeOfOperation"
+            app:argType="string" />
+
 
         <action
             android:id="@+id/action_verifyOTP_to_setNewPassword"
@@ -152,6 +152,9 @@
         <action
             android:id="@+id/action_verifyOTP_to_registrationFragment"
             app:destination="@id/registrationFragment" />
+        <action
+            android:id="@+id/action_verifyOTP_to_loginFragment"
+            app:destination="@id/loginFragment" />
     </fragment>
     <fragment
         android:id="@+id/setNewPassword"

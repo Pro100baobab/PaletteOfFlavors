@@ -61,7 +61,7 @@
                         android:id="@+id/etFullname"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/general_back_icon_24"
+                        android:drawableStart="@drawable/account_circle_24dp"
                         android:inputType="text" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -82,7 +82,7 @@
                         android:id="@+id/etUsername"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/general_back_icon_24"
+                        android:drawableStart="@drawable/person_24dp"
                         android:inputType="text"/>
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -104,7 +104,7 @@
                         android:id="@+id/etEmail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/general_back_icon_24"
+                        android:drawableStart="@drawable/mail_24dp"
                         android:inputType="textEmailAddress" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -138,7 +138,7 @@
                         android:id="@+id/etPhoneNumber"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/general_back_icon_24"
+                        android:drawableStart="@drawable/call_24dp"
                         android:inputType="number"
                         android:digits="0123456789"
                         android:maxLength="15"/>
@@ -163,7 +163,7 @@
                         android:id="@+id/etPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/general_back_icon_24"
+                        android:drawableStart="@drawable/key_24dp"
                         android:inputType="textPassword"/>
 
                 </com.google.android.material.textfield.TextInputLayout>

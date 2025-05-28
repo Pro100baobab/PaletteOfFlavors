@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +20,8 @@ import com.google.android.material.navigation.NavigationView
 import com.paletteofflavors.databinding.ActivityMainBinding
 import com.paletteofflavors.logIn.AuthorizationFragment
 import com.paletteofflavors.logIn.LoginFragment
+import com.paletteofflavors.logIn.viewmodels.LoginViewModel
+import com.paletteofflavors.logIn.viewmodels.RegistrationViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,6 +40,9 @@ class MainActivity : AppCompatActivity() {
     private var isFromUserInteraction = true // Флаг для определения источника изменения
 
     lateinit var sessionManager: SessionManager;
+
+    lateinit var viewModel: LoginViewModel
+    lateinit var viewModelRegistration: RegistrationViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,6 +104,7 @@ class MainActivity : AppCompatActivity() {
         // Проверка авторизации
         sessionManager = SessionManager(this, SessionManager.SESSION_USERSESSION)
         if(sessionManager.checkLogin()) {
+            binding.appContent.isVisible = true
             val rememberMeDetails: HashMap<String, String?> = sessionManager.getUsersDetailFromSession()
         }
         else{

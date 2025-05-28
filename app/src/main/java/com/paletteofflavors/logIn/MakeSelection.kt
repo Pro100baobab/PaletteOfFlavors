@@ -29,6 +29,8 @@ import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.auth
+import com.paletteofflavors.MainActivity
+import com.paletteofflavors.logIn.viewmodels.LoginViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
@@ -41,7 +43,7 @@ class MakeSelection : Fragment() {
     private var _binding: FragmentMakeSelectionBinding? = null
     private val binding get() = _binding!!
 
-    //private lateinit var viewModel: AuthViewModel // ViewModel
+    private lateinit var vm: LoginViewModel
 
 
 
@@ -50,9 +52,12 @@ class MakeSelection : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
+        vm = (requireActivity() as MainActivity).viewModel
         try {
             email = args.email
             phone = args.phone
+            vm.setResetEmail(email)
+            vm.setResetPhone(phone)
         } catch (_: Exception) {
 
         }
@@ -72,12 +77,15 @@ class MakeSelection : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Инициализация ViewModel
-        //viewModel = ViewModelProvider(this)[AuthViewModel::class.java]
+        vm.resetphone.observe(viewLifecycleOwner){
+            binding.currentPhone.text = maskHideChars(it)
+        }
+        vm.resetemail.observe(viewLifecycleOwner){
+            binding.currentEmail.text = it
+        }
 
-
-        binding.currentEmail.text = email
-        binding.currentPhone.text = maskHideChars(phone)
+        //binding.currentEmail.text = email
+        //binding.currentPhone.text = maskHideChars(phone)
 
 
         //TODO: make sending of verification on email
@@ -85,7 +93,7 @@ class MakeSelection : Fragment() {
         binding.viaEmail.setOnClickListener {
             //sendVerificationCode(email)
 
-            val destination = MakeSelectionDirections.actionMakeSelectionToVerifyOTP(email, phone, "email")
+            val destination = MakeSelectionDirections.actionMakeSelectionToVerifyOTP(email, phone, "email", "reset")
             findNavController().navigate(destination)
         }
 
@@ -93,11 +101,13 @@ class MakeSelection : Fragment() {
         binding.viaPhoneNumber.setOnClickListener {
             //sendVerificationCodeOnPhone(phone)
 
-            val destination = MakeSelectionDirections.actionMakeSelectionToVerifyOTP(email, phone, "phone")
+            val destination = MakeSelectionDirections.actionMakeSelectionToVerifyOTP(email, phone, "phone", "reset")
             findNavController().navigate(destination)
         }
 
         binding.backButtonMakeSelection.setOnClickListener {
+            vm.setResetPhone("")
+            vm.setResetEmail("")
             findNavController().navigate(R.id.action_makeSelection_to_forgetPassword)
         }
     }

@@ -58,7 +58,7 @@
                 android:layout_height="105dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="10dp"
-                android:src="@drawable/baseline_account_circle_24" />
+                android:src="@drawable/phone_android_24dp" />
 
 
             <TextView
@@ -98,7 +98,7 @@
                 android:layout_height="105dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="10dp"
-                android:src="@drawable/baseline_account_circle_24" />
+                android:src="@drawable/mail_24dp" />
 
 
             <TextView

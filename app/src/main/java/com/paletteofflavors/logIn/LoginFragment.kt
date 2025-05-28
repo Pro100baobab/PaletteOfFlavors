@@ -5,6 +5,8 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -12,13 +14,18 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.transition.Visibility
 import com.paletteofflavors.HomeFragment
 import com.paletteofflavors.MainActivity
 import com.paletteofflavors.R
 import com.paletteofflavors.databinding.FragmentLoginBinding
+import com.paletteofflavors.logIn.viewmodels.LoginViewModel
+//import com.paletteofflavors.logIn.viewmodels.MyViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,6 +35,10 @@ import tech.turso.libsql.Libsql
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
+
+    lateinit var vm: LoginViewModel
+    private var isUpdatingFromViewModel = false
+    //val id0 = 0L
 
     private lateinit var username: String
     private lateinit var password: String
@@ -56,11 +67,43 @@ class LoginFragment : Fragment() {
             binding.rememberMe.isChecked = true
         }
 
+        //viewModel = ViewModelProvider(requireActivity(), MyViewModelFactory(id0)).get("id_$id0", LoginViewModel::class.java)
+        (requireActivity() as MainActivity).viewModel = ViewModelProvider(requireActivity())[LoginViewModel::class.java]
+        vm = (requireActivity() as MainActivity).viewModel
+        vm.username.observe(viewLifecycleOwner){
+            newText ->
+            if(binding.etLoginUsername.text.toString() != newText){
+                isUpdatingFromViewModel = true
+                binding.etLoginUsername.setText(newText)
+                isUpdatingFromViewModel = false
+            }
+        }
+        vm.password.observe(viewLifecycleOwner){
+                newText ->
+            if(binding.etLoginPassword.text.toString() != newText){
+                isUpdatingFromViewModel = true
+                binding.etLoginPassword.setText(newText)
+                isUpdatingFromViewModel = false
+            }
+        }
+
+        binding.etLoginUsername.doAfterTextChanged{
+            editable ->
+            if(!isUpdatingFromViewModel)
+                editable?.toString()?.let { vm.setUserName(it) }
+        }
+        binding.etLoginPassword.doAfterTextChanged{
+                editable -> if(!isUpdatingFromViewModel) editable?.toString()?.let { vm.setPassword(it) }
+        }
+
+
+        //
         binding.forgetPassword.setOnClickListener{
             findNavController().navigate(R.id.action_loginFragment_to_forgetPassword)
         }
 
         binding.tvRegistration.setOnClickListener{
+            requireActivity().viewModelStore.clear()
             findNavController().navigate(R.id.action_loginFragment_to_registrationFragment)
         }
 
@@ -93,6 +136,7 @@ class LoginFragment : Fragment() {
 
 
         binding.signupBackButtonLogin.setOnClickListener {
+            requireActivity().viewModelStore.clear()
             findNavController().navigate(R.id.action_loginFragment_to_authorizationFragment)
         }
 
@@ -185,6 +229,7 @@ class LoginFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        //requireActivity().viewModelStore.get("id_$id0")
         _binding = null
     }
 

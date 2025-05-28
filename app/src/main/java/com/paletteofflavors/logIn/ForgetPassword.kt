@@ -10,12 +10,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.NotificationCompatSideChannelService
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.paletteofflavors.HomeFragment
 import com.paletteofflavors.MainActivity
 import com.paletteofflavors.R
 import com.paletteofflavors.databinding.FragmentForgetPasswordBinding
+import com.paletteofflavors.logIn.viewmodels.LoginViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,6 +30,10 @@ class ForgetPassword : Fragment() {
 
     private lateinit var _binding: FragmentForgetPasswordBinding
     private val binding get() = _binding
+
+    lateinit var vm: LoginViewModel
+    private var isUpdatingFromViewModel = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,36 +52,61 @@ class ForgetPassword : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        vm = (requireActivity() as MainActivity).viewModel
+
         binding.forgetPasswotdContinue.setOnClickListener {
 
 
-            if (isValidEmail(binding.emailForReset)){
+            if (isValidEmail(binding.emailForReset)) {
 
                 val email = binding.emailForReset.text.toString().trim()
 
                 FindUserByEmail(email) { phoneNumber ->
                     if (phoneNumber.isNotEmpty()) {
-                        Toast.makeText(requireContext(), "phone:$phoneNumber", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "phone:$phoneNumber", Toast.LENGTH_SHORT)
+                            .show()
 
 
                         //TODO: Add Bound to transmit data
-                        val direction = ForgetPasswordDirections.actionForgetPasswordToMakeSelection(email, phoneNumber)
+                        val direction =
+                            ForgetPasswordDirections.actionForgetPasswordToMakeSelection(
+                                email,
+                                phoneNumber
+                            )
                         findNavController().navigate(direction)
 
                         //findNavController().navigate(R.id.action_forgetPassword_to_makeSelection)
 
                     } else {
-                        Toast.makeText(requireContext(),"Email is not registered",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            "Email is not registered",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
-            }
-            else{
+            } else {
                 Toast.makeText(requireContext(), "Invalid email address", Toast.LENGTH_SHORT).show()
             }
         }
 
+
         binding.signupBackButtonForgetPassword.setOnClickListener {
+            vm.setEmail("")
             findNavController().navigate(R.id.action_forgetPassword_to_loginFragment)
+        }
+
+
+        vm.curemail.observe(viewLifecycleOwner) { newText ->
+            if (binding.emailForReset.text.toString() != newText) {
+                isUpdatingFromViewModel = true
+                binding.emailForReset.setText(newText)
+                isUpdatingFromViewModel = false
+            }
+        }
+
+        binding.emailForReset.doAfterTextChanged { editable ->
+            if (!isUpdatingFromViewModel) editable?.toString()?.let { vm.setEmail(it) }
         }
     }
 
@@ -99,15 +130,23 @@ class ForgetPassword : Fragment() {
 
                             conn.query(query).use { rows ->
                                 val nextRow = rows.nextRow()
-                                if ( nextRow != null) {
+                                if (nextRow != null) {
                                     phoneNumber = nextRow[5].toString()
 
                                     activity?.runOnUiThread {
-                                        Toast.makeText(requireContext(), "phone: $phoneNumber", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            requireContext(),
+                                            "phone: $phoneNumber",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
                                 } else {
                                     activity?.runOnUiThread {
-                                        Toast.makeText(requireContext(), "Invalid credentials", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            requireContext(),
+                                            "Invalid credentials",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
                                 }
                             }

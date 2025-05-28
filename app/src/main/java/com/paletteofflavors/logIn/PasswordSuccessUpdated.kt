@@ -33,6 +33,7 @@ class PasswordSuccessUpdated : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.loginAfterResetPassword.setOnClickListener {
+            requireActivity().viewModelStore.clear()
             findNavController().navigate(R.id.action_passwordSuccessUpdated_to_loginFragment)
         }
     }

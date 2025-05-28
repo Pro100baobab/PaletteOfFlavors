@@ -60,7 +60,7 @@
                     android:id="@+id/etLoginUsername"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/general_back_icon_24"
+                    android:drawableStart="@drawable/person_24dp"
                     android:inputType="text" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -83,7 +83,7 @@
                     android:id="@+id/etLoginPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/general_back_icon_24"
+                    android:drawableStart="@drawable/key_24dp"
                     android:inputType="textPassword"/>
 
             </com.google.android.material.textfield.TextInputLayout>
