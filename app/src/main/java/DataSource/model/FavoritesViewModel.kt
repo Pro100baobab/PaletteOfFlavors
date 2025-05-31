@@ -12,11 +12,11 @@ class FavoritesViewModel(
     private val recipeDao: RecipeDao
 ) : ViewModel() {
 
-    private val _radioHint = MutableLiveData<String>()
-    val radioHint get() = _radioHint
+    private val _radioButtonId = MutableLiveData<Int>()
+    val radioButton get() = _radioButtonId
 
-    private fun setRadioHint(name: String) {
-        _radioHint.value = name
+    fun setRadioButtonId(id: Int) {
+        _radioButtonId.value = id
     }
 
     // Get all recipes from local database as Flow
@@ -33,4 +33,5 @@ class FavoritesViewModel(
             recipeDao.delete(recipe)
         }
     }
+
 }

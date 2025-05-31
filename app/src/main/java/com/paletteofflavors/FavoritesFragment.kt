@@ -29,9 +29,8 @@ import kotlinx.coroutines.launch
 
 class FavoritesFragment() : Fragment() {
 
-    private val viewModel: FavoritesViewModel by viewModels {
-        FavoritesViewModelFactory((requireContext() as MainActivity).database.recipeDao())
-    }
+
+    val viewModel by lazy { (requireActivity() as MainActivity).favoritesViewModel }
 
     private lateinit var _binding: FragmentFavoritesBinding
     private val binding get() = _binding
@@ -59,6 +58,8 @@ class FavoritesFragment() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+
         hintRecipe = _binding.favoritesFragmentMissingItemHint
         hintuserRecipe = _binding.favoritesFragmentMissingItemHint2
         radioGroup = _binding.favoritesFragmentRadioGroup
@@ -79,10 +80,16 @@ class FavoritesFragment() : Fragment() {
 
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
 
-            when(checkedId){
+            viewModel.setRadioButtonId(checkedId)
+
+            when (checkedId) {
                 R.id.favorites_fragment_savedRecipes -> updateSavedRecipes()
                 R.id.favorites_fragment_myRecipes -> updateMyRecipes()
             }
+        }
+
+        viewModel.radioButton.observe(viewLifecycleOwner) { id ->
+            binding.favoritesFragmentRadioGroup.check(id)
         }
 
         binding.createRecipe.setOnClickListener {
@@ -115,7 +122,7 @@ class FavoritesFragment() : Fragment() {
         recipeAdapter = RecipeAdapter(recipelist)
         recipesRecyclerView.adapter = recipeAdapter
 
-        if(recipelist.size == 0){
+        if (recipelist.size == 0) {
             hintRecipe.visibility = View.VISIBLE
         }
     }
@@ -127,59 +134,28 @@ class FavoritesFragment() : Fragment() {
             Recipe(
                 id = 1,
                 title = "Пример 1",
-                ingredients = List<String>(2, {"биба"; "боба"}),
+                ingredients = List<String>(2, { "биба"; "боба" }),
                 instruction = "Инструкция",
                 cookTime = 60,
                 //comments = 4,
                 //likes = 5,
                 imageUrl = null
             ),
-            Recipe(2, "Пример 2", listOf("бибаF", "бобаF"), "Инструкция 2",
-                120,null,/* 7, likes = 3*/),
-            Recipe(2, "Пример 2", listOf("бибаF", "бобаF"), "Инструкция 2",
-                120, null /*,7, likes = 3*/),
-            Recipe(2, "Пример 2", listOf("бибаF", "бобаF"), "Инструкция 2",
-                120, null /*,7, likes = 3*/)
+            Recipe(
+                2, "Пример 2", listOf("бибаF", "бобаF"), "Инструкция 2",
+                120, null,/* 7, likes = 3*/
+            ),
+            Recipe(
+                2, "Пример 2", listOf("бибаF", "бобаF"), "Инструкция 2",
+                120, null /*,7, likes = 3*/
+            ),
+            Recipe(
+                2, "Пример 2", listOf("бибаF", "бобаF"), "Инструкция 2",
+                120, null /*,7, likes = 3*/
+            )
         )
 
         return recipelist
     }
 
-    private fun getUserRecipeList(): ArrayList<Recipe> {
-        // TODO(): Inclement logic of getting data from local database(user recipes)
-        return ArrayList<Recipe>()
-    }
-
-
-    /*private suspend fun testRoom() {
-        val db = (requireContext() as MainActivity).database
-        val recipeDao = db.recipeDao()
-
-
-        // Тестовая вставка
-        val testRecipe = Recipe(
-            title = "Тестовый рецепт",
-            ingredients = listOf("Яйцо", "Молоко"),
-            instruction = "Смешать и пожарить.",
-            cookTime = 10
-        )
-        recipeDao.insert(testRecipe)
-
-
-        // Получение всех рецептов
-        val recipes = recipeDao.getAllRecipes().first()
-        Log.d("RoomTest", "Recipes: $recipes")
-    }*/
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        Log.d("Favorite", "FavoriteView умер")
-
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("Favorite", "Favorite Fragment умер")
-
-    }
 }

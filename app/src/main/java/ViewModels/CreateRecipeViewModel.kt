@@ -1,10 +1,14 @@
 package ViewModels
 
+import DataSource.Local.RecipeDao
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import domain.Recipe
+import kotlinx.coroutines.launch
 
-class CreateRecipeViewModel: ViewModel() {
+class CreateRecipeViewModel(private val recipeDao: RecipeDao): ViewModel() {
 
     private val _title = MutableLiveData<String>()
     private val _ingredients = MutableLiveData<String>()
@@ -32,4 +36,27 @@ class CreateRecipeViewModel: ViewModel() {
         _timeInMinutes.value = timeInMintues
     }
 
+
+    fun saveRecipe() {
+        viewModelScope.launch {
+            val ingredientsList = _ingredients.value?.split("\n")?.filter {
+                it.isNotBlank() } ?: emptyList()
+
+            val recipe = Recipe(
+                title = _title.value ?: "",
+                ingredients = ingredientsList,
+                instruction = _instruction.value ?: "",
+                cookTime = _timeInMinutes.value ?: 0
+            )
+
+            recipeDao.insert(recipe)
+        }
+    }
+
+    fun cleanRecipeData(){
+        _title.value = ""
+        _ingredients.value = ""
+        _instruction.value = ""
+        _timeInMinutes.value = null
+    }
 }

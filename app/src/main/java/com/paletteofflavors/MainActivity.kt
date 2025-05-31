@@ -2,7 +2,9 @@ package com.paletteofflavors
 
 import DataSource.Local.AppDatabase
 import DataSource.Local.SessionManager
+import DataSource.model.CreateRecipeViewModelFactory
 import DataSource.model.FavoritesViewModel
+import DataSource.model.FavoritesViewModelFactory
 import ViewModels.CreateRecipeViewModel
 import ViewModels.NavBottomViewModel
 import android.content.Context
@@ -11,10 +13,12 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.Menu
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -53,8 +57,12 @@ class MainActivity : AppCompatActivity() {
 
 
     val database by lazy { AppDatabase.getInstance(this) }
-    val favoritesViewModel by lazy { ViewModelProvider(this)[FavoritesViewModel::class.java] }
-    val createRecipeViewModel by lazy { ViewModelProvider(this)[CreateRecipeViewModel::class.java] }
+    val createRecipeViewModel: CreateRecipeViewModel by viewModels {
+        CreateRecipeViewModelFactory(database.recipeDao())
+    }
+    val favoritesViewModel: FavoritesViewModel by viewModels {
+        FavoritesViewModelFactory(database.recipeDao())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
