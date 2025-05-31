@@ -3,6 +3,7 @@ package com.paletteofflavors
 import DataSource.Local.AppDatabase
 import DataSource.Local.SessionManager
 import DataSource.model.FavoritesViewModel
+import ViewModels.CreateRecipeViewModel
 import ViewModels.NavBottomViewModel
 import android.content.Context
 import android.os.Bundle
@@ -53,6 +54,7 @@ class MainActivity : AppCompatActivity() {
 
     val database by lazy { AppDatabase.getInstance(this) }
     val favoritesViewModel by lazy { ViewModelProvider(this)[FavoritesViewModel::class.java] }
+    val createRecipeViewModel by lazy { ViewModelProvider(this)[CreateRecipeViewModel::class.java] }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

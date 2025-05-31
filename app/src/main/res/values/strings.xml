@@ -52,4 +52,15 @@
     <string name="confirm">Подтвердить</string>
     <string name="password_updated">Пароль обновлен</string>
 
+
+
+    <string name="create_recipe_title">Создать рецепт</string>
+    <string name="recipe_name_hint">Название рецепта</string>
+    <string name="ingredients_hint">Ингредиенты (каждый с новой строки)</string>
+    <string name="instructions_hint">Пошаговая инструкция</string>
+    <string name="cooking_time">Время приготовления</string>
+    <string name="time_in_minutes">30</string>
+    <string name="minutes">минут</string>
+    <string name="save_recipe">Сохранить рецепт</string>
+
 </resources>

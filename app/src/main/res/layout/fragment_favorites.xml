@@ -68,16 +68,27 @@
 
         </RadioGroup>
 
+        <ImageButton
+            android:id="@+id/create_recipe"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/edit_square_24dp"
+            app:layout_constraintBottom_toTopOf="@+id/recipesRecyclerView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/favorites_fragment_radioGroup" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recipesRecyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/favorites_fragment_radioGroup"
+            app:layout_constraintTop_toBottomOf="@+id/create_recipe"
             tools:listitem="@layout/recipe_item" />
 
         <ImageView

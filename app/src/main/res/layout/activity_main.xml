@@ -16,10 +16,11 @@
         android:layout_height="match_parent"
         app:navGraph="@navigation/auth_nav_graph"
 
-        tools:layout_editor_absoluteX="93dp"
-        tools:layout_editor_absoluteY="271dp">
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
 
     </androidx.fragment.app.FragmentContainerView>
+
 
     <include
         android:id="@+id/app_bar_main"
