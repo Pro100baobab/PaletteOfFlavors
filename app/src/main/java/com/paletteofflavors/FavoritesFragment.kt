@@ -1,5 +1,7 @@
 package com.paletteofflavors
 
+import DataSource.model.FavoritesViewModel
+import DataSource.model.FavoritesViewModelFactory
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -10,6 +12,7 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,10 +20,16 @@ import com.paletteofflavors.databinding.ActivityMainBinding
 import com.paletteofflavors.databinding.FragmentFavoritesBinding
 import domain.Recipe
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 
 class FavoritesFragment() : Fragment() {
+
+    private val viewModel: FavoritesViewModel by viewModels {
+        FavoritesViewModelFactory((requireContext() as MainActivity).database.recipeDao())
+    }
 
     private lateinit var _binding: FragmentFavoritesBinding
     private val binding get() = _binding
@@ -35,10 +44,6 @@ class FavoritesFragment() : Fragment() {
     private lateinit var radioGroup: RadioGroup
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -46,25 +51,20 @@ class FavoritesFragment() : Fragment() {
         // Inflate the layout for this fragment
 
         _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
+        return _binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         hintRecipe = _binding.favoritesFragmentMissingItemHint
         hintuserRecipe = _binding.favoritesFragmentMissingItemHint2
         radioGroup = _binding.favoritesFragmentRadioGroup
-        savedRadioButton = _binding.favoritesFragmentSavedRecipes
-        userRadioButton = _binding.favoritesFragmentMyRecipes
+        //savedRadioButton = _binding.favoritesFragmentSavedRecipes
+        //userRadioButton = _binding.favoritesFragmentMyRecipes
 
         recipesRecyclerView = _binding.recipesRecyclerView
         recipesRecyclerView.layoutManager = LinearLayoutManager(context)
-
-        lifecycleScope.launch {
-            testRoom()
-        }
-
-        return _binding.root
-    }
-
-    override fun onStart() {
-        super.onStart()
 
         hintRecipe.visibility = View.INVISIBLE
         hintuserRecipe.visibility = View.INVISIBLE
@@ -75,26 +75,30 @@ class FavoritesFragment() : Fragment() {
             R.id.favorites_fragment_myRecipes -> updateMyRecipes()
         }
 
-        radioGroup.setOnCheckedChangeListener { radioGroup, i ->
+        radioGroup.setOnCheckedChangeListener { _, checkedId ->
 
-            when(i){
+            when(checkedId){
                 R.id.favorites_fragment_savedRecipes -> updateSavedRecipes()
                 R.id.favorites_fragment_myRecipes -> updateMyRecipes()
             }
         }
+
     }
+
 
     private fun updateMyRecipes() {
         hintuserRecipe.visibility = View.INVISIBLE
         hintRecipe.visibility = View.INVISIBLE
 
-        val recipelist = getUserRecipeList()
-        recipeAdapter = RecipeAdapter(recipelist)
-        recipesRecyclerView.adapter = recipeAdapter
-
-        if(recipelist.size == 0){
-            hintuserRecipe.visibility = View.VISIBLE
-        }
+        // Подписываемся на Flow из ViewModel
+        viewModel.myRecipes.onEach { recipes ->
+            if (recipes.isEmpty()) {
+                hintuserRecipe.visibility = View.VISIBLE
+            } else {
+                recipeAdapter = RecipeAdapter(recipes)
+                recipesRecyclerView.adapter = recipeAdapter
+            }
+        }.launchIn(lifecycleScope)  // Автоматически отменяется при уничтожении фрагмента
     }
 
     private fun updateSavedRecipes() {
@@ -127,6 +131,8 @@ class FavoritesFragment() : Fragment() {
             Recipe(2, "Пример 2", listOf("бибаF", "бобаF"), "Инструкция 2",
                 120,null,/* 7, likes = 3*/),
             Recipe(2, "Пример 2", listOf("бибаF", "бобаF"), "Инструкция 2",
+                120, null /*,7, likes = 3*/),
+            Recipe(2, "Пример 2", listOf("бибаF", "бобаF"), "Инструкция 2",
                 120, null /*,7, likes = 3*/)
         )
 
@@ -139,7 +145,7 @@ class FavoritesFragment() : Fragment() {
     }
 
 
-    private suspend fun testRoom() {
+    /*private suspend fun testRoom() {
         val db = (requireContext() as MainActivity).database
         val recipeDao = db.recipeDao()
 
@@ -157,6 +163,17 @@ class FavoritesFragment() : Fragment() {
         // Получение всех рецептов
         val recipes = recipeDao.getAllRecipes().first()
         Log.d("RoomTest", "Recipes: $recipes")
+    }*/
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.d("Favorite", "FavoriteView умер")
+
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("Favorite", "Favorite Fragment умер")
+
+    }
 }

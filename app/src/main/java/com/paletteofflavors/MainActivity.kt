@@ -2,8 +2,12 @@ package com.paletteofflavors
 
 import DataSource.Local.AppDatabase
 import DataSource.Local.SessionManager
+import DataSource.model.FavoritesViewModel
 import ViewModels.NavBottomViewModel
+import android.content.Context
 import android.os.Bundle
+import android.util.AttributeSet
+import android.util.Log
 import android.view.Menu
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -29,7 +33,8 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    val TURSO_AUTH_TOKEN = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NDQ5MDcyMjMsImlkIjoiZTU4ZTQ5MGEtZmVhYi00MzRiLTgxYTYtNjU1NGM2YjJlZGEwIiwicmlkIjoiMzY2OWJlZTYtYmE4Zi00ODc3LTk4MmItNjYxYzAwMDM5ZGNhIn0.af-7zDFU8XyhiIRP21CGehtSK-00AJGgnuX1y9lXAY_OtEtYn0yervXX31zFzuZGqiEDCO8VACfvjXUi3eyoAg"
+    val TURSO_AUTH_TOKEN =
+        "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NDQ5MDcyMjMsImlkIjoiZTU4ZTQ5MGEtZmVhYi00MzRiLTgxYTYtNjU1NGM2YjJlZGEwIiwicmlkIjoiMzY2OWJlZTYtYmE4Zi00ODc3LTk4MmItNjYxYzAwMDM5ZGNhIn0.af-7zDFU8XyhiIRP21CGehtSK-00AJGgnuX1y9lXAY_OtEtYn0yervXX31zFzuZGqiEDCO8VACfvjXUi3eyoAg"
     val TURSO_DATABASE_URL = "libsql://vkr-baobab2049.aws-us-east-1.turso.io"
     //TODO: replace location of variables
 
@@ -47,9 +52,12 @@ class MainActivity : AppCompatActivity() {
 
 
     val database by lazy { AppDatabase.getInstance(this) }
+    val favoritesViewModel by lazy { ViewModelProvider(this)[FavoritesViewModel::class.java] }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.appBarMain.toolbar)
@@ -59,7 +67,8 @@ class MainActivity : AppCompatActivity() {
 
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
         val navController = navHostFragment.navController
 
         appBarConfiguration = AppBarConfiguration(
@@ -69,13 +78,10 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-    }
 
-    override fun onStart() {
-        super.onStart()
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->
-            if(isFromUserInteraction){
+            if (isFromUserInteraction) {
                 when (item.itemId) {
                     R.id.navigation_home -> replaceMainFragment(HomeFragment())
                     R.id.navigation_search -> replaceMainFragment(SearchFragment())
@@ -83,17 +89,26 @@ class MainActivity : AppCompatActivity() {
                     R.id.navigation_pantry -> replaceMainFragment(FridgeFragment())
                     R.id.navigation_profile -> replaceMainFragment(ProfileFragment())
                 }
-            navBottomViewModel.setSelectedNavItem(item.itemId)
+                navBottomViewModel.setSelectedNavItem(item.itemId)
             }
 
             true
         }
+    }
 
-        navBottomViewModel.selectedNavItem.observe(this){
-            itemId ->
+
+
+    override fun onStart() {
+        super.onStart()
+
+
+        navBottomViewModel.selectedNavItem.observe(this) { itemId ->
+
             isFromUserInteraction = false // Говорим, что изменение программное
             binding.bottomNavigation.selectedItemId = itemId ?: R.id.navigation_home
             isFromUserInteraction = true // Возвращаем флаг в исходное состояние
+
+
         }
 
         if (supportFragmentManager.findFragmentById(R.id.frame_layout) == null) {
@@ -102,16 +117,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         initDatabase()
-        replaceMainFragment(HomeFragment())
 
 
         // Проверка авторизации
         sessionManager = SessionManager(this, SessionManager.SESSION_USERSESSION)
-        if(sessionManager.checkLogin()) {
+        if (sessionManager.checkLogin()) {
             binding.appContent.isVisible = true
-            val rememberMeDetails: HashMap<String, String?> = sessionManager.getUsersDetailFromSession()
-        }
-        else{
+            val rememberMeDetails: HashMap<String, String?> =
+                sessionManager.getUsersDetailFromSession()
+        } else {
             //showFullscreenFragment(LoginFragment())
             showFullscreenFragment(AuthorizationFragment())
         }
@@ -166,4 +180,5 @@ class MainActivity : AppCompatActivity() {
             val dbAuthToken = TURSO_AUTH_TOKEN // Должно быть определено в buildConfigField
         }
     }
+
 }
