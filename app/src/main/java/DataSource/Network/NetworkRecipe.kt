@@ -21,7 +21,7 @@ fun NetworkRecipe.toRecipe(): Recipe {
         instruction = recipeInstructions,
         imageUrl = recipeImageUrl,
         cookTime = cookingTime,
-        comments = recipecomments,
-        likes = recipelikes
+        //comments = recipecomments,
+        //likes = recipelikes
     )
 }

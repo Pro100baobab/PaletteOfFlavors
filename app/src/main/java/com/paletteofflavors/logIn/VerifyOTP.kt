@@ -25,17 +25,22 @@ import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.auth
+import com.paletteofflavors.MainActivity
 import com.paletteofflavors.R
 import com.paletteofflavors.databinding.FragmentVerifyOtpBinding
+import com.paletteofflavors.logIn.viewmodels.LoginViewModel
+import com.paletteofflavors.logIn.viewmodels.RegistrationViewModel
 import com.paletteofflavors.utils.maskHideChars
 import java.util.concurrent.TimeUnit
 import com.paletteofflavors.utils.verifyCode
+import kotlinx.coroutines.CoroutineScope
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import tech.turso.libsql.Libsql
 
 
 class VerifyOTP : Fragment() {
@@ -48,20 +53,28 @@ class VerifyOTP : Fragment() {
     var email: String = ""
     var phone: String = ""
     var type: String = ""
+    var typeOper: String = ""
 
 
     private lateinit var sessionManager: SessionManager
     private var verificationCode = ""
     private var timer: CountDownTimer? = null
 
+    private lateinit var vm: LoginViewModel
+    private lateinit var vmRegister: RegistrationViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        vm = (requireActivity() as MainActivity).viewModel
+        vmRegister = (requireActivity() as MainActivity).viewModelRegistration
 
         try {
             email = args.email
             phone = args.phone
             type = args.typeOfConnection
-
+            typeOper = args.typeOfOperation
+            if(typeOper == "reset")
+                vm.setTypeOfVerification(type)
 
         } catch (_: Exception) {
 
@@ -85,13 +98,30 @@ class VerifyOTP : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        //Toast.makeText(requireContext(), "${vmRegister.email.value}", Toast.LENGTH_SHORT).show()
+        if(vm.resetemail.value != ""){
+            vm.typeOfVerification.observe(viewLifecycleOwner){
+                binding.typeOfVerification.text = when (vm.typeOfVerification.value) {
+                    "email" -> vm.resetemail.value
+                    "phone" -> maskHideChars(vm.resetphone.value!!)
+                    else -> {""}
+                }
+            }
+        }
+
+        else{
+            vmRegister.email.observe(viewLifecycleOwner){
+                binding.typeOfVerification.text = it
+            }
+        }
+
+
         sessionManager = SessionManager(requireContext(), SessionManager.SESSION_CODE)
 
-        if (type == "email") {
-            binding.typeOfVerification.text = email
+        if (vm.typeOfVerification.value == "email" || vmRegister?.email?.value != null) {
             sendVerificationCodeOnEMail()
         } else {
-            binding.typeOfVerification.text = maskHideChars(phone)
+            //binding.typeOfVerification.text = maskHideChars(phone)
             //phone
         }
 
@@ -109,7 +139,7 @@ class VerifyOTP : Fragment() {
             if(!sessionManager.isVerificationCodeTimerRunning()){
                 timer?.cancel()
 
-                if (type == "email") {
+                if (vm.typeOfVerification.value == "email") {
                     sendVerificationCodeOnEMail()
                 } else {
                     //phone
@@ -120,7 +150,8 @@ class VerifyOTP : Fragment() {
         }
 
         binding.backButtonVerifyOtp.setOnClickListener {
-            if (type != "") {
+            if (vmRegister?.email?.value == null) {
+                vm.setTypeOfVerification("")
                 findNavController().navigate(R.id.action_verifyOTP_to_makeSelection)
             } else {
                 findNavController().navigate(R.id.action_verifyOTP_to_registrationFragment)
@@ -206,8 +237,14 @@ class VerifyOTP : Fragment() {
     private fun onVerificationSuccess() {
         Toast.makeText(context, "Верификация успешна!", Toast.LENGTH_SHORT).show()
 
-        val direction = VerifyOTPDirections.actionVerifyOTPToSetNewPassword(email, phone)
-        findNavController().navigate(direction)
+        if(vmRegister?.email?.value == null){
+            val direction = VerifyOTPDirections.actionVerifyOTPToSetNewPassword(email, phone)
+            findNavController().navigate(direction)
+        }
+        else{
+            registerUser(vmRegister.fullName.value!!, vmRegister.userName.value!!, vmRegister.phone.value!!,
+                vmRegister.email.value!!, vmRegister.password.value!!)
+        }
     }
 
     private fun onVerificationFailed(exception: Exception?) {
@@ -218,6 +255,52 @@ class VerifyOTP : Fragment() {
     override fun onDestroyView() {
         timer?.cancel()
         super.onDestroyView()
+    }
+
+    //TODO: Check that email and phone number are unique.
+    private fun registerUser(fullname: String, username: String, phone_number: String, email: String, password: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val dbUrl = (activity as MainActivity).TURSO_DATABASE_URL
+                val dbAuthToken = (activity as MainActivity).TURSO_AUTH_TOKEN
+
+                Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                    db.connect().use { conn ->
+                        // Проверяем, существует ли пользователь
+                        conn.query("SELECT username FROM users WHERE username = '$username'").use { rows ->
+                            if (rows.nextRow() != null) {
+                                activity?.runOnUiThread {
+                                    Toast.makeText(requireContext(), "Username already exists", Toast.LENGTH_SHORT).show()
+                                }
+                                return@use
+                            }
+                        }
+
+                        // TODO: Alter table users in turso for default CURRENT_TIMESTAMP
+                        // Регистрируем нового пользователя
+                        conn.query(
+                            "INSERT INTO users (fullname, username, email, phone_number, password, created_at) VALUES('$fullname','$username', '$email', '$phone_number', '${password.hashCode()}', CURRENT_TIMESTAMP)")
+
+
+                        //TODO: Add progress bar for connection time.
+                        activity?.runOnUiThread {
+                            Toast.makeText(requireContext(), "Registration successful", Toast.LENGTH_SHORT).show()
+
+
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("Registration", "Error during registration", e)
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), "Registration failed: ${e.message}", Toast.LENGTH_SHORT).show()
+
+                    (activity as? MainActivity)?.binding?.appContent?.isVisible = true
+                    findNavController().navigate(R.id.action_verifyOTP_to_loginFragment)
+                    requireActivity().viewModelStore.clear()
+                }
+            }
+        }
     }
 
     // FireBase Realization

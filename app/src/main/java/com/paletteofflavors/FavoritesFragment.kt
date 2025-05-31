@@ -1,6 +1,7 @@
 package com.paletteofflavors
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -9,16 +10,20 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.paletteofflavors.databinding.ActivityMainBinding
+import com.paletteofflavors.databinding.FragmentFavoritesBinding
 import domain.Recipe
-
-//private const val ARG_PARAM1 = "param1"
-//private const val ARG_PARAM2 = "param2"
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 
 class FavoritesFragment() : Fragment() {
+
+    private lateinit var _binding: FragmentFavoritesBinding
+    private val binding get() = _binding
 
     private lateinit var recipesRecyclerView: RecyclerView
     private lateinit var recipeAdapter: RecipeAdapter
@@ -30,17 +35,8 @@ class FavoritesFragment() : Fragment() {
     private lateinit var radioGroup: RadioGroup
 
 
-    //private var param1: String? = null
-    //private var param2: String? = null
-
-    //private var cardView: CardView? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        /*arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }*/
     }
 
     override fun onCreateView(
@@ -49,19 +45,22 @@ class FavoritesFragment() : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
 
-        val view = inflater.inflate(R.layout.fragment_favorites, container, false)
+        _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
 
-        hintRecipe = view.findViewById(R.id.favorites_fragment_missing_item_hint)
-        hintuserRecipe = view.findViewById(R.id.favorites_fragment_missing_item_hint2)
-        radioGroup = view.findViewById(R.id.favorites_fragment_radioGroup)
-        savedRadioButton = view.findViewById(R.id.favorites_fragment_savedRecipes)
-        userRadioButton = view.findViewById(R.id.favorites_fragment_myRecipes)
+        hintRecipe = _binding.favoritesFragmentMissingItemHint
+        hintuserRecipe = _binding.favoritesFragmentMissingItemHint2
+        radioGroup = _binding.favoritesFragmentRadioGroup
+        savedRadioButton = _binding.favoritesFragmentSavedRecipes
+        userRadioButton = _binding.favoritesFragmentMyRecipes
 
-        recipesRecyclerView = view.findViewById(R.id.recipesRecyclerView)
+        recipesRecyclerView = _binding.recipesRecyclerView
         recipesRecyclerView.layoutManager = LinearLayoutManager(context)
 
+        lifecycleScope.launch {
+            testRoom()
+        }
 
-        return view
+        return _binding.root
     }
 
     override fun onStart() {
@@ -121,14 +120,14 @@ class FavoritesFragment() : Fragment() {
                 ingredients = List<String>(2, {"биба"; "боба"}),
                 instruction = "Инструкция",
                 cookTime = 60,
-                comments = 4,
-                likes = 5,
+                //comments = 4,
+                //likes = 5,
                 imageUrl = null
             ),
             Recipe(2, "Пример 2", listOf("бибаF", "бобаF"), "Инструкция 2",
-                null,120, 7, likes = 3),
+                120,null,/* 7, likes = 3*/),
             Recipe(2, "Пример 2", listOf("бибаF", "бобаF"), "Инструкция 2",
-                null,120, 7, likes = 3)
+                120, null /*,7, likes = 3*/)
         )
 
         return recipelist
@@ -139,23 +138,25 @@ class FavoritesFragment() : Fragment() {
         return ArrayList<Recipe>()
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment FavoritesFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            FavoritesFragment().apply {
-                arguments = Bundle().apply {
-                    //putString(ARG_PARAM1, param1)
-                    //putString(ARG_PARAM2, param2)
-                }
-            }
+
+    private suspend fun testRoom() {
+        val db = (requireContext() as MainActivity).database
+        val recipeDao = db.recipeDao()
+
+
+        // Тестовая вставка
+        val testRecipe = Recipe(
+            title = "Тестовый рецепт",
+            ingredients = listOf("Яйцо", "Молоко"),
+            instruction = "Смешать и пожарить.",
+            cookTime = 10
+        )
+        recipeDao.insert(testRecipe)
+
+
+        // Получение всех рецептов
+        val recipes = recipeDao.getAllRecipes().first()
+        Log.d("RoomTest", "Recipes: $recipes")
     }
+
 }

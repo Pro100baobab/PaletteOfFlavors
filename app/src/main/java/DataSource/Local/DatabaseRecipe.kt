@@ -25,7 +25,7 @@ fun DatabaseRecipe.toRecipe(): Recipe {
         instruction = recipeinstructions,
         imageUrl = imageUrl,
         cookTime = cookTime,
-        comments = recipecomments,
-        likes = recipelikes
+        //comments = recipecomments,
+        //likes = recipelikes
     )
 }

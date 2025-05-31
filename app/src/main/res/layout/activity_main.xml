@@ -43,7 +43,7 @@
         android:layout_height="match_parent"
         android:background="#FBF38D"
         android:fitsSystemWindows="true"
-        android:visibility="invisible"
+        android:visibility="visible"
         tools:context=".MainActivity">
 
         <androidx.appcompat.widget.Toolbar

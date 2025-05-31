@@ -28,8 +28,8 @@ class RecipeAdapter(private val recipeList: List<Recipe>): RecyclerView.Adapter<
 
     override fun onBindViewHolder(holder: RecipeHolder, position: Int) {
         holder.titleOfRecipe.text = recipeList[position].title
-        holder.likesOfRecipe.text = recipeList[position].likes.toString()
-        holder.commentsOfRecipe.text = recipeList[position].comments.toString()
+        //holder.likesOfRecipe.text = recipeList[position].likes.toString()
+        //holder.commentsOfRecipe.text = recipeList[position].comments.toString()
         holder.timeOfRecipe.text = recipeList[position].cookTime.toString()
 
 

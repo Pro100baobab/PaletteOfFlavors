@@ -1,5 +1,6 @@
 package com.paletteofflavors
 
+import DataSource.Local.AppDatabase
 import DataSource.Local.SessionManager
 import ViewModels.NavBottomViewModel
 import android.os.Bundle
@@ -43,6 +44,9 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var viewModel: LoginViewModel
     lateinit var viewModelRegistration: RegistrationViewModel
+
+
+    val database by lazy { AppDatabase.getInstance(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

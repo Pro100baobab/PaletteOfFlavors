@@ -9,7 +9,7 @@ plugins {
     id("androidx.navigation.safeargs.kotlin")
     alias(libs.plugins.google.gms.google.services)
 
-
+    id("kotlin-kapt")  // Для обработки аннотаций Room
 }
 
 android {
@@ -106,5 +106,14 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
 
     implementation("com.hbb20:ccp:2.7.3")
+
+
+    // Room
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")  // Поддержка Kotlin Coroutines
+
+    // Для сериализации List<String> в JSON
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
 }
