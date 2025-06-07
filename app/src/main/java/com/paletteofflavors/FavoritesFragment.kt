@@ -2,6 +2,8 @@ package com.paletteofflavors
 
 import DataSource.model.FavoritesViewModel
 import DataSource.model.FavoritesViewModelFactory
+import DataSource.model.RecipeSharedViewModel
+import ViewModels.CreateRecipeViewModel
 import android.os.Bundle
 import android.text.Layout.Directions
 import android.util.Log
@@ -13,6 +15,7 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -20,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.paletteofflavors.databinding.ActivityMainBinding
 import com.paletteofflavors.databinding.FragmentFavoritesBinding
+import com.paletteofflavors.logIn.viewmodels.LoginViewModel
 import domain.Recipe
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -30,16 +34,23 @@ import kotlinx.coroutines.launch
 class FavoritesFragment() : Fragment() {
 
 
-    val viewModel by lazy { (requireActivity() as MainActivity).favoritesViewModel }
+    private val viewModel: FavoritesViewModel by lazy {
+        (requireActivity() as MainActivity).favoritesViewModel
+    }
+    private val sharedViewModel: RecipeSharedViewModel by activityViewModels()
 
-    private lateinit var _binding: FragmentFavoritesBinding
-    private val binding get() = _binding
+    private val resipesViewModel: CreateRecipeViewModel by lazy {
+        ((requireActivity() as MainActivity).createRecipeViewModel)
+    }
+
+    private var _binding: FragmentFavoritesBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var recipesRecyclerView: RecyclerView
     private lateinit var recipeAdapter: RecipeAdapter
+
     private lateinit var hintRecipe: TextView
     private lateinit var hintuserRecipe: TextView
-
     private lateinit var savedRadioButton: RadioButton
     private lateinit var userRadioButton: RadioButton
     private lateinit var radioGroup: RadioGroup
@@ -48,25 +59,24 @@ class FavoritesFragment() : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
 
         _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
-        return _binding.root
+        return _binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
 
-
-        hintRecipe = _binding.favoritesFragmentMissingItemHint
-        hintuserRecipe = _binding.favoritesFragmentMissingItemHint2
-        radioGroup = _binding.favoritesFragmentRadioGroup
+        hintRecipe = binding.favoritesFragmentMissingItemHint
+        hintuserRecipe = binding.favoritesFragmentMissingItemHint2
+        radioGroup = binding.favoritesFragmentRadioGroup
         //savedRadioButton = _binding.favoritesFragmentSavedRecipes
         //userRadioButton = _binding.favoritesFragmentMyRecipes
 
-        recipesRecyclerView = _binding.recipesRecyclerView
+        recipesRecyclerView = binding.recipesRecyclerView
         recipesRecyclerView.layoutManager = LinearLayoutManager(context)
 
         hintRecipe.visibility = View.INVISIBLE
@@ -108,7 +118,10 @@ class FavoritesFragment() : Fragment() {
             if (recipes.isEmpty()) {
                 hintuserRecipe.visibility = View.VISIBLE
             } else {
-                recipeAdapter = RecipeAdapter(recipes)
+                recipeAdapter = RecipeAdapter(resipesViewModel.getRecipes()) { recipe ->
+                    sharedViewModel.selectRecipe(recipe)
+                    (requireActivity() as MainActivity).showFullscreenFragment(RecipeDetailsFragment())
+                }
                 recipesRecyclerView.adapter = recipeAdapter
             }
         }.launchIn(lifecycleScope)  // Автоматически отменяется при уничтожении фрагмента
@@ -119,7 +132,10 @@ class FavoritesFragment() : Fragment() {
         hintRecipe.visibility = View.INVISIBLE
 
         val recipelist = getSavedRecipeList()
-        recipeAdapter = RecipeAdapter(recipelist)
+        recipeAdapter = RecipeAdapter(getSavedRecipeList()) { recipe ->
+            sharedViewModel.selectRecipe(recipe)
+            (requireActivity() as MainActivity).showFullscreenFragment(RecipeDetailsFragment())
+        }
         recipesRecyclerView.adapter = recipeAdapter
 
         if (recipelist.size == 0) {
@@ -156,6 +172,12 @@ class FavoritesFragment() : Fragment() {
         )
 
         return recipelist
+    }
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

@@ -5,6 +5,7 @@ import DataSource.Local.SessionManager
 import DataSource.model.CreateRecipeViewModelFactory
 import DataSource.model.FavoritesViewModel
 import DataSource.model.FavoritesViewModelFactory
+import DataSource.model.RecipeSharedViewModel
 import ViewModels.CreateRecipeViewModel
 import ViewModels.NavBottomViewModel
 import android.content.Context
@@ -63,6 +64,7 @@ class MainActivity : AppCompatActivity() {
     val favoritesViewModel: FavoritesViewModel by viewModels {
         FavoritesViewModelFactory(database.recipeDao())
     }
+    val sharedViewModel: RecipeSharedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -155,14 +157,17 @@ class MainActivity : AppCompatActivity() {
 
     fun replaceMainFragment(fragment: Fragment) {
 
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
+        supportFragmentManager.beginTransaction()
             .replace(R.id.frame_layout, fragment)
             .commit()
 
     }
 
 
+    fun returnNavigation(){
+        binding.bottomNavigation.visibility = View.VISIBLE
+        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+    }
     // Для показа полноэкранного фрагмента (авторизация/регистрация)
     fun showFullscreenFragment(fragment: Fragment) {
         binding.bottomNavigation.visibility = View.GONE

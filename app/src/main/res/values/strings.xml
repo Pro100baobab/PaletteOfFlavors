@@ -53,7 +53,6 @@
     <string name="password_updated">Пароль обновлен</string>
 
 
-
     <string name="create_recipe_title">Создать рецепт</string>
     <string name="recipe_name_hint">Название рецепта</string>
     <string name="ingredients_hint">Ингредиенты (каждый с новой строки)</string>
@@ -63,4 +62,7 @@
     <string name="minutes">минут</string>
     <string name="save_recipe">Сохранить рецепт</string>
 
+    <!--Ддя динамического подставления элементов рецепта в макет-->
+    <string name="time_template">%d минут</string>
+    <string name="ingredient_template">• %s</string>
 </resources>

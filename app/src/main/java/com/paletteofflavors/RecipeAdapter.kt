@@ -8,7 +8,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import domain.Recipe
 
-class RecipeAdapter(private val recipeList: List<Recipe>): RecyclerView.Adapter<RecipeAdapter.RecipeHolder>() {
+class RecipeAdapter(
+    private val recipeList: List<Recipe>,
+    private val onItemClick: (Recipe) -> Unit
+): RecyclerView.Adapter<RecipeAdapter.RecipeHolder>() {
+
     class RecipeHolder(view: View): RecyclerView.ViewHolder(view){
         val titleOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_name)
         val likesOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_likes)
@@ -26,13 +30,21 @@ class RecipeAdapter(private val recipeList: List<Recipe>): RecyclerView.Adapter<
         return recipeList.size
     }
 
+
+
     override fun onBindViewHolder(holder: RecipeHolder, position: Int) {
-        holder.titleOfRecipe.text = recipeList[position].title
+
+        val recipe = recipeList[position]
+
+        holder.titleOfRecipe.text = recipe.title
         //holder.likesOfRecipe.text = recipeList[position].likes.toString()
         //holder.commentsOfRecipe.text = recipeList[position].comments.toString()
-        holder.timeOfRecipe.text = recipeList[position].cookTime.toString()
+        holder.timeOfRecipe.text = recipe.cookTime.toString()
 
-
+        holder.itemView.setOnClickListener {
+            onItemClick(recipe)
+            //(requireActivity() as MainActivity).showFullscreenFragment(RecipeDetailsFragment())
+        }
 
         holder.savedImageView.setOnClickListener {
             //TODO(): Implement logic to remove the recipe from the favorite list

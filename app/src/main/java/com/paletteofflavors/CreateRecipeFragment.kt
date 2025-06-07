@@ -1,44 +1,49 @@
 package com.paletteofflavors
 
+import DataSource.model.CreateRecipeViewModelFactory
 import ViewModels.CreateRecipeViewModel
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.paletteofflavors.databinding.FragmentCreateRecipeBinding
 
 
 class CreateRecipeFragment : Fragment() {
 
-    private lateinit var _binding: FragmentCreateRecipeBinding
-    private val binding get() = _binding
+    private var _binding: FragmentCreateRecipeBinding? = null
+    private val binding get() = _binding!!
 
-    private lateinit var viewModel: CreateRecipeViewModel
+    //private lateinit var viewModel: CreateRecipeViewModel
     private var userChangeFlag = true
+
+
+    private val viewModel: CreateRecipeViewModel by lazy {
+        ((requireActivity() as MainActivity).createRecipeViewModel)
+    }
 
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentCreateRecipeBinding.inflate(inflater, container, false)
-        return _binding.root
+        return _binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        try {
-            viewModel = (requireActivity() as MainActivity).createRecipeViewModel
-        } finally {
+        //viewModel = (requireActivity() as MainActivity).createRecipeViewModel
 
-        }
 
 
         // Add Listeners
@@ -103,16 +108,20 @@ class CreateRecipeFragment : Fragment() {
 
         }
         viewModel.timeInMinutes.observe(viewLifecycleOwner) { newText ->
-            if (binding.recipeCookingTimeEdit.text.toString() != newText.toString()) {
+            if (binding.recipeCookingTimeEdit.text.toString() != newText) {
                 userChangeFlag = false
-                binding.recipeCookingTimeEdit.setText(newText)
+                newText?.let {
+                    binding.recipeCookingTimeEdit.setText(it)
+                }
                 userChangeFlag = true
             }
 
         }
 
         binding.backToFavoritesButton.setOnClickListener {
-            (requireActivity() as MainActivity).showNormalFragment(FavoritesFragment())
+            //(requireActivity() as MainActivity).showNormalFragment(FavoritesFragment())
+            parentFragmentManager.popBackStack()
+            (requireActivity() as MainActivity).returnNavigation()
         }
 
         binding.saveButton.setOnClickListener {
@@ -150,13 +159,21 @@ class CreateRecipeFragment : Fragment() {
                     // Показываем уведомление и возвращаемся назад
                     Toast.makeText(requireContext(), "Рецепт сохранен!", Toast.LENGTH_SHORT).show()
                     viewModel.cleanRecipeData()
-                    (requireActivity() as MainActivity).showNormalFragment(FavoritesFragment())
-                    // Возврат назад
+                    //onDestroyView()
+                    //(requireActivity() as MainActivity).showNormalFragment(FavoritesFragment())
+                    parentFragmentManager.popBackStack()
+                    (requireActivity() as MainActivity).returnNavigation()
                 }
                 .setNegativeButton("Отмена", null)
                 .show()
 
             //viewModel.saveRecipe()
         }
+
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
