@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.media3.common.ktx)
     implementation(libs.firebase.database)
     implementation(libs.firebase.auth.ktx)
+    //implementation(libs.androidx.runtime.saved.instance.state)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -116,4 +117,6 @@ dependencies {
     // Для сериализации List<String> в JSON
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
+    // Для круглых аватаров
+    implementation("de.hdodenhof:circleimageview:3.1.0")
 }

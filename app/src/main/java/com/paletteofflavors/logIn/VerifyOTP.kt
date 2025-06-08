@@ -68,6 +68,8 @@ class VerifyOTP : Fragment() {
         vm = (requireActivity() as MainActivity).viewModel
         vmRegister = (requireActivity() as MainActivity).viewModelRegistration
 
+        Log.d("Null", "1")
+
         try {
             email = args.email
             phone = args.phone
@@ -80,8 +82,9 @@ class VerifyOTP : Fragment() {
 
         }
 
-        super.onCreate(savedInstanceState)
+        Log.d("Null", "2")
 
+        super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(
@@ -98,8 +101,10 @@ class VerifyOTP : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.d("Null", "3")
+
         //Toast.makeText(requireContext(), "${vmRegister.email.value}", Toast.LENGTH_SHORT).show()
-        if(vm.resetemail.value != ""){
+        if(vm?.resetemail?.value != ""){
             vm.typeOfVerification.observe(viewLifecycleOwner){
                 binding.typeOfVerification.text = when (vm.typeOfVerification.value) {
                     "email" -> vm.resetemail.value
@@ -115,15 +120,20 @@ class VerifyOTP : Fragment() {
             }
         }
 
+        Log.d("Null", "4")
+
+
 
         sessionManager = SessionManager(requireContext(), SessionManager.SESSION_CODE)
 
-        if (vm.typeOfVerification.value == "email" || vmRegister?.email?.value != null) {
+        if (vm?.typeOfVerification?.value == "email" || vmRegister?.email?.value != null) {
             sendVerificationCodeOnEMail()
         } else {
             //binding.typeOfVerification.text = maskHideChars(phone)
             //phone
         }
+
+        Log.d("Null", "5")
 
 
         binding.btnVerifyCode.setOnClickListener {
@@ -139,11 +149,14 @@ class VerifyOTP : Fragment() {
             if(!sessionManager.isVerificationCodeTimerRunning()){
                 timer?.cancel()
 
-                if (vm.typeOfVerification.value == "email") {
+                sendVerificationCodeOnEMail()
+
+                /*if (vm.typeOfVerification.value == "email") {
                     sendVerificationCodeOnEMail()
                 } else {
                     //phone
-                }
+                }*/
+
             }
 
 
@@ -286,18 +299,15 @@ class VerifyOTP : Fragment() {
                         activity?.runOnUiThread {
                             Toast.makeText(requireContext(), "Registration successful", Toast.LENGTH_SHORT).show()
 
-
+                            findNavController().navigate(R.id.action_verifyOTP_to_loginFragment)
                         }
                     }
+
                 }
             } catch (e: Exception) {
                 Log.e("Registration", "Error during registration", e)
                 activity?.runOnUiThread {
                     Toast.makeText(requireContext(), "Registration failed: ${e.message}", Toast.LENGTH_SHORT).show()
-
-                    (activity as? MainActivity)?.binding?.appContent?.isVisible = true
-                    findNavController().navigate(R.id.action_verifyOTP_to_loginFragment)
-                    requireActivity().viewModelStore.clear()
                 }
             }
         }

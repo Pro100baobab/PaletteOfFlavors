@@ -62,14 +62,25 @@ class RegistrationFragment : Fragment() {
             ///val password = binding.etPassword.text.toString().trim()
             //registerUser(fullname, username, phone_number, email, password)
 
-            vm.setFullName(binding.etFullname.text.toString().trim())
-            vm.setUserName(binding.etUsername.text.toString().trim())
-            vm.setEmail(binding.etEmail.text.toString().trim())
-            vm.setPhone(binding.countryCodePiker.selectedCountryCodeWithPlus + binding.etPhoneNumber.text.toString().trim())
-            vm.setPassword(binding.etPassword.text.toString().trim())
+            try{
+                vm.setFullName(binding.etFullname.text.toString().trim())
+                vm.setUserName(binding.etUsername.text.toString().trim())
+                vm.setEmail(binding.etEmail.text.toString().trim())
+                vm.setPhone(binding.countryCodePiker.selectedCountryCodeWithPlus + binding.etPhoneNumber.text.toString().trim())
+                vm.setPassword(binding.etPassword.text.toString().trim())
+            }
+            catch (e: Error){
+                Log.d("setError", "val Error: $e")
+            }
 
-            val destination = RegistrationFragmentDirections.actionRegistrationFragmentToVerifyOTP("registration", email = vm.email.value!!, phone = vm.phone.value!!,"email")
-            findNavController().navigate(destination)
+
+            try {
+                val destination = RegistrationFragmentDirections.actionRegistrationFragmentToVerifyOTP("registration", email = vm.email.value!!, phone = vm.phone.value!!,"email")
+                findNavController().navigate(destination)
+            } catch (e: Error){
+                Log.d("setError", "Nav Erorr: $e")
+            }
+
         }
 
         binding.tvLogin.setOnClickListener {

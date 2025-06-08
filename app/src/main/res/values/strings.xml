@@ -65,4 +65,22 @@
     <!--Ддя динамического подставления элементов рецепта в макет-->
     <string name="time_template">%d минут</string>
     <string name="ingredient_template">• %s</string>
+    <string name="menu_theme">Тема</string>
+    <string name="menu_logout">Выйти</string>
+    <string name="menu_createRecept">Создать рецепт</string>
+
+
+
+    <!--Строковые ресурсы для элементов Профиля-->
+    <string name="profile_image_desc">Изображение профиля</string>
+    <string name="change_avatar">Поменять аватар</string>
+    <string name="profile_stats">Статистика профиля</string>
+    <string name="recipes">Рецепты</string>
+    <string name="articles">Статьи</string>
+    <string name="videos">Видео</string>
+    <string name="settings">Настройки</string>
+    <string name="change_theme">Сменить тему</string>
+    <string name="change_language">Сменить язык</string>
+    <string name="add_account">Добавить аккаунт</string>
+    <string name="logout">Выйти</string>
 </resources>

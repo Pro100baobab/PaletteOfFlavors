@@ -34,4 +34,5 @@
     <color name="bright_red">#FFFF4500</color>
     <color name="gray_for_filters">#EFEFEF</color>
 
+    <color name="colorError">#FF5252</color>
 </resources>

@@ -68,7 +68,7 @@ class LoginFragment : Fragment() {
         }
 
         //viewModel = ViewModelProvider(requireActivity(), MyViewModelFactory(id0)).get("id_$id0", LoginViewModel::class.java)
-        (requireActivity() as MainActivity).viewModel = ViewModelProvider(requireActivity())[LoginViewModel::class.java]
+        //(requireActivity() as MainActivity).viewModel = ViewModelProvider(requireActivity())[LoginViewModel::class.java]
         vm = (requireActivity() as MainActivity).viewModel
         vm.username.observe(viewLifecycleOwner){
             newText ->
@@ -180,7 +180,7 @@ class LoginFragment : Fragment() {
                                     rememberMe(username, password)
 
                                     (activity as? MainActivity)?.binding?.appContent?.isVisible = true
-                                    //(activity as? MainActivity)?.showNormalFragment(HomeFragment())
+                                    (activity as? MainActivity)?.showNormalFragment(HomeFragment())
                                 }
                             } else {
                                 activity?.runOnUiThread {
