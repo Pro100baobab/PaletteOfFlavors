@@ -58,9 +58,9 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Check phone_number and password are saved already in Shared Preferences
-        (activity as MainActivity).sessionManager = SessionManager(requireContext(), SessionManager.SESSION_REMEMBERME)
-        if((activity as MainActivity).sessionManager.checkRememberMe()){
-            val rememberMeDetails: HashMap<String, String?> = (activity as MainActivity).sessionManager.getRememberMeDetailsFromSession()
+        (activity as MainActivity).sessionManagerRememberMe = SessionManager(requireContext(), SessionManager.SESSION_REMEMBERME)
+        if((activity as MainActivity).sessionManagerRememberMe.checkRememberMe()){
+            val rememberMeDetails: HashMap<String, String?> = (activity as MainActivity).sessionManagerRememberMe.getRememberMeDetailsFromSession()
 
             binding.etLoginPassword.setText(rememberMeDetails[SessionManager.KEY_SESSION_PASSWORD])
             binding.etLoginUsername.setText(rememberMeDetails[SessionManager.KEY_SESSION_USERNAME])
@@ -221,9 +221,16 @@ class LoginFragment : Fragment() {
     }
 
     private fun rememberMe(_username: String, _password: String){
+
+        val mainActivity  = activity as MainActivity
         if(rememberMe.isChecked){
-            (activity as MainActivity).sessionManager = SessionManager(requireContext(), SessionManager.SESSION_REMEMBERME)
-            (activity as MainActivity).sessionManager.createRememberMeSession(username =  _username, password =  _password)
+            mainActivity.sessionManagerRememberMe = SessionManager(requireContext(), SessionManager.SESSION_REMEMBERME)
+            mainActivity.sessionManagerRememberMe.createRememberMeSession(username =  _username, password =  _password)
+        }
+        else {
+            if(mainActivity .sessionManagerRememberMe.checkRememberMe()){
+                mainActivity .sessionManagerRememberMe.logoutUserSession()
+            }
         }
     }
 

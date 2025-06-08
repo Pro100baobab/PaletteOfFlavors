@@ -58,8 +58,8 @@ dependencies {
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.room.common)
     implementation(libs.androidx.media3.common.ktx)
-    implementation(libs.firebase.database)
-    implementation(libs.firebase.auth.ktx)
+    //implementation(libs.firebase.database)
+    //implementation(libs.firebase.auth.ktx)
     implementation(libs.androidx.ui.text.android)
     //implementation(libs.androidx.runtime.saved.instance.state)
     testImplementation(libs.junit)
@@ -67,7 +67,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     // Firebase BoM (Bill of Materials)
-    implementation(platform(libs.firebase.bom))
+    //implementation(platform(libs.firebase.bom))
 
 
     implementation(libs.androidx.fragment.ktx) // or the latest stable version

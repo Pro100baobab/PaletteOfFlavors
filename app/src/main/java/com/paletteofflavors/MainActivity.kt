@@ -58,6 +58,7 @@ class MainActivity : AppCompatActivity() {
     private var isFromUserInteraction = true // Флаг для определения источника изменения
 
     lateinit var sessionManager: SessionManager;
+    lateinit var sessionManagerRememberMe: SessionManager;
 
     lateinit var viewModel: LoginViewModel
     lateinit var viewModelRegistration: RegistrationViewModel

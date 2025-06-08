@@ -22,6 +22,8 @@ import kotlinx.coroutines.launch
 import android.content.res.Configuration
 import android.os.Build
 import android.util.Log
+import com.paletteofflavors.logIn.AuthorizationFragment
+import com.paletteofflavors.logIn.LoginFragment
 import java.util.*
 
 class ProfileFragment : Fragment() {
@@ -159,6 +161,9 @@ class ProfileFragment : Fragment() {
         Toast.makeText(context, "ok", Toast.LENGTH_SHORT).show()
     }
 
+
+    // Функции для выхода из аккаунта
+
     private fun showConfirmDialog() {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Выход из аккаунта")
@@ -177,11 +182,11 @@ class ProfileFragment : Fragment() {
         dialog.show()
     }
 
-
     private fun logOut() {
-        //TODO("Not yet implemented")
-        Toast.makeText(context, "ok", Toast.LENGTH_SHORT).show()
+        (requireActivity() as MainActivity).sessionManager.logoutUserSession() // userSession
+        (requireActivity() as MainActivity).showFullscreenFragment(LoginFragment())
     }
+
 
 
     override fun onDestroyView() {
