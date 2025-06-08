@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.media3.common.ktx)
     implementation(libs.firebase.database)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.androidx.ui.text.android)
     //implementation(libs.androidx.runtime.saved.instance.state)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

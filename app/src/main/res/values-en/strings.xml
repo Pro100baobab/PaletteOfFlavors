@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Flavor Palette</string>
+    <string name="title_home">Home</string>
+    <string name="title_search">Search</string>
+    <string name="title_favorites">Favorites</string>
+    <string name="title_pantry">Pantry</string>
+    <string name="title_profile">Profile</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+    <string name="search_icon">search_icon</string>
+    <string name="saved">Saved</string>
+    <string name="myResipes">My Recipes</string>
+    <string name="favorites_search_hint">Enter recipe name or ingredient</string>
+    <string name="all_filters">All filters</string>
+    <string name="breakfast">Breakfast</string>
+    <string name="lunch">Lunch</string>
+    <string name="dinner">Dinner</string>
+    <string name="desserts">Desserts</string>
+    <string name="launch">Lunch</string>
+    <string name="category_catalog">Categories</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="create_account">create account</string>
+    <string name="enter_full_name">Full Name</string>
+    <string name="enter_username">Username</string>
+    <string name="enter_email">Email</string>
+    <string name="enter_phone_number">Phone number</string>
+    <string name="enter_password">Password</string>
+    <string name="already_have_an_account_login">Already have an account? Login</string>
+    <string name="end_create_account">register</string>
+    <string name="app_description">Discover the world of delicious dishes with our unique app! Thousands of recipes, step-by-step instructions and tips from chefs will help you surprise friends and family with new culinary masterpieces. Every dish is a new discovery! Start your gastronomic adventure right now!</string>
+    <string name="about_us"><u>About us</u></string>
+    <string name="login_account">Log in</string>
+    <string name="end_login_account">Log in</string>
+    <string name="don_t_have_an_account_yet_sign_up">Don\'t have an account yet? Sign up</string>
+    <string name="remember_me">Remember me</string>
+    <string name="forget_password">Forgot password?</string>
+    <string name="verify_code">Verify code</string>
+    <string name="Continue">continue</string>
+    <string name="reset_password">Reset password</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="confirm">Confirm</string>
+    <string name="password_updated">Password updated</string>
+
+    <string name="create_recipe_title">Create recipe</string>
+    <string name="recipe_name_hint">Recipe name</string>
+    <string name="ingredients_hint">Ingredients (each on new line)</string>
+    <string name="instructions_hint">Step-by-step instructions</string>
+    <string name="cooking_time">Cooking time</string>
+    <string name="time_in_minutes">30</string>
+    <string name="minutes">minutes</string>
+    <string name="save_recipe">Save recipe</string>
+
+    <!--For dynamically inserting recipe elements into layout-->
+    <string name="time_template">%d minutes</string>
+    <string name="ingredient_template" translatable="false">• %s</string>
+    <string name="menu_theme">Theme</string>
+    <string name="menu_logout">Log out</string>
+    <string name="menu_createRecept">Create recipe</string>
+
+    <!--String resources for Profile elements-->
+    <string name="profile_image_desc">Profile image</string>
+    <string name="change_avatar">Change avatar</string>
+    <string name="profile_stats">Profile statistics</string>
+    <string name="recipes">Recipes</string>
+    <string name="articles">Articles</string>
+    <string name="videos">Videos</string>
+    <string name="settings">Settings</string>
+    <string name="change_theme">Change theme</string>
+    <string name="change_language">Change language</string>
+    <string name="add_account">Add account</string>
+    <string name="logout">Log out</string>
+</resources>

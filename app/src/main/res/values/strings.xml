@@ -64,7 +64,7 @@
 
     <!--Ддя динамического подставления элементов рецепта в макет-->
     <string name="time_template">%d минут</string>
-    <string name="ingredient_template">• %s</string>
+    <string name="ingredient_template" translatable="false">• %s</string>
     <string name="menu_theme">Тема</string>
     <string name="menu_logout">Выйти</string>
     <string name="menu_createRecept">Создать рецепт</string>

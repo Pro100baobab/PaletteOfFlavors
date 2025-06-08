@@ -5,13 +5,41 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_createRecept"
+            android:icon="@drawable/baseline_access_time_24"
+            android:checkable="true"
+            android:title="@string/menu_createRecept"
+            android:enabled="true"
+            />
+    </group>
+
+
+    <group android:checkableBehavior="single">
+
+        <item
             android:id="@+id/nav_home"
+            android:icon="@drawable/baseline_access_time_24"
             android:title="@string/menu_home" />
+
         <item
             android:id="@+id/nav_gallery"
+            android:enabled="true"
+            android:icon="@drawable/baseline_access_time_24"
             android:title="@string/menu_gallery" />
         <item
             android:id="@+id/nav_slideshow"
+            android:enabled="true"
+            android:icon="@drawable/baseline_access_time_24"
             android:title="@string/menu_slideshow" />
+        <item
+            android:id="@+id/nav_theme"
+            android:icon="@drawable/baseline_access_time_24"
+            android:title="@string/menu_theme" />
+
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/baseline_access_time_24"
+            android:title="@string/menu_logout"/>
     </group>
+
 </menu>

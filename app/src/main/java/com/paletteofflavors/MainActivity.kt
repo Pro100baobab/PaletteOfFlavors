@@ -9,6 +9,8 @@ import DataSource.model.RecipeSharedViewModel
 import ViewModels.CreateRecipeViewModel
 import ViewModels.NavBottomViewModel
 import android.content.Context
+import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
@@ -36,6 +38,10 @@ import com.paletteofflavors.logIn.viewmodels.RegistrationViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Locale
+
+import android.os.Handler
+import android.os.Looper
 
 class MainActivity : AppCompatActivity() {
 
@@ -72,24 +78,33 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setSupportActionBar(binding.appBarMain.toolbar)
+
+        if (intent?.getBooleanExtra("SHOW_PROFILE_FRAGMENT", false) == true) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                replaceMainFragment(ProfileFragment())
+                binding.bottomNavigation.selectedItemId = R.id.navigation_profile
+
+            }, 100)
+        }
+
+        //setSupportActionBar(binding.appBarMain.toolbar)
 
         navBottomViewModel = ViewModelProvider(this)[NavBottomViewModel::class.java]
+        viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
 
 
         val drawerLayout: DrawerLayout = binding.drawerLayout
-        val navView: NavigationView = binding.navView
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
-        val navController = navHostFragment.navController
+        //val navView: NavigationView = binding.navView
+        //val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
+        //val navController = navHostFragment.navController
 
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow //поменять на будущие разделы
             ), drawerLayout
         )
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
+        //setupActionBarWithNavController(navController, appBarConfiguration)
+        //navView.setupWithNavController(navController)
 
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->
@@ -106,6 +121,8 @@ class MainActivity : AppCompatActivity() {
 
             true
         }
+
+
     }
 
 
@@ -123,7 +140,9 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        if (supportFragmentManager.findFragmentById(R.id.frame_layout) == null) {
+        if (supportFragmentManager.findFragmentById(R.id.frame_layout) == null
+            && intent?.getBooleanExtra("SHOW_PROFILE_FRAGMENT", false) != true)
+        {
             replaceMainFragment(HomeFragment())
             binding.bottomNavigation.selectedItemId = R.id.navigation_home
         }
@@ -150,10 +169,11 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+    /*
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
+    }*/
 
     fun replaceMainFragment(fragment: Fragment) {
 
@@ -196,4 +216,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+
+
+    // Перезапуск активности с новыми языковыми настройками
+
+    override fun attachBaseContext(newBase: Context) {
+        val sharedPref = newBase.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+        val lang = sharedPref.getString("app_language", Locale.getDefault().language) ?: Locale.getDefault().language
+        super.attachBaseContext(updateBaseContextLocale(newBase, lang))
+    }
+
+    private fun updateBaseContextLocale(context: Context, languageCode: String): Context {
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+
+        val config = Configuration(context.resources.configuration)
+        config.setLocale(locale)
+        return context.createConfigurationContext(config)
+    }
 }

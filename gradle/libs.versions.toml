@@ -26,6 +26,8 @@ media3CommonKtx = "1.6.1"
 googleGmsGoogleServices = "4.4.2"
 firebaseDatabase = "21.0.0"
 firebaseAuthKtx = "23.2.1"
+runtimeSavedInstanceState = "1.0.0-alpha11"
+uiTextAndroid = "1.8.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -54,6 +56,8 @@ androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-
 navigation-safe-args-gradle-plugin = { module = "android.arch.navigation:navigation-safe-args-gradle-plugin", version.ref = "navigationSafeArgsGradlePlugin" }
 pinview = { module = "com.chaos.view:pinview", version.ref = "pinview" }
 pinview-v144 = { module = "com.chaos.view:pinview", version.ref = "pinviewVersion" }
+androidx-runtime-saved-instance-state = { group = "androidx.compose.runtime", name = "runtime-saved-instance-state", version.ref = "runtimeSavedInstanceState" }
+androidx-ui-text-android = { group = "androidx.compose.ui", name = "ui-text-android", version.ref = "uiTextAndroid" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

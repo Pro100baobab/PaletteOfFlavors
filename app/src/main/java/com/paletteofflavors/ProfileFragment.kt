@@ -1,6 +1,10 @@
 package com.paletteofflavors
 
 import DataSource.Local.SessionManager
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,82 +12,182 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.app.ActivityCompat.recreate
+import androidx.lifecycle.viewModelScope
+import com.paletteofflavors.databinding.FragmentProfileBinding
+import domain.Recipe
+import kotlinx.coroutines.launch
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import android.content.res.Configuration
+import android.os.Build
+import android.util.Log
+import java.util.*
 
-/**
- * A simple [Fragment] subclass.
- * Use the [ProfileFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ProfileFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
     private var textViewProfileName: TextView? = null
+    private var textViewProfileEmail: TextView? = null
     private var imageViewProfile: ImageView? = null
+
+    private var _binding: FragmentProfileBinding? = null
+    private val binding get() = _binding!!
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_profile, container, false)
+    ): View {
 
-        textViewProfileName = view.findViewById(R.id.profile_text)
-        imageViewProfile = view.findViewById(R.id.profile_Image)
+        _binding = FragmentProfileBinding.inflate(inflater, container, false)
 
-        // Получение данных сессии
-        val usersDetails: HashMap<String, String?> = (activity as MainActivity).sessionManager.getUsersDetailFromSession()
+        //textViewProfileName = view.findViewById(R.id.profile_name)
+        //imageViewProfile = view.findViewById(R.id.profile_image)
 
-
-        textViewProfileName?.text = usersDetails[SessionManager.KEY_FULLNAME]
-        imageViewProfile?.setImageResource(R.drawable.favorites_icon)
-        return view
+        return _binding!!.root
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        textViewProfileName = null
-        imageViewProfile = null
-    }
-
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Получение данных сессии
+        val usersDetails: HashMap<String, String?> =
+            (activity as MainActivity).sessionManager.getUsersDetailFromSession()
+
+        binding.profileName.text = usersDetails[SessionManager.KEY_USERNAME]
+        binding.profileEmail.text = usersDetails[SessionManager.KEY_EMAIL]
+
+        //imageViewProfile?.setImageResource(R.drawable.favorites_icon)
+
+        setObservers()
     }
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ProfileFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ProfileFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+
+    private fun setObservers() {
+
+        binding.changeAvatarButton.setOnClickListener {
+            changeAvatar()
+        }
+
+        binding.changeThemeButton.setOnClickListener {
+            changeTheme()
+        }
+
+        binding.changeLanguageButton.setOnClickListener {
+            try {
+                changeLanguage()
+            } catch (e: Exception){
+                Log.e("ChangeLang", "Error: $e")
             }
+        }
+
+        binding.logoutButton.setOnClickListener {
+            showConfirmDialog()
+        }
+
+        binding.addAccountButton.setOnClickListener {
+            addAccount()
+        }
+    }
+
+    private fun addAccount() {
+        //TODO("Not yet implemented")
+        Toast.makeText(context, "ok", Toast.LENGTH_SHORT).show()
+    }
+
+
+
+
+    // Функции для управления языковыми настройками
+
+    private fun changeLanguage() {
+        val languageCode = if (getCurrentLanguageCode() == "ru") "en" else "ru"
+        setAppLocale(requireContext(), languageCode)
+        restartActivity()
+    }
+
+    private fun setAppLocale(context: Context, languageCode: String) {
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+
+        val resources = context.resources
+        val config = Configuration(resources.configuration)
+        config.setLocale(locale)
+
+        context.createConfigurationContext(config)
+
+        resources.updateConfiguration(config, resources.displayMetrics)
+
+        // Сохраняем выбранный язык в SharedPreferences
+        val sharedPref = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+        sharedPref.edit().putString("app_language", languageCode).apply()
+    }
+
+    private fun getCurrentLanguageCode(): String {
+        // Получаем сохраненный язык или системный по умолчанию
+        val sharedPref = context?.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+        return sharedPref?.getString("app_language", Locale.getDefault().language) ?: Locale.getDefault().language
+    }
+
+    private fun restartActivity() {
+        val intent = Intent(requireActivity(), requireActivity().javaClass).apply {
+            putExtra("SHOW_PROFILE_FRAGMENT", true)
+            flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+        }
+        requireActivity().finish()
+        startActivity(intent)
+    }
+
+
+
+
+
+    //
+
+    private fun changeAvatar() {
+        //TODO("Not yet implemented")
+        Toast.makeText(context, "ok", Toast.LENGTH_SHORT).show()
+
+    }
+
+    private fun changeTheme() {
+        //TODO("Not yet implemented")
+        Toast.makeText(context, "ok", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showConfirmDialog() {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle("Выход из аккаунта")
+        builder.setMessage("Вы уверены, что хотите выйти из аккаунта" + " ${binding.profileName.text}?")
+
+        builder.setPositiveButton("Выйти") { dialog: DialogInterface, _: Int ->
+            dialog.dismiss()
+            logOut() // Вызываем функцию выхода из аккаунта
+        }
+
+        builder.setNegativeButton("Отмена") { dialog: DialogInterface, _: Int ->
+            dialog.dismiss()
+        }
+
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+
+    private fun logOut() {
+        //TODO("Not yet implemented")
+        Toast.makeText(context, "ok", Toast.LENGTH_SHORT).show()
+    }
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        _binding = null
     }
 
 }

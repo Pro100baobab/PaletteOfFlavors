@@ -35,4 +35,6 @@
     <color name="gray_for_filters">#EFEFEF</color>
 
     <color name="colorError">#FF5252</color>
+    <color name="textColor">#747448</color>
+
 </resources>
