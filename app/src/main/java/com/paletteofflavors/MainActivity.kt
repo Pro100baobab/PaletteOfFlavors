@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     private lateinit var appBarConfiguration: AppBarConfiguration
 
-    private lateinit var navBottomViewModel: NavBottomViewModel
+    lateinit var navBottomViewModel: NavBottomViewModel
     private var isFromUserInteraction = true // Флаг для определения источника изменения
 
     lateinit var sessionManager: SessionManager;
@@ -163,6 +163,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        if(navBottomViewModel.isContentVisible.value == false){
+            binding.appContent.visibility = View.GONE
+        }
+    }
 
     // Settings
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -187,11 +194,13 @@ class MainActivity : AppCompatActivity() {
 
     fun returnNavigation(){
         binding.bottomNavigation.visibility = View.VISIBLE
+        binding.appContent.isVisible = true
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
     }
     // Для показа полноэкранного фрагмента (авторизация/регистрация)
     fun showFullscreenFragment(fragment: Fragment) {
         binding.bottomNavigation.visibility = View.GONE
+        binding.appContent.visibility = View.GONE
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
         supportFragmentManager.beginTransaction()
@@ -203,8 +212,8 @@ class MainActivity : AppCompatActivity() {
     // Возвращение нижнего меню
     fun showNormalFragment(fragment: Fragment) {
         binding.bottomNavigation.visibility = View.VISIBLE
+        binding.appContent.isVisible = true
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-
         replaceMainFragment(fragment)
     }
 

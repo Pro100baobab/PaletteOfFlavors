@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 //import com.google.firebase.Firebase
@@ -297,9 +298,19 @@ class VerifyOTP : Fragment() {
 
                         //TODO: Add progress bar for connection time.
                         activity?.runOnUiThread {
-                            Toast.makeText(requireContext(), "Registration successful", Toast.LENGTH_SHORT).show()
 
-                            findNavController().navigate(R.id.action_verifyOTP_to_loginFragment)
+                            val activity = requireActivity() as MainActivity
+
+                            if(activity.sessionManager.checkLogin()){
+                                activity.findNavController(R.id.fragmentContainerView).navigate(R.id.action_verifyOTP_to_loginFragment)
+                                activity.binding.appContent.visibility = View.VISIBLE
+                                activity.navBottomViewModel.setIsContentVisible(true)
+                                Toast.makeText(requireContext(), "New account successful registered", Toast.LENGTH_SHORT).show()
+
+                            }   else {
+                                Toast.makeText(requireContext(), "Registration successful", Toast.LENGTH_SHORT).show()
+                                findNavController().navigate(R.id.action_verifyOTP_to_loginFragment)
+                            }
                         }
                     }
 

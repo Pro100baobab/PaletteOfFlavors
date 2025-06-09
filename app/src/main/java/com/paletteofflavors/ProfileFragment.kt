@@ -22,9 +22,13 @@ import kotlinx.coroutines.launch
 import android.content.res.Configuration
 import android.os.Build
 import android.util.Log
+import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import com.paletteofflavors.logIn.AuthorizationFragment
 import com.paletteofflavors.logIn.LoginFragment
+import com.paletteofflavors.logIn.RegistrationFragment
 import java.util.*
+import androidx.navigation.findNavController
+
 
 class ProfileFragment : Fragment() {
 
@@ -97,8 +101,11 @@ class ProfileFragment : Fragment() {
     }
 
     private fun addAccount() {
-        //TODO("Not yet implemented")
-        Toast.makeText(context, "ok", Toast.LENGTH_SHORT).show()
+        val activity = requireActivity() as MainActivity
+
+        activity.findNavController(R.id.fragmentContainerView).popBackStack()
+        activity.navBottomViewModel.setIsContentVisible(false)
+        activity.binding.appContent.visibility = View.GONE
     }
 
 

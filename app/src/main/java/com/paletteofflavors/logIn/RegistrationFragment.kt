@@ -10,10 +10,13 @@ import com.paletteofflavors.databinding.FragmentRegistrationBinding
 import android.util.Log
 import android.util.Patterns
 import android.widget.EditText
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.hbb20.CountryCodePicker
 import com.paletteofflavors.MainActivity
+import com.paletteofflavors.ProfileFragment
 import com.paletteofflavors.R
 import com.paletteofflavors.logIn.viewmodels.LoginViewModel
 import com.paletteofflavors.logIn.viewmodels.RegistrationViewModel
@@ -43,6 +46,11 @@ class RegistrationFragment : Fragment() {
 
         (requireActivity() as MainActivity).viewModelRegistration = ViewModelProvider(requireActivity())[RegistrationViewModel::class.java]
         vm = (requireActivity() as MainActivity).viewModelRegistration
+
+        if((requireActivity() as MainActivity).sessionManager.checkLogin()){
+            binding.tvLogin.isVisible = false
+        }
+
 
         binding.btnRegister.setOnClickListener {
 
@@ -90,8 +98,19 @@ class RegistrationFragment : Fragment() {
 
 
         binding.signupBackButtonRegistration.setOnClickListener {
-            requireActivity().viewModelStore.clear()
-            findNavController().navigate(R.id.action_registrationFragment_to_authorizationFragment)
+
+            val activity = requireActivity() as MainActivity
+
+            if(activity.sessionManager.checkLogin()){
+                activity.findNavController(R.id.fragmentContainerView).navigate(R.id.action_registrationFragment_to_loginFragment)
+                activity.binding.appContent.visibility = View.VISIBLE
+                activity.navBottomViewModel.setIsContentVisible(true)
+            }
+            else{
+                requireActivity().viewModelStore.clear()
+                findNavController().navigate(R.id.action_registrationFragment_to_authorizationFragment)
+            }
+
         }
 
     }
