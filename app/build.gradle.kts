@@ -62,6 +62,7 @@ dependencies {
     //implementation(libs.firebase.auth.ktx)
     implementation(libs.androidx.ui.text.android)
     implementation(libs.core.ktx)
+    implementation(libs.androidx.junit.ktx)
     //implementation(libs.androidx.runtime.saved.instance.state)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -131,4 +132,8 @@ dependencies {
 
     // Robolectric для тестирования фрагментов
     testImplementation("org.robolectric:robolectric:4.10.3")
+
+
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+
 }

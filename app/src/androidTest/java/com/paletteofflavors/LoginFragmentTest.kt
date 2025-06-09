@@ -20,6 +20,7 @@ class LoginFragmentTest {
     @Before
     fun setup() {
         scenario = ActivityScenario.launch(MainActivity::class.java)
+
     }
 
     @Test
