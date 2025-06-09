@@ -22,27 +22,22 @@ import kotlinx.coroutines.launch
 import android.content.res.Configuration
 import android.os.Build
 import android.util.Log
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import com.paletteofflavors.logIn.AuthorizationFragment
 import com.paletteofflavors.logIn.LoginFragment
 import com.paletteofflavors.logIn.RegistrationFragment
 import java.util.*
 import androidx.navigation.findNavController
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.first
 
 
 class ProfileFragment : Fragment() {
 
-    private var textViewProfileName: TextView? = null
-    private var textViewProfileEmail: TextView? = null
-    private var imageViewProfile: ImageView? = null
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,16 +45,18 @@ class ProfileFragment : Fragment() {
     ): View {
 
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
-
-        //textViewProfileName = view.findViewById(R.id.profile_name)
-        //imageViewProfile = view.findViewById(R.id.profile_image)
-
         return _binding!!.root
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        /*
+        (requireActivity() as MainActivity).profileViewModel.recipesCount.observe(viewLifecycleOwner){
+            count -> binding.recipesCount.text = count.toString()
+        }*/
+        recipesCountVisualization()
 
         // Получение данных сессии
         val usersDetails: HashMap<String, String?> =
@@ -195,6 +192,17 @@ class ProfileFragment : Fragment() {
     }
 
 
+    private fun recipesCountVisualization() {
+
+        lifecycleScope.launch {
+            val count = (requireActivity() as MainActivity)
+                .favoritesViewModel.myRecipes
+                .first()
+                .size
+
+            binding.recipesCount.text = count.toString()
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

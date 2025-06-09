@@ -103,7 +103,7 @@ class FavoritesFragment() : Fragment() {
         }
 
         binding.createRecipe.setOnClickListener {
-            (requireActivity() as MainActivity).showFullscreenFragment(CreateRecipeFragment())
+            (requireActivity() as MainActivity).replaceMainFragment(CreateRecipeFragment())
         }
 
     }
@@ -120,7 +120,7 @@ class FavoritesFragment() : Fragment() {
             } else {
                 recipeAdapter = RecipeAdapter(resipesViewModel.getRecipes()) { recipe ->
                     sharedViewModel.selectRecipe(recipe)
-                    (requireActivity() as MainActivity).showFullscreenFragment(RecipeDetailsFragment())
+                    //(requireActivity() as MainActivity).showFullscreenFragment(RecipeDetailsFragment())
                 }
                 recipesRecyclerView.adapter = recipeAdapter
             }

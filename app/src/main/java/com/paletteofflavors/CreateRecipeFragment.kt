@@ -119,9 +119,7 @@ class CreateRecipeFragment : Fragment() {
         }
 
         binding.backToFavoritesButton.setOnClickListener {
-            //(requireActivity() as MainActivity).showNormalFragment(FavoritesFragment())
-            parentFragmentManager.popBackStack()
-            (requireActivity() as MainActivity).returnNavigation()
+            (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
         }
 
         binding.saveButton.setOnClickListener {
