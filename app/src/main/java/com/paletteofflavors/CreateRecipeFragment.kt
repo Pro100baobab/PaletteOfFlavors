@@ -157,10 +157,8 @@ class CreateRecipeFragment : Fragment() {
                     // Показываем уведомление и возвращаемся назад
                     Toast.makeText(requireContext(), "Рецепт сохранен!", Toast.LENGTH_SHORT).show()
                     viewModel.cleanRecipeData()
-                    //onDestroyView()
-                    //(requireActivity() as MainActivity).showNormalFragment(FavoritesFragment())
-                    parentFragmentManager.popBackStack()
-                    (requireActivity() as MainActivity).returnNavigation()
+                    (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
+
                 }
                 .setNegativeButton("Отмена", null)
                 .show()

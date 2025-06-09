@@ -2,6 +2,7 @@ package com.paletteofflavors.logIn
 
 import DataSource.API.GoogleScriptService
 import DataSource.Local.SessionManager
+import DataSource.Network.Turso
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Paint
@@ -256,8 +257,9 @@ class VerifyOTP : Fragment() {
             findNavController().navigate(direction)
         }
         else{
-            registerUser(vmRegister.fullName.value!!, vmRegister.userName.value!!, vmRegister.phone.value!!,
-                vmRegister.email.value!!, vmRegister.password.value!!)
+            val TursoConnection = Turso(requireActivity() as MainActivity, requireContext())
+            TursoConnection.registerUser(vmRegister.fullName.value!!, vmRegister.userName.value!!, vmRegister.phone.value!!,
+                vmRegister.email.value!!, vmRegister.password.value!!, findNavController())
         }
     }
 
@@ -271,6 +273,7 @@ class VerifyOTP : Fragment() {
         super.onDestroyView()
     }
 
+    /*
     //TODO: Check that email and phone number are unique.
     private fun registerUser(fullname: String, username: String, phone_number: String, email: String, password: String) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -323,6 +326,9 @@ class VerifyOTP : Fragment() {
             }
         }
     }
+*/
+
+
 
     // FireBase Realization
     /*

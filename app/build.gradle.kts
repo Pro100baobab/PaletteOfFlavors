@@ -61,6 +61,7 @@ dependencies {
     //implementation(libs.firebase.database)
     //implementation(libs.firebase.auth.ktx)
     implementation(libs.androidx.ui.text.android)
+    implementation(libs.core.ktx)
     //implementation(libs.androidx.runtime.saved.instance.state)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -120,4 +121,14 @@ dependencies {
 
     // Для круглых аватаров
     implementation("de.hdodenhof:circleimageview:3.1.0")
+
+
+    // Для unit-тестов
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+
+    // Для инструментальных тестов (AndroidTest)
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
+
+    // Robolectric для тестирования фрагментов
+    testImplementation("org.robolectric:robolectric:4.10.3")
 }

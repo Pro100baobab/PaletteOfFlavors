@@ -1,6 +1,7 @@
 package com.paletteofflavors.logIn
 
 import DataSource.Local.SessionManager
+import DataSource.Network.Turso
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -18,6 +19,8 @@ import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.transition.Visibility
 import com.paletteofflavors.HomeFragment
@@ -128,7 +131,9 @@ class LoginFragment : Fragment() {
             }
 
 
-            loginUser(username, password)
+            //loginUser(username, password)
+            val TursoConnection = Turso(requireActivity() as MainActivity, requireContext(), rememberMe)
+            TursoConnection.loginUser(username, password)
             //TODO: progress bar
 
             it.isEnabled = true
@@ -141,7 +146,7 @@ class LoginFragment : Fragment() {
         }
 
     }
-
+/*
     private fun loginUser(username: String, password: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -202,7 +207,7 @@ class LoginFragment : Fragment() {
             }
         }
     }
-
+*/
     private fun checkInternetConnection(requireContext: Context): Boolean {
         if (isInternetAvailable(requireContext)) {
             Toast.makeText(context, "Internet is available", Toast.LENGTH_SHORT).show()
@@ -218,20 +223,6 @@ class LoginFragment : Fragment() {
         val currentNetwork = connectivityManager.activeNetwork
         val networkCapabilities = connectivityManager.getNetworkCapabilities(currentNetwork)
         return networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) ?: false
-    }
-
-    private fun rememberMe(_username: String, _password: String){
-
-        val mainActivity  = activity as MainActivity
-        if(rememberMe.isChecked){
-            mainActivity.sessionManagerRememberMe = SessionManager(requireContext(), SessionManager.SESSION_REMEMBERME)
-            mainActivity.sessionManagerRememberMe.createRememberMeSession(username =  _username, password =  _password)
-        }
-        else {
-            if(mainActivity .sessionManagerRememberMe.checkRememberMe()){
-                mainActivity .sessionManagerRememberMe.logoutUserSession()
-            }
-        }
     }
 
     override fun onDestroyView() {

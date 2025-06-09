@@ -116,7 +116,7 @@ class RegistrationFragment : Fragment() {
     }
 
 
-    private fun isFillsValid(fullName: EditText, username: EditText, email: EditText, phoneNumber: EditText, password: EditText, ccp: CountryCodePicker): Boolean {
+    fun isFillsValid(fullName: EditText, username: EditText, email: EditText, phoneNumber: EditText, password: EditText, ccp: CountryCodePicker): Boolean {
 
         return isValidFullName(fullName) && isValidUsername(username) && isValidEmail(email)
                 && isValidPhone(phoneEditText = phoneNumber, ccp = ccp) && isValidPassword(password)
