@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import tech.turso.libsql.Connection
 import tech.turso.libsql.Libsql
 
 
@@ -194,52 +195,50 @@ class Turso(
         }
     }
 
-    fun getAllNetworkRecipesFlow(): Flow<List<NetworkRecipe>> = flow {
-        val recipes = getAllNetworkRecipes()
-        emit(recipes)
-    }.flowOn(Dispatchers.IO)
-
-    suspend fun getAllNetworkRecipes(): List<NetworkRecipe> = withContext(Dispatchers.IO) {
-        val networkRecipeList = mutableListOf<NetworkRecipe>()
+    fun getAllNetworkRecipesFlow(): Flow<NetworkRecipe> = flow {
 
         if (!checkInternetConnection(context)) {
-            return@withContext emptyList()
+            return@flow
         }
 
         try {
             Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
                 db.connect().use { conn ->
 
-                    conn.query("SELECT * FROM Recipes").use { rows ->
+                    conn.query("SELECT * FROM Recipes ").use { rows ->
 
-                        var nextRow = rows.nextRow()
+                        var recipeRow = rows.nextRow()
 
-                        while (nextRow != null) {
+                        while (recipeRow != null) {
 
-                            Log.d("NetworkListSize", "+1")
+                            //Log.d("NetworkListSize", "+1")
+
+                            val recipeId = recipeRow[0].toString().toInt()
+                            val recipeIngredients = getIngredientsForRecipe(conn, recipeId)
 
                             val networkRecipe = NetworkRecipe(
-                                recipeId = nextRow[0].toString().toInt(),
-                                title = nextRow[1].toString(),
-                                instruction = nextRow[2].toString(),
-                                cookTime = nextRow[3].toString().toInt(),
-                                complexity = nextRow[4].toString().toInt(),
-                                commentsCount = nextRow[5].toString().toInt(),
-                                likesCount = nextRow[6].toString().toInt(),
-                                imageUrl = nextRow[7]?.toString(),
-                                dateTime = nextRow[8].toString(),
-                                ownerId = nextRow[9]?.toString()!!.toInt()
+                                recipeId = recipeRow[0].toString().toInt(),
+                                title = recipeRow[1].toString(),
+                                instruction = recipeRow[2].toString(),
+                                cookTime = recipeRow[3].toString().toInt(),
+                                complexity = recipeRow[4].toString().toInt(),
+                                commentsCount = recipeRow[5].toString().toInt(),
+                                likesCount = recipeRow[6].toString().toInt(),
+                                imageUrl = recipeRow[7]?.toString(),
+                                dateTime = recipeRow[8].toString(),
+                                ownerId = recipeRow[9]?.toString()!!.toInt(),
+
+                                // Получаем с помощью отдельного запроса
+                                ingredients = recipeIngredients
                             )
 
-                            networkRecipeList.add(networkRecipe)
-                            nextRow = rows.nextRow()
+                            emit(networkRecipe)
+                            recipeRow = rows.nextRow()
                         }
 
                     }
                 }
             }
-            Log.d("NetworkListSize", "${networkRecipeList.size}")
-            return@withContext networkRecipeList
 
         } catch (e: Exception) {
             Log.e("GetRecipeTable", "Error when try to get Recipes table", e)
@@ -251,10 +250,29 @@ class Turso(
                 )
                     .show()
             }*/
-            return@withContext emptyList()
         }
 
+    }.flowOn(Dispatchers.IO)
 
+
+
+    private suspend fun getIngredientsForRecipe(conn: Connection, recipeId: Int): List<String> {
+        val ingredientsList = mutableListOf<String>()
+
+        conn.query("""
+        SELECT IngredientDictionary.name 
+        FROM RecipeIngredients
+        JOIN IngredientDictionary ON RecipeIngredients.ingredient_id = IngredientDictionary.ingredient_id
+        WHERE RecipeIngredients.recipe_id = $recipeId
+    """).use { rows ->
+            var row = rows.nextRow()
+            while (row != null) {
+                row[0].toString().let { ingredientsList.add(it) }
+                row = rows.nextRow()
+            }
+        }
+
+        return ingredientsList
     }
 
 

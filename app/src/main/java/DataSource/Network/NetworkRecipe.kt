@@ -7,7 +7,7 @@ data class NetworkRecipe(
     //Base margins
     val recipeId: Int,
     val title: String,
-    //val ingredients: List<String>, -- Будет получено путем комбинированного запроса с JOIN
+    val ingredients: List<String>, // Будет получено путем комбинированного запроса с JOIN
     val instruction: String,
     val cookTime: Int,
 

@@ -52,7 +52,7 @@ class NetworkRecipeDetailsFragment : Fragment() {
     private fun bindNetworkRecipeData(networkRecipe: NetworkRecipe) {
         binding.recipeDetailsTitle.text = networkRecipe.title
         binding.recipeDetailsCookingTime.text = "${networkRecipe.cookTime} мин"
-        binding.recipeDetailsIngredientsList.text = "в процессе" //networkRecipe.ingredients.joinToString("\n") { "• $it" }
+        binding.recipeDetailsIngredientsList.text = networkRecipe.ingredients.joinToString("\n") { "• $it" }
         binding.instructionsText.text = networkRecipe.instruction
     }
 
