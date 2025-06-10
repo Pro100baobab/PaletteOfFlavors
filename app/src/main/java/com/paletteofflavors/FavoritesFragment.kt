@@ -1,5 +1,7 @@
 package com.paletteofflavors
 
+import DataSource.Network.NetworkRecipe
+import DataSource.Network.Turso
 import DataSource.model.FavoritesViewModel
 import DataSource.model.FavoritesViewModelFactory
 import DataSource.model.RecipeSharedViewModel
@@ -27,10 +29,12 @@ import com.paletteofflavors.databinding.ActivityMainBinding
 import com.paletteofflavors.databinding.FragmentFavoritesBinding
 import com.paletteofflavors.logIn.viewmodels.LoginViewModel
 import domain.Recipe
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class FavoritesFragment() : Fragment() {
@@ -41,20 +45,15 @@ class FavoritesFragment() : Fragment() {
     }
     private val sharedViewModel: RecipeSharedViewModel by activityViewModels()
 
-    private val resipesViewModel: CreateRecipeViewModel by lazy {
-        ((requireActivity() as MainActivity).createRecipeViewModel)
-    }
-
     private var _binding: FragmentFavoritesBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var recipesRecyclerView: RecyclerView
     private lateinit var recipeAdapter: RecipeAdapter
+    private lateinit var networkRecipeAdapter: NetworkRecipeAdapter
 
     private lateinit var hintRecipe: TextView
     private lateinit var hintuserRecipe: TextView
-    private lateinit var savedRadioButton: RadioButton
-    private lateinit var userRadioButton: RadioButton
     private lateinit var radioGroup: RadioGroup
 
 
@@ -62,8 +61,6 @@ class FavoritesFragment() : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
-
         _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
         return _binding!!.root
     }
@@ -75,8 +72,7 @@ class FavoritesFragment() : Fragment() {
         hintRecipe = binding.favoritesFragmentMissingItemHint
         hintuserRecipe = binding.favoritesFragmentMissingItemHint2
         radioGroup = binding.favoritesFragmentRadioGroup
-        //savedRadioButton = _binding.favoritesFragmentSavedRecipes
-        //userRadioButton = _binding.favoritesFragmentMyRecipes
+
 
         recipesRecyclerView = binding.recipesRecyclerView
         recipesRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -136,58 +132,48 @@ class FavoritesFragment() : Fragment() {
     }
 
 
-
     private fun updateSavedRecipes() {
         hintuserRecipe.visibility = View.INVISIBLE
         hintRecipe.visibility = View.INVISIBLE
 
-        val recipelist = getSavedRecipeList()
-        if (recipelist.isEmpty()) {
-            hintRecipe.visibility = View.VISIBLE
-        }
-
-        recipeAdapter = RecipeAdapter(
-            recipeList = recipelist,
-            onItemClick = { recipe ->
-                sharedViewModel.selectRecipe(recipe)
-                (requireActivity() as MainActivity).showFullscreenFragment(RecipeDetailsFragment())
-            },
-            removeItem = { recipe ->
-                //viewModel.deleteRecipe(recipe) не та база
-            }
-        )
-        recipesRecyclerView.adapter = recipeAdapter
+        getSavedRecipeList()
     }
 
 
-    private fun getSavedRecipeList(): ArrayList<Recipe> {
-        // TODO(): Inclement logic of getting data from local database(saved recipes)
-        val recipelist = arrayListOf<Recipe>(
-            Recipe(
-                id = 1,
-                title = "Пример 1",
-                ingredients = List<String>(2, { "биба"; "боба" }),
-                instruction = "Инструкция",
-                cookTime = 60,
-                //comments = 4,
-                //likes = 5,
-                imageUrl = null
-            ),
-            Recipe(
-                2, "Пример 2", listOf("бибаF", "бобаF"), "Инструкция 2",
-                120, null,/* 7, likes = 3*/
-            ),
-            Recipe(
-                2, "Пример 2", listOf("бибаF", "бобаF"), "Инструкция 2",
-                120, null /*,7, likes = 3*/
-            ),
-            Recipe(
-                2, "Пример 2", listOf("бибаF", "бобаF"), "Инструкция 2",
-                120, null /*,7, likes = 3*/
-            )
-        )
+    // ЭТО НЕТВОРК А НЕ СОХРАНЕННЫЕ
+    private fun getSavedRecipeList() {
+        val TursoConnection = Turso(requireActivity() as MainActivity, requireContext())
 
-        return recipelist
+        lifecycleScope.launch {
+            try {
+
+
+                TursoConnection.getAllNetworkRecipesFlow()
+                    .collect { networkRecipes ->
+                        if (networkRecipes.isEmpty()) {
+                            hintRecipe.visibility = View.VISIBLE
+                        } else {
+                            hintRecipe.visibility = View.INVISIBLE
+                        }
+
+                        networkRecipeAdapter = NetworkRecipeAdapter(
+                            recipeList = networkRecipes,
+                            onItemClick = { networkRecipe ->
+                                sharedViewModel.selectNetworkRecipe(networkRecipe)
+                                (requireActivity() as MainActivity).replaceMainFragment(
+                                    NetworkRecipeDetailsFragment()
+                                )
+                            },
+                            removeItem = { networkRecipe ->
+                                // обработка удаления
+                            }
+                        )
+                        recipesRecyclerView.adapter = networkRecipeAdapter
+                    }
+            } catch (e:Exception){
+                Log.d("NetworkProblem", "$e")
+            }
+        }
     }
 
 

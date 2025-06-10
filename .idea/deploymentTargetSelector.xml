@@ -13,10 +13,7 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="LoginFragmentTest">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="RegistrationFragmentTest">
+      <SelectionState runConfigName="Tests in 'com.paletteofflavors'">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

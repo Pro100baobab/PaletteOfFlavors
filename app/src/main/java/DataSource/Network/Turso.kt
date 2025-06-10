@@ -2,6 +2,8 @@ package DataSource.Network
 
 import DataSource.Local.SessionManager
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.util.Log
 import android.view.View
 import android.widget.CheckBox
@@ -14,17 +16,26 @@ import com.paletteofflavors.MainActivity
 import com.paletteofflavors.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import tech.turso.libsql.Libsql
 
 
-class Turso(private val activity: MainActivity, private val context: Context, private val rememberMe: CheckBox? = null){
+class Turso(
+    private val activity: MainActivity,
+    private val context: Context,
+    private val rememberMe: CheckBox? = null
+) {
+
+    private val dbUrl = (activity as MainActivity).TURSO_DATABASE_URL
+    private val dbAuthToken = (activity as MainActivity).TURSO_AUTH_TOKEN
+
     fun loginUser(username: String, password: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val dbUrl = (activity as MainActivity).TURSO_DATABASE_URL
-                val dbAuthToken = (activity as MainActivity).TURSO_AUTH_TOKEN
-
                 Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
                     db.connect().use { conn ->
                         val query = """
@@ -35,7 +46,7 @@ class Turso(private val activity: MainActivity, private val context: Context, pr
 
                         conn.query(query).use { rows ->
                             val nextRow = rows.nextRow()
-                            if ( nextRow != null) {
+                            if (nextRow != null) {
 
                                 //val _id = nextRow[0].toString()
                                 //val _username = nextRow[1].toString()
@@ -47,21 +58,36 @@ class Turso(private val activity: MainActivity, private val context: Context, pr
                                 activity?.runOnUiThread {
 
                                     // Create a Session by SessionManager
-                                    (activity as MainActivity).sessionManager = SessionManager(context, SessionManager.SESSION_USERSESSION)
-                                    (activity as MainActivity).sessionManager.createLoginSession(fullName = _fullName, username = username, email = _email, phoneNumber = _phoneNumber, password = password) //password, а не _password, потому что в бд хранится хешированный пароль
+                                    (activity as MainActivity).sessionManager =
+                                        SessionManager(context, SessionManager.SESSION_USERSESSION)
+                                    (activity as MainActivity).sessionManager.createLoginSession(
+                                        fullName = _fullName,
+                                        username = username,
+                                        email = _email,
+                                        phoneNumber = _phoneNumber,
+                                        password = password
+                                    ) //password, а не _password, потому что в бд хранится хешированный пароль
 
-                                    Toast.makeText(context,
-                                        "Login successful: $username $_fullName $_phoneNumber", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Login successful: $username $_fullName $_phoneNumber",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
 
                                     // Save LogIn Settings if checked
                                     rememberMe(username, password)
 
-                                    (activity as? MainActivity)?.binding?.appContent?.isVisible = true
+                                    (activity as? MainActivity)?.binding?.appContent?.isVisible =
+                                        true
                                     (activity as? MainActivity)?.showNormalFragment(HomeFragment())
                                 }
                             } else {
                                 activity?.runOnUiThread {
-                                    Toast.makeText(context, "Invalid credentials", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Invalid credentials",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
                         }
@@ -80,57 +106,78 @@ class Turso(private val activity: MainActivity, private val context: Context, pr
         }
     }
 
+    private fun rememberMe(_username: String, _password: String) {
 
-    private fun rememberMe(_username: String, _password: String){
-
-        val mainActivity  = activity as MainActivity
-        if(rememberMe!!.isChecked){
-            mainActivity.sessionManagerRememberMe = SessionManager(context, SessionManager.SESSION_REMEMBERME)
-            mainActivity.sessionManagerRememberMe.createRememberMeSession(username =  _username, password =  _password)
-        }
-        else {
-            if(mainActivity .sessionManagerRememberMe.checkRememberMe()){
-                mainActivity .sessionManagerRememberMe.logoutUserSession()
+        val mainActivity = activity as MainActivity
+        if (rememberMe!!.isChecked) {
+            mainActivity.sessionManagerRememberMe =
+                SessionManager(context, SessionManager.SESSION_REMEMBERME)
+            mainActivity.sessionManagerRememberMe.createRememberMeSession(
+                username = _username,
+                password = _password
+            )
+        } else {
+            if (mainActivity.sessionManagerRememberMe.checkRememberMe()) {
+                mainActivity.sessionManagerRememberMe.logoutUserSession()
             }
         }
     }
 
 
-    fun registerUser(fullname: String, username: String, phone_number: String, email: String, password: String, navController: NavController) {
+    fun registerUser(
+        fullname: String,
+        username: String,
+        phone_number: String,
+        email: String,
+        password: String,
+        navController: NavController
+    ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val dbUrl = (activity as MainActivity).TURSO_DATABASE_URL
-                val dbAuthToken = (activity as MainActivity).TURSO_AUTH_TOKEN
-
                 Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
                     db.connect().use { conn ->
                         // Проверяем, существует ли пользователь
-                        conn.query("SELECT username FROM users WHERE username = '$username'").use { rows ->
-                            if (rows.nextRow() != null) {
-                                activity?.runOnUiThread {
-                                    Toast.makeText(context, "Username already exists", Toast.LENGTH_SHORT).show()
+                        conn.query("SELECT username FROM users WHERE username = '$username'")
+                            .use { rows ->
+                                if (rows.nextRow() != null) {
+                                    activity?.runOnUiThread {
+                                        Toast.makeText(
+                                            context,
+                                            "Username already exists",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                    return@use
                                 }
-                                return@use
                             }
-                        }
 
                         // TODO: Alter table users in turso for default CURRENT_TIMESTAMP
                         // Регистрируем нового пользователя
                         conn.query(
-                            "INSERT INTO users (fullname, username, email, phone_number, password, created_at) VALUES('$fullname','$username', '$email', '$phone_number', '${password.hashCode()}', CURRENT_TIMESTAMP)")
+                            "INSERT INTO users (fullname, username, email, phone_number, password, created_at) VALUES('$fullname','$username', '$email', '$phone_number', '${password.hashCode()}', CURRENT_TIMESTAMP)"
+                        )
 
 
                         //TODO: Add progress bar for connection time.
                         activity?.runOnUiThread {
 
-                            if(activity.sessionManager.checkLogin()){
-                                activity.findNavController(R.id.fragmentContainerView).navigate(R.id.action_verifyOTP_to_loginFragment)
+                            if (activity.sessionManager.checkLogin()) {
+                                activity.findNavController(R.id.fragmentContainerView)
+                                    .navigate(R.id.action_verifyOTP_to_loginFragment)
                                 activity.binding.appContent.visibility = View.VISIBLE
                                 activity.navBottomViewModel.setIsContentVisible(true)
-                                Toast.makeText(context, "New account successful registered", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "New account successful registered",
+                                    Toast.LENGTH_SHORT
+                                ).show()
 
-                            }   else {
-                                Toast.makeText(context, "Registration successful", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Registration successful",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 navController.navigate(R.id.action_verifyOTP_to_loginFragment)
                             }
                         }
@@ -140,11 +187,93 @@ class Turso(private val activity: MainActivity, private val context: Context, pr
             } catch (e: Exception) {
                 Log.e("Registration", "Error during registration", e)
                 activity?.runOnUiThread {
-                    Toast.makeText(context, "Registration failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Registration failed: ${e.message}", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
     }
 
+    fun getAllNetworkRecipesFlow(): Flow<List<NetworkRecipe>> = flow {
+        val recipes = getAllNetworkRecipes()
+        emit(recipes)
+    }.flowOn(Dispatchers.IO)
 
+    suspend fun getAllNetworkRecipes(): List<NetworkRecipe> = withContext(Dispatchers.IO) {
+        val networkRecipeList = mutableListOf<NetworkRecipe>()
+
+        if (!checkInternetConnection(context)) {
+            return@withContext emptyList()
+        }
+
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+
+                    conn.query("SELECT * FROM Recipes").use { rows ->
+
+                        var nextRow = rows.nextRow()
+
+                        while (nextRow != null) {
+
+                            Log.d("NetworkListSize", "+1")
+
+                            val networkRecipe = NetworkRecipe(
+                                recipeId = nextRow[0].toString().toInt(),
+                                title = nextRow[1].toString(),
+                                instruction = nextRow[2].toString(),
+                                cookTime = nextRow[3].toString().toInt(),
+                                complexity = nextRow[4].toString().toInt(),
+                                commentsCount = nextRow[5].toString().toInt(),
+                                likesCount = nextRow[6].toString().toInt(),
+                                imageUrl = nextRow[7]?.toString(),
+                                dateTime = nextRow[8].toString(),
+                                ownerId = nextRow[9]?.toString()!!.toInt()
+                            )
+
+                            networkRecipeList.add(networkRecipe)
+                            nextRow = rows.nextRow()
+                        }
+
+                    }
+                }
+            }
+            Log.d("NetworkListSize", "${networkRecipeList.size}")
+            return@withContext networkRecipeList
+
+        } catch (e: Exception) {
+            Log.e("GetRecipeTable", "Error when try to get Recipes table", e)
+            /*activity.runOnUiThread {
+                Toast.makeText(
+                    context,
+                    "Getting rows from Recipes table failed: ${e.message}",
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            }*/
+            return@withContext emptyList()
+        }
+
+
+    }
+
+
+
+    private fun checkInternetConnection(requireContext: Context): Boolean {
+        if (isInternetAvailable(requireContext)) {
+            //Toast.makeText(requireContext, "Internet is available", Toast.LENGTH_SHORT).show() --Can't toast on a thread that has not called Looper.prepare()
+            return true
+        } else {
+            //Toast.makeText(requireContext, "No internet connection", Toast.LENGTH_SHORT).show() -- Can't toast on a thread that has not called Looper.prepare()
+            return false
+        }
+    }
+
+    private fun isInternetAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(ConnectivityManager::class.java)
+        val currentNetwork = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(currentNetwork)
+        return networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            ?: false
+    }
 }

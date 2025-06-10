@@ -15,19 +15,6 @@ data class Recipe(
     val imageUrl: String? = null
 )
 
-/*
-data class Recipe(
-    val id: Int,
-    val title: String,
-    val ingredients: List<String>,
-    val instruction: String,
-    val imageUrl: String?,
-    val cookTime: Int,
 
-    // Для облачных рецептов
-    val comments: Int,
-    val likes: Int
-    // val stars: Int
-)*/
 
 

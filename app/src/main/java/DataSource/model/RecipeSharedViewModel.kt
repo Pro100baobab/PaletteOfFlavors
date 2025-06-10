@@ -1,5 +1,6 @@
 package DataSource.model
 
+import DataSource.Network.NetworkRecipe
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.Recipe
@@ -11,9 +12,18 @@ class RecipeSharedViewModel : ViewModel() {
     private val _selectedRecipe = MutableStateFlow<Recipe?>(null)
     val selectedRecipe = _selectedRecipe.asStateFlow()
 
+    private val _selectedNetworkRecipe = MutableStateFlow<NetworkRecipe?>(null)
+    val selectedNetworkRecipe = _selectedNetworkRecipe.asStateFlow()
+
     fun selectRecipe(recipe: Recipe) {
         viewModelScope.launch {
             _selectedRecipe.emit(recipe)
+        }
+    }
+
+    fun selectNetworkRecipe(networkRecipe: NetworkRecipe){
+        viewModelScope.launch {
+            _selectedNetworkRecipe.emit(networkRecipe)
         }
     }
 }

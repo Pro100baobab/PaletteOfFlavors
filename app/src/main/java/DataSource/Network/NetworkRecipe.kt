@@ -1,27 +1,36 @@
 package DataSource.Network
 
+import android.icu.util.MeasureUnit.Complexity
 import domain.Recipe
 
 data class NetworkRecipe(
+    //Base margins
     val recipeId: Int,
-    val recipeName: String,
-    val ingredientsList: List<String>,
-    val recipeInstructions: String,
-    val recipeImageUrl: String?,
-    val cookingTime: Int,
-    val recipecomments: Int,
-    val recipelikes: Int
-)
+    val title: String,
+    //val ingredients: List<String>, -- Будет получено путем комбинированного запроса с JOIN
+    val instruction: String,
+    val cookTime: Int,
 
-fun NetworkRecipe.toRecipe(): Recipe {
-    return Recipe(
-        id = recipeId,
-        title = recipeName,
-        ingredients = ingredientsList,
-        instruction = recipeInstructions,
-        imageUrl = recipeImageUrl,
-        cookTime = cookingTime,
-        //comments = recipecomments,
-        //likes = recipelikes
-    )
+    //Only networks margins
+    val complexity: Int,
+    val commentsCount: Int,
+    val likesCount: Int,
+    val imageUrl: String? = null,
+    val dateTime: String,
+    val ownerId: Int? = null
+    ){
+
+    /*
+    fun NetworkRecipe.toRecipe(): Recipe {
+        return Recipe(
+            id = recipeId,
+            title = recipeName,
+            ingredients = ingredientsList,
+            instruction = recipeInstructions,
+            imageUrl = recipeImageUrl,
+            cookTime = cookingTime,
+            //comments = recipecomments,
+            //likes = recipelikes
+        )
+    }*/
 }
