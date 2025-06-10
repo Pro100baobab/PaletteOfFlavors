@@ -4,6 +4,8 @@ import DataSource.model.FavoritesViewModel
 import DataSource.model.FavoritesViewModelFactory
 import DataSource.model.RecipeSharedViewModel
 import ViewModels.CreateRecipeViewModel
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.text.Layout.Directions
 import android.util.Log
@@ -113,34 +115,48 @@ class FavoritesFragment() : Fragment() {
         hintuserRecipe.visibility = View.INVISIBLE
         hintRecipe.visibility = View.INVISIBLE
 
-        // Подписываемся на Flow из ViewModel
         viewModel.myRecipes.onEach { recipes ->
             if (recipes.isEmpty()) {
                 hintuserRecipe.visibility = View.VISIBLE
-            } else {
-                recipeAdapter = RecipeAdapter(resipesViewModel.getRecipes()) { recipe ->
-                    sharedViewModel.selectRecipe(recipe)
-                    //(requireActivity() as MainActivity).showFullscreenFragment(RecipeDetailsFragment())
-                }
-                recipesRecyclerView.adapter = recipeAdapter
             }
-        }.launchIn(lifecycleScope)  // Автоматически отменяется при уничтожении фрагмента
+
+            recipeAdapter = RecipeAdapter(
+                recipeList = recipes,
+                onItemClick = { recipe ->
+                    sharedViewModel.selectRecipe(recipe)
+                    (requireActivity() as MainActivity).replaceMainFragment(RecipeDetailsFragment())
+                },
+                removeItem = { recipe ->
+                    showDeleteRecipeConfirmDialog(recipe)
+                }
+            )
+            recipesRecyclerView.adapter = recipeAdapter
+
+        }.launchIn(lifecycleScope)
     }
+
+
 
     private fun updateSavedRecipes() {
         hintuserRecipe.visibility = View.INVISIBLE
         hintRecipe.visibility = View.INVISIBLE
 
         val recipelist = getSavedRecipeList()
-        recipeAdapter = RecipeAdapter(getSavedRecipeList()) { recipe ->
-            sharedViewModel.selectRecipe(recipe)
-            (requireActivity() as MainActivity).showFullscreenFragment(RecipeDetailsFragment())
-        }
-        recipesRecyclerView.adapter = recipeAdapter
-
-        if (recipelist.size == 0) {
+        if (recipelist.isEmpty()) {
             hintRecipe.visibility = View.VISIBLE
         }
+
+        recipeAdapter = RecipeAdapter(
+            recipeList = recipelist,
+            onItemClick = { recipe ->
+                sharedViewModel.selectRecipe(recipe)
+                (requireActivity() as MainActivity).showFullscreenFragment(RecipeDetailsFragment())
+            },
+            removeItem = { recipe ->
+                //viewModel.deleteRecipe(recipe) не та база
+            }
+        )
+        recipesRecyclerView.adapter = recipeAdapter
     }
 
 
@@ -172,6 +188,24 @@ class FavoritesFragment() : Fragment() {
         )
 
         return recipelist
+    }
+
+
+    private fun showDeleteRecipeConfirmDialog(recipe: Recipe) {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle("Удаление рецепта")
+        builder.setMessage("Вы уверены, что хотите удалить рецепт ${recipe.title}")
+
+        builder.setPositiveButton("Удалить") { dialog: DialogInterface, _: Int ->
+            viewModel.deleteRecipe(recipe)
+        }
+
+        builder.setNegativeButton("Отменить") { dialog: DialogInterface, _: Int ->
+            dialog.dismiss()
+        }
+
+        val dialog = builder.create()
+        dialog.show()
     }
 
 

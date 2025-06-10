@@ -8,9 +8,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import domain.Recipe
 
+
 class RecipeAdapter(
     private val recipeList: List<Recipe>,
-    private val onItemClick: (Recipe) -> Unit
+    private val onItemClick: (Recipe) -> Unit,
+    private val removeItem: (Recipe) -> Unit
 ): RecyclerView.Adapter<RecipeAdapter.RecipeHolder>() {
 
     class RecipeHolder(view: View): RecyclerView.ViewHolder(view){
@@ -19,6 +21,7 @@ class RecipeAdapter(
         val commentsOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_comments)
         val timeOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_time)
         val savedImageView: ImageView = itemView.findViewById(R.id.favorites_fragment_item_saved_icon)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeHolder {
@@ -43,17 +46,10 @@ class RecipeAdapter(
 
         holder.itemView.setOnClickListener {
             onItemClick(recipe)
-            //(requireActivity() as MainActivity).showFullscreenFragment(RecipeDetailsFragment())
         }
 
         holder.savedImageView.setOnClickListener {
-            //TODO(): Implement logic to remove the recipe from the favorite list
+            removeItem(recipe)
         }
     }
-
-    private fun removeItem(position: Int){
-        notifyItemRemoved(position)
-        notifyItemRangeChanged(position, recipeList.size)
-    }
-
 }

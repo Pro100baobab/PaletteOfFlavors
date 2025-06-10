@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import domain.Recipe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class FavoritesViewModel(
@@ -23,6 +24,11 @@ class FavoritesViewModel(
     // Get all recipes from local database as Flow
     val myRecipes: Flow<List<Recipe>> = recipeDao.getAllRecipes()
 
+    suspend fun getRecipes(): List<Recipe> {
+        return myRecipes.first()
+    }
+
+    // TODO: использовать в ProfileFragment
     suspend fun getRecipeCount(): Int{
         return myRecipes.count()
     }
@@ -33,7 +39,7 @@ class FavoritesViewModel(
         }
     }
 
-    fun deleteRecipes(recipe: Recipe){
+    fun deleteRecipe(recipe: Recipe){
         viewModelScope.launch {
             recipeDao.delete(recipe)
         }

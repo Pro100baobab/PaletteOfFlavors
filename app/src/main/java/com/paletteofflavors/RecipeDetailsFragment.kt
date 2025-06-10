@@ -38,7 +38,7 @@ class RecipeDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 sharedViewModel.selectedRecipe.collect { recipe ->
                     recipe?.let { bindRecipeData(it) }
@@ -48,8 +48,9 @@ class RecipeDetailsFragment : Fragment() {
 
 
         binding.backButtonRecipeDetails.setOnClickListener {
-            parentFragmentManager.popBackStack()
-            (requireActivity() as MainActivity).returnNavigation()
+            //parentFragmentManager.popBackStack()
+            //(requireActivity() as MainActivity).returnNavigation()
+            (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
         }
     }
 
