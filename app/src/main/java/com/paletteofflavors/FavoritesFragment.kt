@@ -144,34 +144,31 @@ class FavoritesFragment() : Fragment() {
     private fun getSavedRecipeList() {
         val TursoConnection = Turso(requireActivity() as MainActivity, requireContext())
 
+        networkRecipeAdapter = NetworkRecipeAdapter(
+            onItemClick = { networkRecipe ->
+                sharedViewModel.selectNetworkRecipe(networkRecipe)
+                (requireActivity() as MainActivity).replaceMainFragment(
+                    NetworkRecipeDetailsFragment()
+                )
+            },
+            removeItem = { networkRecipe ->
+                // обработка удаления
+            }
+        )
+        recipesRecyclerView.adapter = networkRecipeAdapter
+
         lifecycleScope.launch {
             try {
 
+                hintRecipe.visibility = View.INVISIBLE
 
                 TursoConnection.getAllNetworkRecipesFlow()
                     .collect { networkRecipes ->
-                        if (networkRecipes.isEmpty()) {
-                            hintRecipe.visibility = View.VISIBLE
-                        } else {
-                            hintRecipe.visibility = View.INVISIBLE
-                        }
-
-                        networkRecipeAdapter = NetworkRecipeAdapter(
-                            recipeList = networkRecipes,
-                            onItemClick = { networkRecipe ->
-                                sharedViewModel.selectNetworkRecipe(networkRecipe)
-                                (requireActivity() as MainActivity).replaceMainFragment(
-                                    NetworkRecipeDetailsFragment()
-                                )
-                            },
-                            removeItem = { networkRecipe ->
-                                // обработка удаления
-                            }
-                        )
-                        recipesRecyclerView.adapter = networkRecipeAdapter
+                        networkRecipeAdapter.addRecipe(networkRecipes)
                     }
             } catch (e:Exception){
                 Log.d("NetworkProblem", "$e")
+                hintRecipe.visibility = View.VISIBLE
             }
         }
     }

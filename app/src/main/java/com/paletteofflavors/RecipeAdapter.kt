@@ -58,7 +58,6 @@ class RecipeAdapter(
 
 
 class NetworkRecipeAdapter(
-    private val recipeList: List<NetworkRecipe>,
     private val onItemClick: (NetworkRecipe) -> Unit,
     private val removeItem: (NetworkRecipe) -> Unit
 ): RecyclerView.Adapter<NetworkRecipeAdapter.RecipeHolder>() {
@@ -77,20 +76,35 @@ class NetworkRecipeAdapter(
         return RecipeHolder(itemView)
     }
 
-    override fun getItemCount(): Int {
-        return recipeList.size
+
+
+    private val recipes = mutableListOf<NetworkRecipe>()
+
+    fun addRecipe(recipe: NetworkRecipe) {
+        recipes.add(recipe)
+        notifyItemInserted(recipes.size - 1)
     }
 
+    fun clearRecipes() {
+        recipes.clear()
+        notifyDataSetChanged()
+    }
 
+    override fun getItemCount(): Int {
+        return recipes.size
+    }
 
     override fun onBindViewHolder(holder: RecipeHolder, position: Int) {
 
-        val networkRecipe = recipeList[position]
+        val networkRecipe = recipes[position]
 
-        holder.titleOfRecipe.text = networkRecipe.title
-        holder.likesOfRecipe.text = recipeList[position].likesCount.toString()
-        holder.commentsOfRecipe.text = recipeList[position].commentsCount.toString()
-        holder.timeOfRecipe.text = networkRecipe.cookTime.toString()
+        with(holder) {
+            titleOfRecipe.text = networkRecipe.title
+            likesOfRecipe.text = networkRecipe.likesCount.toString()
+            commentsOfRecipe.text = networkRecipe.commentsCount.toString()
+            timeOfRecipe.text = networkRecipe.cookTime.toString()
+        }
+
 
         holder.itemView.setOnClickListener {
             onItemClick(networkRecipe)

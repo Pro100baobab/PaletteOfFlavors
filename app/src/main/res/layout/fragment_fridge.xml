@@ -1,15 +1,254 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#815555"
+    android:background="@color/light_yellow"
     tools:context=".FridgeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:text="Fragment fridge" />
+        android:background="@color/light_yellow"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="4dp">
 
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nestedScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/selected_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/essential_ingredients_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="@android:color/white"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="4dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:src="@drawable/edit_24px"
+                                app:tint="@color/black" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Самое необходимое"
+                                android:textColor="@color/black"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:src="@drawable/arrow_downward_24px"
+                                app:tint="@color/black"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp"
+                            android:paddingBottom="16dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <CheckBox
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:buttonTint="@color/dark_red"
+                                    android:text="List item"
+                                    android:textColor="@color/black" />
+                                <CheckBox
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:buttonTint="@color/dark_red"
+                                    android:text="List item"
+                                    android:textColor="@color/black" />
+                                <CheckBox
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:buttonTint="@color/dark_red"
+                                    android:text="List item"
+                                    android:textColor="@color/black" />
+                                <CheckBox
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:buttonTint="@color/dark_red"
+                                    android:text="List item"
+                                    android:textColor="@color/black" />
+                                <CheckBox
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:buttonTint="@color/dark_red"
+                                    android:text="List item"
+                                    android:textColor="@color/black" />
+
+                            </LinearLayout>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <CheckBox
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:buttonTint="@color/dark_red"
+                                    android:text="List item"
+                                    android:textColor="@color/black" />
+                                <CheckBox
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:buttonTint="@color/dark_red"
+                                    android:text="List item"
+                                    android:textColor="@color/black" />
+                                <CheckBox
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:buttonTint="@color/dark_red"
+                                    android:text="List item"
+                                    android:textColor="@color/black" />
+                                <CheckBox
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:buttonTint="@color/dark_red"
+                                    android:text="List item"
+                                    android:textColor="@color/black" />
+                                <CheckBox
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:buttonTint="@color/dark_red"
+                                    android:text="List item"
+                                    android:textColor="@color/black" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <Button
+                    android:id="@+id/fruits_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:backgroundTint="@android:color/white"
+                    android:drawableEnd="@drawable/arrow_forward_24px"
+                    android:drawableTint="@color/black"
+                    android:gravity="start|center_vertical"
+                    android:padding="16dp"
+                    android:text="Фрукты"
+                    android:textColor="@android:color/black" />
+
+                <Button
+                    android:id="@+id/vegetables_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:backgroundTint="@android:color/white"
+                    android:drawableEnd="@drawable/arrow_forward_24px"
+                    android:drawableTint="@color/black"
+                    android:gravity="start|center_vertical"
+                    android:padding="16dp"
+                    android:text="Овощи"
+                    android:textColor="@android:color/black" />
+
+                <Button
+                    android:id="@+id/dairy_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:backgroundTint="@android:color/white"
+                    android:drawableEnd="@drawable/arrow_forward_24px"
+                    android:drawableTint="@color/black"
+                    android:gravity="start|center_vertical"
+                    android:padding="16dp"
+                    android:text="Молочные продукты"
+                    android:textColor="@android:color/black" />
+
+                <Button
+                    android:id="@+id/berries_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:backgroundTint="@android:color/white"
+                    android:drawableEnd="@drawable/arrow_forward_24px"
+                    android:drawableTint="@color/black"
+                    android:gravity="start|center_vertical"
+                    android:padding="16dp"
+                    android:text="Ягоды"
+                    android:textColor="@android:color/black" />
+
+                <Button
+                    android:id="@+id/mushrooms_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:backgroundTint="@android:color/white"
+                    android:drawableEnd="@drawable/arrow_forward_24px"
+                    android:drawableTint="@color/black"
+                    android:gravity="start|center_vertical"
+                    android:padding="16dp"
+                    android:text="Грибы"
+                    android:textColor="@android:color/black" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <Button
+            android:id="@+id/selected_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/dark_red"
+            android:text="Выбрано 0"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/find_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/dark_red"
+            android:text="См. рецепты"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
