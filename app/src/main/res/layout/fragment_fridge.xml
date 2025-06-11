@@ -44,6 +44,8 @@
                         android:orientation="vertical">
 
                         <LinearLayout
+
+                            android:id="@+id/mostHave"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
@@ -67,13 +69,15 @@
                                 android:textStyle="bold" />
 
                             <ImageView
+                                android:id="@+id/mostHaveArrow"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:src="@drawable/arrow_downward_24px"
-                                app:tint="@color/black"/>
+                                app:tint="@color/black" />
                         </LinearLayout>
 
                         <LinearLayout
+                            android:id="@+id/mostHaveContent"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
@@ -82,6 +86,7 @@
                             android:paddingBottom="16dp">
 
                             <LinearLayout
+                                android:id="@+id/mostHaveContent1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -120,6 +125,7 @@
 
                             </LinearLayout>
                             <LinearLayout
+                                android:id="@+id/mostHaveContent2"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
