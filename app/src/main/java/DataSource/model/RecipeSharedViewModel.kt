@@ -9,9 +9,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class RecipeSharedViewModel : ViewModel() {
+
+    // Для актуального списка своих рецептов
     private val _selectedRecipe = MutableStateFlow<Recipe?>(null)
     val selectedRecipe = _selectedRecipe.asStateFlow()
 
+    // Для актуального списка сетевых рецептов, полученных любым запросом
     private val _selectedNetworkRecipe = MutableStateFlow<NetworkRecipe?>(null)
     val selectedNetworkRecipe = _selectedNetworkRecipe.asStateFlow()
 

@@ -59,7 +59,6 @@ class RecipeAdapter(
 
 class NetworkRecipeAdapter(
     private val onItemClick: (NetworkRecipe) -> Unit,
-    private val removeItem: (NetworkRecipe) -> Unit
 ): RecyclerView.Adapter<NetworkRecipeAdapter.RecipeHolder>() {
 
     class RecipeHolder(view: View): RecyclerView.ViewHolder(view){
@@ -111,7 +110,7 @@ class NetworkRecipeAdapter(
         }
 
         holder.savedImageView.setOnClickListener {
-            //removeItem(networkRecipe)
+            //save item in saved Recipes
         }
     }
 }

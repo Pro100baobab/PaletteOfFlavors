@@ -1,7 +1,10 @@
 package DataSource.Network
 
 import android.icu.util.MeasureUnit.Complexity
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import domain.Recipe
+import kotlinx.serialization.Serializable
 
 data class NetworkRecipe(
     //Base margins

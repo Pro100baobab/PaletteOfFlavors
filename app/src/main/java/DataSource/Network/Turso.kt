@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import androidx.room.Query
 import com.paletteofflavors.HomeFragment
 import com.paletteofflavors.MainActivity
 import com.paletteofflavors.R
@@ -195,7 +196,9 @@ class Turso(
         }
     }
 
-    fun getAllNetworkRecipesFlow(): Flow<NetworkRecipe> = flow {
+
+    //по умолчанию без фильтра, но можно использовать готовый запрос для получения только нужных рецептов.
+    fun getAllNetworkRecipesFlow(sqlQuery: String? = null): Flow<NetworkRecipe> = flow {
 
         if (!checkInternetConnection(context)) {
             return@flow
@@ -205,7 +208,12 @@ class Turso(
             Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
                 db.connect().use { conn ->
 
-                    conn.query("SELECT * FROM Recipes ").use { rows ->
+                    val query = when(sqlQuery){
+                        null -> "SELECT * FROM Recipes "
+                        else -> sqlQuery
+                    }
+
+                    conn.query(query).use { rows ->
 
                         var recipeRow = rows.nextRow()
 

@@ -6,10 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import domain.Recipe
+import domain.savedRecipe
 
 // Singleton-паттерн для жизненного цикла БД
 
-@Database(entities = [Recipe::class], version = 1)
+@Database(entities = [Recipe::class, savedRecipe::class], version = 1)
 @TypeConverters(Converters::class)
 abstract  class AppDatabase: RoomDatabase(){
     abstract fun recipeDao(): RecipeDao

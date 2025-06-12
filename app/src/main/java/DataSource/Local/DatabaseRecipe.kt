@@ -3,7 +3,7 @@ package DataSource.Local
 import domain.Recipe
 
 //import androidx.room.PrimaryKey
-
+/*
 data class DatabaseRecipe(
     //@PrimaryKey val id: Int,
     val name: String,
@@ -28,4 +28,4 @@ fun DatabaseRecipe.toRecipe(): Recipe {
         //comments = recipecomments,
         //likes = recipelikes
     )
-}
+}*/

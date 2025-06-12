@@ -1,20 +1,38 @@
 package com.paletteofflavors
 
+import DataSource.Network.Turso
+import DataSource.model.RecipeSharedViewModel
+import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.ui.unit.DpSize
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Visibility
 import com.paletteofflavors.databinding.FragmentFridgeBinding
+import kotlinx.coroutines.launch
+import kotlin.io.encoding.Base64
 
 
 class FridgeFragment : Fragment() {
@@ -28,18 +46,18 @@ class FridgeFragment : Fragment() {
         var direction = forward
     }
 
-
-    val mostHaveIngredients = listOf<String>(
-        "Спагетти", "Бекон", "Яйца", "Пармезан", "Молоко",
-        "Тыква", "Куриная грудка", "Шоколад", "Сливки"
-    ).sorted()
-
     val mostHaveDirection = Direction()
     val fruitsDirection = Direction()
     val vegetablesDirection = Direction()
     val dairyDirection = Direction()
     val berriesDirection = Direction()
     val mushroomsDirection = Direction()
+
+    private val fridgeViewModel by lazy {  FridgeViewModel()}
+
+    private lateinit var networkRecipeAdapter: NetworkRecipeAdapter
+    private lateinit var recipesRecyclerView: RecyclerView
+    private val sharedViewModel: RecipeSharedViewModel by  activityViewModels()
 
 
     override fun onCreateView(
@@ -54,11 +72,76 @@ class FridgeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setMostHaveIngredient()
+        recipesRecyclerView = binding.recipesRecyclerView
+        recipesRecyclerView.layoutManager = LinearLayoutManager(context)
+
+        setupMostHaveIngredients()
         setListeners()
+
+        fridgeViewModel.listOfSelectedIngredients.observe(viewLifecycleOwner){ list ->
+            binding.selectedButton.text = "Выбрано " + list.size.toString()
+        }
     }
 
-    private fun setMostHaveIngredient() {
+    private fun setupMostHaveIngredients() {
+        val mostHaveIngredients = listOf(
+            "Спагетти", "Бекон", "Яйца", "Пармезан", "Молоко",
+            "Тыква", "Куриная грудка", "Шоколад", "Сливки", "Гречка"
+        ).sorted()
+
+        val container1 = binding.mostHaveContent1
+        val container2 = binding.mostHaveContent2
+
+        container1.removeAllViews()
+        container2.removeAllViews()
+
+        val half = (mostHaveIngredients.size + 1) / 2
+        val firstColumnItems = mostHaveIngredients.take(half)
+        val secondColumnItems = mostHaveIngredients.drop(half)
+
+        // Первый столбец
+        firstColumnItems.forEach { ingredient ->
+            val checkBox = CheckBox(requireContext()).apply {
+                text = ingredient
+                setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                buttonTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(requireContext(), R.color.dark_red))
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                )
+            }
+
+            checkBox.setOnClickListener {
+                when(checkBox.isChecked){
+                    true -> fridgeViewModel.addIngredient(ingredient)
+                    false -> fridgeViewModel.removeIngredient(ingredient)
+                }
+            }
+            container1.addView(checkBox)
+        }
+
+        // Второй столбец
+        secondColumnItems.forEach { ingredient ->
+            val checkBox = CheckBox(requireContext()).apply {
+                text = ingredient
+                setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                buttonTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(requireContext(), R.color.dark_red))
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+            }
+
+            checkBox.setOnClickListener {
+                when(checkBox.isChecked){
+                    true -> fridgeViewModel.addIngredient(ingredient)
+                    false ->fridgeViewModel.removeIngredient(ingredient)
+                }
+            }
+            container2.addView(checkBox)
+        }
     }
 
     private fun setListeners() {
@@ -66,8 +149,6 @@ class FridgeFragment : Fragment() {
         binding.mostHave.setOnClickListener {
             mostHaveVisible(mostHaveDirection, binding.mostHaveArrow)
         }
-
-
         binding.fruitsButton.setOnClickListener {
             changeArrowRotation(binding.fruitsButton, fruitsDirection)
         }
@@ -83,7 +164,19 @@ class FridgeFragment : Fragment() {
         binding.mushroomsButton.setOnClickListener {
             changeArrowRotation(binding.mushroomsButton, mushroomsDirection)
         }
+
+
+        binding.findButton.setOnClickListener {
+            Toast.makeText(requireContext(), "Ищем рецепты с ${fridgeViewModel.getselectedIngredientsCount()} ингредиентами", Toast.LENGTH_SHORT).show()
+            postQuery(requireActivity() as MainActivity, requireContext())
+        }
+
+        binding.backToFridgeButton.setOnClickListener {
+            binding.fridgeIngredientsContent.visibility = View.VISIBLE
+        }
+
     }
+
 
     private fun mostHaveVisible(Direction: Direction, imageView: ImageView) {
 
@@ -110,11 +203,6 @@ class FridgeFragment : Fragment() {
         }
 
         imageView.setImageResource(newIcon)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     private fun changeArrowRotation(button: Button, Direction: Direction) {
@@ -145,4 +233,132 @@ class FridgeFragment : Fragment() {
             currentDrawables[3]
         )
     }
+
+
+
+
+    fun postQuery(activity: MainActivity, context: Context) {
+
+        val TursoConnection = Turso(activity, context)
+
+        networkRecipeAdapter = NetworkRecipeAdapter(
+            onItemClick = { networkRecipe ->
+                sharedViewModel.selectNetworkRecipe(networkRecipe)
+                activity.replaceMainFragment(
+                    NetworkRecipeDetailsFragment("Fridge")
+                )
+            }
+        )
+
+        recipesRecyclerView.adapter = networkRecipeAdapter
+
+        if(fridgeViewModel.getselectedIngredientsCount() == 0){
+
+            lifecycleScope.launch {
+                try {
+                    TursoConnection.getAllNetworkRecipesFlow()
+                        .collect { networkRecipes ->
+                            networkRecipeAdapter.addRecipe(networkRecipes)
+                        }
+                } catch (e:Exception){
+                    Log.d("NetworkProblem", "$e")
+                }
+            }
+
+
+        }
+
+        else{
+            val query = createQuery()
+
+            lifecycleScope.launch {
+                try {
+                    TursoConnection.getAllNetworkRecipesFlow(query)
+                        .collect { networkRecipes ->
+                            networkRecipeAdapter.addRecipe(networkRecipes)
+                        }
+                } catch (e:Exception){
+                    Log.d("NetworkProblem", "$e")
+                }
+            }
+        }
+
+        binding.fridgeIngredientsContent.visibility = View.GONE
+
+    }
+
+    private fun createQuery(): String {
+
+        var queryBuilder = StringBuilder("""
+            SELECT r.*
+            FROM Recipes r
+            WHERE r.recipe_id IN (
+                SELECT ri.recipe_id 
+                FROM RecipeIngredients ri
+                JOIN IngredientDictionary id ON ri.ingredient_id = id.ingredient_id
+                WHERE id.name IN (
+        """)
+
+        fridgeViewModel.listOfSelectedIngredients.value?.forEach { ingredient ->
+            queryBuilder.append("'$ingredient',")
+        }
+
+        queryBuilder.deleteCharAt(queryBuilder.length - 1)
+        queryBuilder.append("))")
+
+        val query = queryBuilder.toString()
+
+        Log.d("Query", query)
+        return query
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class FridgeViewModel: ViewModel(){
+
+    private val _listOfingredients = MutableLiveData<MutableList<String>>(mutableListOf())
+    val listOfSelectedIngredients: LiveData<MutableList<String>> = _listOfingredients
+
+
+    fun addIngredient(name: String) {
+        val currentList = _listOfingredients.value ?: mutableListOf()
+        val newList = currentList.toMutableList().apply { add(name) }
+        _listOfingredients.value = newList
+    }
+
+    fun removeIngredient(name: String) {
+        val currentList = _listOfingredients.value ?: mutableListOf()
+        val newList = currentList.toMutableList().apply { remove(name) }
+        _listOfingredients.value = newList
+    }
+
+    fun getselectedIngredientsCount(): Int{
+        return _listOfingredients.value?.size ?: 0
+    }
+
 }

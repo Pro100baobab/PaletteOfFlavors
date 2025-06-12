@@ -17,7 +17,7 @@ import com.paletteofflavors.databinding.FragmentRecipeDetailsBinding
 import domain.Recipe
 import kotlinx.coroutines.launch
 
-class NetworkRecipeDetailsFragment : Fragment() {
+class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
 
     private var _binding: FragmentNetworkRecipeDetailsBinding? = null
     private val binding get() = _binding!!
@@ -44,7 +44,14 @@ class NetworkRecipeDetailsFragment : Fragment() {
 
 
         binding.backButtonNetworkRecipeDetails.setOnClickListener {
-            (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
+            when(fragment){
+                "Favorites" ->
+                    (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
+                "Fridge" ->
+                    (requireActivity() as MainActivity).replaceMainFragment(FridgeFragment())
+                else ->
+                    (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
+            }
         }
     }
 

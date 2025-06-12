@@ -82,7 +82,7 @@ class FavoritesFragment() : Fragment() {
 
         val checkedRadioButtonId = radioGroup.checkedRadioButtonId
         when (checkedRadioButtonId) {
-            R.id.favorites_fragment_savedRecipes -> updateSavedRecipes()
+            //R.id.favorites_fragment_savedRecipes -> updateSavedRecipes()
             R.id.favorites_fragment_myRecipes -> updateMyRecipes()
         }
 
@@ -136,7 +136,7 @@ class FavoritesFragment() : Fragment() {
         hintuserRecipe.visibility = View.INVISIBLE
         hintRecipe.visibility = View.INVISIBLE
 
-        getSavedRecipeList()
+        //getSavedRecipeList()
     }
 
 
@@ -148,11 +148,8 @@ class FavoritesFragment() : Fragment() {
             onItemClick = { networkRecipe ->
                 sharedViewModel.selectNetworkRecipe(networkRecipe)
                 (requireActivity() as MainActivity).replaceMainFragment(
-                    NetworkRecipeDetailsFragment()
+                    NetworkRecipeDetailsFragment("Favorites")
                 )
-            },
-            removeItem = { networkRecipe ->
-                // обработка удаления
             }
         )
         recipesRecyclerView.adapter = networkRecipeAdapter
