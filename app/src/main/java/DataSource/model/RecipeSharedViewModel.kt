@@ -4,6 +4,7 @@ import DataSource.Network.NetworkRecipe
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.Recipe
+import domain.SavedRecipe
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -18,6 +19,10 @@ class RecipeSharedViewModel : ViewModel() {
     private val _selectedNetworkRecipe = MutableStateFlow<NetworkRecipe?>(null)
     val selectedNetworkRecipe = _selectedNetworkRecipe.asStateFlow()
 
+    // Для актуального списка сохраненных рецептов
+    private val _selectedSavedRecipe = MutableStateFlow<SavedRecipe?>(null)
+    val selectedSavedRecipe = _selectedSavedRecipe.asStateFlow()
+
     fun selectRecipe(recipe: Recipe) {
         viewModelScope.launch {
             _selectedRecipe.emit(recipe)
@@ -27,6 +32,12 @@ class RecipeSharedViewModel : ViewModel() {
     fun selectNetworkRecipe(networkRecipe: NetworkRecipe){
         viewModelScope.launch {
             _selectedNetworkRecipe.emit(networkRecipe)
+        }
+    }
+
+    fun selectSavedRecipe(savedRecipe: SavedRecipe){
+        viewModelScope.launch {
+            _selectedSavedRecipe.emit(savedRecipe)
         }
     }
 }

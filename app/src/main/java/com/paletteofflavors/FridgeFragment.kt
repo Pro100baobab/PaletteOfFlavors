@@ -1,7 +1,9 @@
 package com.paletteofflavors
 
 import DataSource.Network.Turso
+import DataSource.model.FavoritesViewModel
 import DataSource.model.RecipeSharedViewModel
+import Repositories.toSavedRecipe
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
@@ -54,6 +56,9 @@ class FridgeFragment : Fragment() {
     val mushroomsDirection = Direction()
 
     private val fridgeViewModel by lazy {  FridgeViewModel()}
+    private val viewModel: FavoritesViewModel by lazy {
+        (requireActivity() as MainActivity).favoritesViewModel
+    }
 
     private lateinit var networkRecipeAdapter: NetworkRecipeAdapter
     private lateinit var recipesRecyclerView: RecyclerView
@@ -247,6 +252,14 @@ class FridgeFragment : Fragment() {
                 activity.replaceMainFragment(
                     NetworkRecipeDetailsFragment("Fridge")
                 )
+            },
+            onSaveOrDeleteButtonClick = { recipe ->
+                // Запускаем в корутине, если нужно
+                /*lifecycleScope.launch {
+                    viewModel.addSavedRecipe(recipe.toSavedRecipe())
+                }*/
+                viewModel.addSavedRecipe(recipe.toSavedRecipe())
+                //уже сохраненные рецепты должны проверяться
             }
         )
 

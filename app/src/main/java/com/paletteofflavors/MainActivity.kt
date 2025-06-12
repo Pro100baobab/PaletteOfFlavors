@@ -6,6 +6,7 @@ import DataSource.model.CreateRecipeViewModelFactory
 import DataSource.model.FavoritesViewModel
 import DataSource.model.FavoritesViewModelFactory
 import DataSource.model.RecipeSharedViewModel
+import Repositories.RecipeRepository
 import ViewModels.CreateRecipeViewModel
 import ViewModels.NavBottomViewModel
 import android.content.Context
@@ -69,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         CreateRecipeViewModelFactory(database.recipeDao())
     }
     val favoritesViewModel: FavoritesViewModel by viewModels {
-        FavoritesViewModelFactory(database.recipeDao())
+        FavoritesViewModelFactory(RecipeRepository(database.recipeDao(), database.savedRecipeDao()))
     }
     val sharedViewModel: RecipeSharedViewModel by viewModels()
 

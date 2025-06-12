@@ -1,6 +1,8 @@
 package com.paletteofflavors
 
+import DataSource.Local.SavedRecipeDao
 import DataSource.Network.NetworkRecipe
+import Repositories.toSavedRecipe
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import domain.Recipe
+import domain.SavedRecipe
 
 
 class RecipeAdapter(
@@ -59,6 +62,7 @@ class RecipeAdapter(
 
 class NetworkRecipeAdapter(
     private val onItemClick: (NetworkRecipe) -> Unit,
+    private val onSaveOrDeleteButtonClick: (NetworkRecipe) -> Unit,
 ): RecyclerView.Adapter<NetworkRecipeAdapter.RecipeHolder>() {
 
     class RecipeHolder(view: View): RecyclerView.ViewHolder(view){
@@ -66,7 +70,7 @@ class NetworkRecipeAdapter(
         val likesOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_likes)
         val commentsOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_comments)
         val timeOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_time)
-        val savedImageView: ImageView = itemView.findViewById(R.id.favorites_fragment_item_saved_icon)
+        val savedOrDeletedImageView: ImageView = itemView.findViewById(R.id.favorites_fragment_item_saved_icon)
 
     }
 
@@ -82,6 +86,12 @@ class NetworkRecipeAdapter(
     fun addRecipe(recipe: NetworkRecipe) {
         recipes.add(recipe)
         notifyItemInserted(recipes.size - 1)
+    }
+
+    fun addRecipes(newRecipes: List<NetworkRecipe>) {
+        val startPosition = recipes.size
+        recipes.addAll(newRecipes)
+        notifyItemRangeInserted(startPosition, newRecipes.size)
     }
 
     fun clearRecipes() {
@@ -109,8 +119,12 @@ class NetworkRecipeAdapter(
             onItemClick(networkRecipe)
         }
 
-        holder.savedImageView.setOnClickListener {
-            //save item in saved Recipes
+        // Для удаления или сохранения в локальную бд сетевых рецептов
+        holder.savedOrDeletedImageView.setOnClickListener {
+            onSaveOrDeleteButtonClick(networkRecipe)
         }
     }
 }
+
+
+

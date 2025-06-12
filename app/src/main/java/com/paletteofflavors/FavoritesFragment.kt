@@ -5,6 +5,8 @@ import DataSource.Network.Turso
 import DataSource.model.FavoritesViewModel
 import DataSource.model.FavoritesViewModelFactory
 import DataSource.model.RecipeSharedViewModel
+import Repositories.toNetworkRecipe
+import Repositories.toSavedRecipe
 import ViewModels.CreateRecipeViewModel
 import android.app.AlertDialog
 import android.content.DialogInterface
@@ -50,7 +52,7 @@ class FavoritesFragment() : Fragment() {
 
     private lateinit var recipesRecyclerView: RecyclerView
     private lateinit var recipeAdapter: RecipeAdapter
-    private lateinit var networkRecipeAdapter: NetworkRecipeAdapter
+    private lateinit var savedRecipeAdapter: NetworkRecipeAdapter   // Такой же, потому что сохраняем сетевые рецепты
 
     private lateinit var hintRecipe: TextView
     private lateinit var hintuserRecipe: TextView
@@ -82,7 +84,7 @@ class FavoritesFragment() : Fragment() {
 
         val checkedRadioButtonId = radioGroup.checkedRadioButtonId
         when (checkedRadioButtonId) {
-            //R.id.favorites_fragment_savedRecipes -> updateSavedRecipes()
+            R.id.favorites_fragment_savedRecipes -> updateSavedRecipes()
             R.id.favorites_fragment_myRecipes -> updateMyRecipes()
         }
 
@@ -119,7 +121,7 @@ class FavoritesFragment() : Fragment() {
             recipeAdapter = RecipeAdapter(
                 recipeList = recipes,
                 onItemClick = { recipe ->
-                    sharedViewModel.selectRecipe(recipe)
+                    sharedViewModel.selectRecipe(recipe)    // для актуального отображение
                     (requireActivity() as MainActivity).replaceMainFragment(RecipeDetailsFragment())
                 },
                 removeItem = { recipe ->
@@ -136,15 +138,43 @@ class FavoritesFragment() : Fragment() {
         hintuserRecipe.visibility = View.INVISIBLE
         hintRecipe.visibility = View.INVISIBLE
 
-        //getSavedRecipeList()
+
+        viewModel.savedRecipes.onEach { savedRecipes ->
+            if (savedRecipes.isEmpty()) {
+                hintRecipe.visibility = View.VISIBLE
+            } else {
+                hintRecipe.visibility = View.INVISIBLE
+            }
+
+            // Конвертируем SavedRecipe в NetworkRecipe
+            val networkRecipes = savedRecipes.map { it.toNetworkRecipe() }
+
+            savedRecipeAdapter = NetworkRecipeAdapter(
+                onItemClick = { networkRecipe ->
+                    // Конвертируем обратно при клике, если нужно
+                    sharedViewModel.selectSavedRecipe(networkRecipe.toSavedRecipe())
+                    (requireActivity() as MainActivity).replaceMainFragment(
+                        NetworkRecipeDetailsFragment("Favorites")
+                    )
+                },
+                onSaveOrDeleteButtonClick = { networkRecipe ->
+                    viewModel.deleteSavedRecipe(networkRecipe.toSavedRecipe())
+                }
+            ).apply {
+                // Добавляем все рецепты сразу
+                addRecipes(networkRecipes)
+            }
+
+            recipesRecyclerView.adapter = savedRecipeAdapter
+        }.launchIn(lifecycleScope)
     }
 
 
-    // ЭТО НЕТВОРК А НЕ СОХРАНЕННЫЕ
+    /*
     private fun getSavedRecipeList() {
         val TursoConnection = Turso(requireActivity() as MainActivity, requireContext())
 
-        networkRecipeAdapter = NetworkRecipeAdapter(
+        savedRecipeAdapter = NetworkRecipeAdapter(
             onItemClick = { networkRecipe ->
                 sharedViewModel.selectNetworkRecipe(networkRecipe)
                 (requireActivity() as MainActivity).replaceMainFragment(
@@ -152,7 +182,7 @@ class FavoritesFragment() : Fragment() {
                 )
             }
         )
-        recipesRecyclerView.adapter = networkRecipeAdapter
+        recipesRecyclerView.adapter = savedRecipeAdapter
 
         lifecycleScope.launch {
             try {
@@ -161,14 +191,14 @@ class FavoritesFragment() : Fragment() {
 
                 TursoConnection.getAllNetworkRecipesFlow()
                     .collect { networkRecipes ->
-                        networkRecipeAdapter.addRecipe(networkRecipes)
+                        savedRecipeAdapter.addRecipe(networkRecipes)
                     }
             } catch (e:Exception){
                 Log.d("NetworkProblem", "$e")
                 hintRecipe.visibility = View.VISIBLE
             }
         }
-    }
+    }*/
 
 
     private fun showDeleteRecipeConfirmDialog(recipe: Recipe) {
