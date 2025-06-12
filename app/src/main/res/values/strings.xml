@@ -83,4 +83,6 @@
     <string name="change_language">Сменить язык</string>
     <string name="add_account">Добавить аккаунт</string>
     <string name="logout">Выйти</string>
+    <string name="hint_your_recipes">Здесь будут отображены ВАШИ рецепты</string>
+    <string name="hint_favorite_recipes">Здесь будут отображены ваши любимые рецепты</string>
 </resources>

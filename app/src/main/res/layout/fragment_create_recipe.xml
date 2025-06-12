@@ -14,24 +14,24 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/general_back_icon_24"/>
+        android:src="@drawable/general_back_icon_24" />
 
     <androidx.core.widget.NestedScrollView
-        android:fillViewport="true"
-        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_marginTop="36dp"> <!-- Добавлен отступ сверху -->
+        android:layout_height="match_parent"
+        android:layout_marginTop="36dp"
+        android:fillViewport="true"> <!-- Добавлен отступ сверху -->
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:padding="16dp">
 
             <!-- Заголовок -->
             <TextView
                 android:id="@+id/recipe_title_label"
-                android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="@string/create_recipe_title"
                 android:textColor="@color/black"
                 android:textSize="24sp"
@@ -41,71 +41,87 @@
 
             <!-- Поле названия -->
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:id="@+id/recipe_name_input"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_width="0dp"
+                android:textColorHint="@color/textColor"
+                app:boxStrokeColor="@color/dark_red"
+                app:boxStrokeWidthFocused="2dp"
+                app:cursorColor="@color/dark_red"
+                app:hintTextColor="@color/dark_red"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/recipe_title_label">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:hint="@string/recipe_name_hint"
                     android:id="@+id/recipe_name_edit"
-                    android:inputType="textCapWords"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_width="match_parent" />
+                    android:hint="@string/recipe_name_hint"
+                    android:inputType="textCapWords" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Поле ингредиентов -->
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:id="@+id/ingredients_input"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_width="0dp"
+                android:textColorHint="@color/textColor"
+                app:boxStrokeColor="@color/dark_red"
+                app:boxStrokeWidthFocused="2dp"
+                app:cursorColor="@color/dark_red"
+                app:hintTextColor="@color/dark_red"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/recipe_name_input">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/ingredients_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
                     android:gravity="top"
                     android:hint="@string/ingredients_hint"
-                    android:id="@+id/ingredients_edit"
                     android:inputType="textMultiLine"
-                    android:layout_height="120dp"
-                    android:layout_width="match_parent"
                     android:minLines="3" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Поле инструкций -->
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:id="@+id/instructions_input"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_width="0dp"
+                android:textColorHint="@color/textColor"
+                app:boxStrokeColor="@color/dark_red"
+                app:boxStrokeWidthFocused="2dp"
+                app:cursorColor="@color/dark_red"
+                app:hintTextColor="@color/dark_red"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/ingredients_input">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/instructions_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
                     android:gravity="top"
                     android:hint="@string/instructions_hint"
-                    android:id="@+id/instructions_edit"
                     android:inputType="textMultiLine"
-                    android:layout_height="200dp"
-                    android:layout_width="match_parent"
-                    android:minLines="5" />
+                    android:minLines="5"
+                    android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Время приготовления -->
             <TextView
                 android:id="@+id/recipe_cooking_time_label"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_width="wrap_content"
                 android:text="@string/cooking_time"
                 android:textColor="@color/black"
                 android:textSize="16sp"
@@ -114,22 +130,34 @@
 
             <LinearLayout
                 android:id="@+id/recipe_time_container"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:layout_width="0dp"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/recipe_cooking_time_label">
 
-                <EditText
-                    android:hint="@string/time_in_minutes"
-                    android:id="@+id/recipe_cooking_time_edit"
-                    android:inputType="number"
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:textSize="16sp" />
+                    android:textColorHint="@color/textColor"
+                    app:boxStrokeColor="@color/dark_red"
+                    app:boxStrokeWidthFocused="2dp"
+                    app:cursorColor="@color/dark_red"
+                    app:hintTextColor="@color/dark_red">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/recipe_cooking_time_edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/time_in_minutes"
+                        android:inputType="number"
+                        android:textColor="@color/black" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -137,16 +165,17 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginStart="8dp"
                     android:text="@string/minutes"
+                    android:textColor="@color/textColor"
                     android:textSize="16sp" />
             </LinearLayout>
 
             <!-- Кнопка сохранения -->
             <com.google.android.material.button.MaterialButton
-                android:backgroundTint="@color/light_pink"
                 android:id="@+id/save_button"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:layout_width="0dp"
+                android:backgroundTint="@color/light_pink"
                 android:text="@string/save_recipe"
                 android:textColor="@color/black"
                 app:cornerRadius="8dp"
