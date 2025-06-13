@@ -31,8 +31,10 @@ import com.paletteofflavors.databinding.ActivityMainBinding
 import com.paletteofflavors.databinding.FragmentFavoritesBinding
 import com.paletteofflavors.logIn.viewmodels.LoginViewModel
 import domain.Recipe
+import domain.SavedRecipe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -157,8 +159,11 @@ class FavoritesFragment() : Fragment() {
                         NetworkRecipeDetailsFragment("Favorites")
                     )
                 },
-                onSaveOrDeleteButtonClick = { networkRecipe ->
-                    viewModel.deleteSavedRecipe(networkRecipe.toSavedRecipe())
+                onSaveOrDeleteButtonClick = { networkRecipe, _ ->
+                    showDeleteRecipeConfirmDialog(savedRecipe = networkRecipe.toSavedRecipe())
+                },
+                isSaved = { _ ->
+                    flow { emit(true) } // Всегда возвращаем Flow<Boolean>, который излучает true
                 }
             ).apply {
                 // Добавляем все рецепты сразу
@@ -201,13 +206,16 @@ class FavoritesFragment() : Fragment() {
     }*/
 
 
-    private fun showDeleteRecipeConfirmDialog(recipe: Recipe) {
+    private fun showDeleteRecipeConfirmDialog(recipe: Recipe? = null, savedRecipe: SavedRecipe? = null) {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Удаление рецепта")
-        builder.setMessage("Вы уверены, что хотите удалить рецепт ${recipe.title}")
+        if (recipe != null) builder.setMessage("Вы уверены, что хотите удалить рецепт ${recipe.title}")
+        if(savedRecipe!=null) builder.setMessage("Вы уверены, что хотите удалить рецепт ${savedRecipe.title}")
 
         builder.setPositiveButton("Удалить") { dialog: DialogInterface, _: Int ->
-            viewModel.deleteRecipe(recipe)
+            if (recipe != null) viewModel.deleteRecipe(recipe)
+            if(savedRecipe!=null) viewModel.deleteSavedRecipe(savedRecipe)
+
         }
 
         builder.setNegativeButton("Отменить") { dialog: DialogInterface, _: Int ->

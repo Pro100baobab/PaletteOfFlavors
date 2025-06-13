@@ -11,6 +11,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import domain.Recipe
 import domain.SavedRecipe
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 
 class RecipeAdapter(
@@ -41,6 +45,8 @@ class RecipeAdapter(
 
     override fun onBindViewHolder(holder: RecipeHolder, position: Int) {
 
+        holder.savedImageView.setImageResource(R.drawable.delete_24px)
+
         val recipe = recipeList[position]
 
         holder.titleOfRecipe.text = recipe.title
@@ -62,8 +68,10 @@ class RecipeAdapter(
 
 class NetworkRecipeAdapter(
     private val onItemClick: (NetworkRecipe) -> Unit,
-    private val onSaveOrDeleteButtonClick: (NetworkRecipe) -> Unit,
+    private val onSaveOrDeleteButtonClick: (NetworkRecipe, RecipeHolder) -> Unit,
+    private val isSaved: (Int) -> Flow<Boolean>
 ): RecyclerView.Adapter<NetworkRecipeAdapter.RecipeHolder>() {
+
 
     class RecipeHolder(view: View): RecyclerView.ViewHolder(view){
         val titleOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_name)
@@ -82,6 +90,7 @@ class NetworkRecipeAdapter(
 
 
     private val recipes = mutableListOf<NetworkRecipe>()
+    private val adapterScope = CoroutineScope(Dispatchers.Main) // Create a CoroutineScope for the adapter
 
     fun addRecipe(recipe: NetworkRecipe) {
         recipes.add(recipe)
@@ -107,6 +116,18 @@ class NetworkRecipeAdapter(
 
         val networkRecipe = recipes[position]
 
+        // Запускаем корутину для наблюдения за Flow
+        adapterScope.launch {
+            isSaved(networkRecipe.recipeId).collect { isSaved ->
+                // Обновляем изображение, когда значение Flow меняется
+                if (isSaved) {
+                    holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
+                } else {
+                    holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_unsaved)
+                }
+            }
+        }
+
         with(holder) {
             titleOfRecipe.text = networkRecipe.title
             likesOfRecipe.text = networkRecipe.likesCount.toString()
@@ -121,7 +142,7 @@ class NetworkRecipeAdapter(
 
         // Для удаления или сохранения в локальную бд сетевых рецептов
         holder.savedOrDeletedImageView.setOnClickListener {
-            onSaveOrDeleteButtonClick(networkRecipe)
+            onSaveOrDeleteButtonClick(networkRecipe, holder)
         }
     }
 }
