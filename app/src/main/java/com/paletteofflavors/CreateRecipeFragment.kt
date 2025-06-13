@@ -70,10 +70,15 @@ class CreateRecipeFragment : Fragment() {
             }
         }
         binding.recipeCookingTimeEdit.doAfterTextChanged { text: Editable? ->
-            if (userChangeFlag) {
-                text?.toString()?.toInt()?.let {
-                    viewModel.setTimeInMinutes(text.toString().toInt())
+            try {
+                if (userChangeFlag) {
+                    text?.toString()?.toInt()?.let {
+                        viewModel.setTimeInMinutes(text.toString().toInt())
+                    }
                 }
+            } catch (_: Exception){
+                // стерли последний символ
+                viewModel.setTimeInMinutes(0)
             }
         }
 

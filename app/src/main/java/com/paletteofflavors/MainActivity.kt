@@ -85,7 +85,6 @@ class MainActivity : AppCompatActivity() {
             Handler(Looper.getMainLooper()).postDelayed({
                 replaceMainFragment(ProfileFragment())
                 binding.bottomNavigation.selectedItemId = R.id.navigation_profile
-
             }, 100)
         }
 
@@ -112,7 +111,7 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             if (isFromUserInteraction) {
                 when (item.itemId) {
-                    R.id.navigation_home -> replaceMainFragment(HomeFragment())
+                    //R.id.navigation_home -> replaceMainFragment(HomeFragment())
                     R.id.navigation_search -> replaceMainFragment(SearchFragment())
                     R.id.navigation_favorites -> replaceMainFragment(FavoritesFragment())
                     R.id.navigation_pantry -> replaceMainFragment(FridgeFragment())
@@ -136,17 +135,16 @@ class MainActivity : AppCompatActivity() {
         navBottomViewModel.selectedNavItem.observe(this) { itemId ->
 
             isFromUserInteraction = false // Говорим, что изменение программное
-            binding.bottomNavigation.selectedItemId = itemId ?: R.id.navigation_home
+            binding.bottomNavigation.selectedItemId = itemId ?: R.id.navigation_search
             isFromUserInteraction = true // Возвращаем флаг в исходное состояние
 
 
         }
 
-        if (supportFragmentManager.findFragmentById(R.id.frame_layout) == null
-            && intent?.getBooleanExtra("SHOW_PROFILE_FRAGMENT", false) != true)
+        if (supportFragmentManager.findFragmentById(R.id.frame_layout) == null)
         {
-            replaceMainFragment(HomeFragment())
-            binding.bottomNavigation.selectedItemId = R.id.navigation_home
+            replaceMainFragment(SearchFragment())
+            binding.bottomNavigation.selectedItemId = R.id.navigation_search
         }
 
         initDatabase()

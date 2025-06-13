@@ -187,8 +187,12 @@ class ProfileFragment : Fragment() {
     }
 
     private fun logOut() {
+        (requireActivity() as MainActivity).navBottomViewModel.setSelectedNavItem(R.id.navigation_search)
         (requireActivity() as MainActivity).sessionManager.logoutUserSession() // userSession
-        (requireActivity() as MainActivity).showFullscreenFragment(LoginFragment())
+        //(requireActivity() as MainActivity).showFullscreenFragment(LoginFragment())
+        (requireActivity() as MainActivity).binding.appContent.visibility = View.GONE
+        //activity.navBottomViewModel.setIsContentVisible(false)
+
     }
 
 

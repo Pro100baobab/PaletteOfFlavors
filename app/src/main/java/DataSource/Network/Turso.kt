@@ -15,6 +15,7 @@ import androidx.room.Query
 import com.paletteofflavors.HomeFragment
 import com.paletteofflavors.MainActivity
 import com.paletteofflavors.R
+import com.paletteofflavors.SearchFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -78,10 +79,7 @@ class Turso(
 
                                     // Save LogIn Settings if checked
                                     rememberMe(username, password)
-
-                                    (activity as? MainActivity)?.binding?.appContent?.isVisible =
-                                        true
-                                    (activity as? MainActivity)?.showNormalFragment(HomeFragment())
+                                    (activity as MainActivity).showNormalFragment(SearchFragment())
                                 }
                             } else {
                                 activity?.runOnUiThread {

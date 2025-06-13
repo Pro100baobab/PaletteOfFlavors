@@ -36,7 +36,10 @@ class CreateRecipeViewModel(private val recipeDao: RecipeDao): ViewModel() {
     }
 
     fun setTimeInMinutes(timeInMintues: Int){
-        _timeInMinutes.value = timeInMintues.toString()
+        _timeInMinutes.value = when(timeInMintues){
+            0 -> ""
+            else -> timeInMintues.toString()
+        }
     }
 
 
