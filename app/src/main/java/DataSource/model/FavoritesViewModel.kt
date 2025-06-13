@@ -13,6 +13,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 class FavoritesViewModel(
@@ -79,5 +81,8 @@ class FavoritesViewModel(
         }
     }
 
+    fun isRecipeSaved(id: Int): Flow<Boolean> = flow {
+        emit(repository.getSavedRecipeById(id) != null)
+    }.flowOn(Dispatchers.IO)
 
 }

@@ -32,18 +32,19 @@ class RecipeRepository(
 
     suspend fun deleteSaved(recipe: SavedRecipe) = savedRecipeDao.delete(recipe)
     fun getAllSavedRecipes(): Flow<List<SavedRecipe>> = savedRecipeDao.getAllRecipes()
+    suspend fun getSavedRecipeById(id: Int) = savedRecipeDao.getRecipeById(id)
 
-   /*
-    // Специфичные операции для Turso
-    suspend fun fetchFromTurso(): List<NetworkRecipe> {
-        val recipes = turso.getAllNetworkRecipes()
-        // Сохраняем в локальную базу
-        recipes.forEach { recipe ->
-            networkRecipeDao.insert(recipe.toEntity())
-        }
-        return recipes
-    }
-    */
+    /*
+     // Специфичные операции для Turso
+     suspend fun fetchFromTurso(): List<NetworkRecipe> {
+         val recipes = turso.getAllNetworkRecipes()
+         // Сохраняем в локальную базу
+         recipes.forEach { recipe ->
+             networkRecipeDao.insert(recipe.toEntity())
+         }
+         return recipes
+     }
+     */
 
 }
 

@@ -4,7 +4,9 @@ import DataSource.Network.Turso
 import DataSource.model.FavoritesViewModel
 import DataSource.model.RecipeSharedViewModel
 import Repositories.toSavedRecipe
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -33,6 +35,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Visibility
 import com.paletteofflavors.databinding.FragmentFridgeBinding
+import domain.Recipe
+import domain.SavedRecipe
 import kotlinx.coroutines.launch
 import kotlin.io.encoding.Base64
 
@@ -55,14 +59,14 @@ class FridgeFragment : Fragment() {
     val berriesDirection = Direction()
     val mushroomsDirection = Direction()
 
-    private val fridgeViewModel by lazy {  FridgeViewModel()}
+    private val fridgeViewModel by lazy { FridgeViewModel() }
     private val viewModel: FavoritesViewModel by lazy {
         (requireActivity() as MainActivity).favoritesViewModel
     }
 
     private lateinit var networkRecipeAdapter: NetworkRecipeAdapter
     private lateinit var recipesRecyclerView: RecyclerView
-    private val sharedViewModel: RecipeSharedViewModel by  activityViewModels()
+    private val sharedViewModel: RecipeSharedViewModel by activityViewModels()
 
 
     override fun onCreateView(
@@ -118,7 +122,7 @@ class FridgeFragment : Fragment() {
             }
 
             checkBox.setOnClickListener {
-                when(checkBox.isChecked){
+                when (checkBox.isChecked) {
                     true -> fridgeViewModel.addIngredient(ingredient)
                     false -> fridgeViewModel.removeIngredient(ingredient)
                 }
@@ -172,7 +176,11 @@ class FridgeFragment : Fragment() {
 
 
         binding.findButton.setOnClickListener {
-            Toast.makeText(requireContext(), "Ищем рецепты с ${fridgeViewModel.getselectedIngredientsCount()} ингредиентами", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Ищем рецепты с ${fridgeViewModel.getselectedIngredientsCount()} ингредиентами",
+                Toast.LENGTH_SHORT
+            ).show()
             postQuery(requireActivity() as MainActivity, requireContext())
         }
 
@@ -189,17 +197,19 @@ class FridgeFragment : Fragment() {
         val arrowDownward = R.drawable.arrow_downward_24px
 
 
-        val newIcon: Int = when(Direction.direction) {
+        val newIcon: Int = when (Direction.direction) {
             "forward" -> {
                 Direction.direction = Direction().downward
                 binding.mostHaveContent.visibility = View.VISIBLE
                 arrowDownward
             }
+
             "downward" -> {
                 Direction.direction = Direction().forward
                 binding.mostHaveContent.visibility = View.GONE
                 arrowForward
             }
+
             else -> {
                 Direction.direction = Direction().downward
                 binding.mostHaveContent.visibility = View.GONE
@@ -214,17 +224,20 @@ class FridgeFragment : Fragment() {
 
         val currentDrawables = button.compoundDrawablesRelative
         val arrowForward = ContextCompat.getDrawable(button.context, R.drawable.arrow_forward_24px)
-        val arrowDownward = ContextCompat.getDrawable(button.context, R.drawable.arrow_downward_24px)
+        val arrowDownward =
+            ContextCompat.getDrawable(button.context, R.drawable.arrow_downward_24px)
 
-        val newIcon: Drawable? = when(Direction.direction) {
+        val newIcon: Drawable? = when (Direction.direction) {
             "forward" -> {
                 Direction.direction = Direction().downward
                 arrowDownward
             }
+
             "downward" -> {
                 Direction.direction = Direction().forward
                 arrowForward
             }
+
             else -> {
                 Direction.direction = Direction().downward
                 arrowForward
@@ -240,8 +253,6 @@ class FridgeFragment : Fragment() {
     }
 
 
-
-
     fun postQuery(activity: MainActivity, context: Context) {
 
         val TursoConnection = Turso(activity, context)
@@ -253,19 +264,25 @@ class FridgeFragment : Fragment() {
                     NetworkRecipeDetailsFragment("Fridge")
                 )
             },
-            onSaveOrDeleteButtonClick = { recipe ->
-                // Запускаем в корутине, если нужно
-                /*lifecycleScope.launch {
+            onSaveOrDeleteButtonClick = { recipe, holder -> // TODO: Убрать зависимость от UI
+                if (holder.savedOrDeletedImageView.drawable.constantState ==
+                    ContextCompat.getDrawable(holder.itemView.context, R.drawable.icon_saved)?.constantState) {
+                    // Если иконка показывает "сохранено" - удаляем
+                    showDeleteRecipeConfirmDialog(recipe.toSavedRecipe(), holder)
+                } else {
+                    // Если не сохранено - сохраняем
                     viewModel.addSavedRecipe(recipe.toSavedRecipe())
-                }*/
-                viewModel.addSavedRecipe(recipe.toSavedRecipe())
-                //уже сохраненные рецепты должны проверяться
+                    holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
+                }
+            },
+            isSaved = { recipeId ->
+                viewModel.isRecipeSaved(recipeId)  // Возвращем сохранен или нет рецепт
             }
         )
 
         recipesRecyclerView.adapter = networkRecipeAdapter
 
-        if(fridgeViewModel.getselectedIngredientsCount() == 0){
+        if (fridgeViewModel.getselectedIngredientsCount() == 0) {
 
             lifecycleScope.launch {
                 try {
@@ -273,15 +290,13 @@ class FridgeFragment : Fragment() {
                         .collect { networkRecipes ->
                             networkRecipeAdapter.addRecipe(networkRecipes)
                         }
-                } catch (e:Exception){
+                } catch (e: Exception) {
                     Log.d("NetworkProblem", "$e")
                 }
             }
 
 
-        }
-
-        else{
+        } else {
             val query = createQuery()
 
             lifecycleScope.launch {
@@ -290,7 +305,7 @@ class FridgeFragment : Fragment() {
                         .collect { networkRecipes ->
                             networkRecipeAdapter.addRecipe(networkRecipes)
                         }
-                } catch (e:Exception){
+                } catch (e: Exception) {
                     Log.d("NetworkProblem", "$e")
                 }
             }
@@ -302,7 +317,8 @@ class FridgeFragment : Fragment() {
 
     private fun createQuery(): String {
 
-        var queryBuilder = StringBuilder("""
+        var queryBuilder = StringBuilder(
+            """
             SELECT r.*
             FROM Recipes r
             WHERE r.recipe_id IN (
@@ -310,7 +326,8 @@ class FridgeFragment : Fragment() {
                 FROM RecipeIngredients ri
                 JOIN IngredientDictionary id ON ri.ingredient_id = id.ingredient_id
                 WHERE id.name IN (
-        """)
+        """
+        )
 
         fridgeViewModel.listOfSelectedIngredients.value?.forEach { ingredient ->
             queryBuilder.append("'$ingredient',")
@@ -329,30 +346,29 @@ class FridgeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+
+    private fun showDeleteRecipeConfirmDialog(savedRecipe: SavedRecipe, holder: NetworkRecipeAdapter.RecipeHolder) {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle("Удаление рецепта")
+        builder.setMessage("Вы уверены, что хотите удалить рецепт ${savedRecipe.title}")
+
+        builder.setPositiveButton("Удалить") { dialog: DialogInterface, _: Int ->
+            viewModel.deleteSavedRecipe(savedRecipe)
+            holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_unsaved)
+        }
+
+        builder.setNegativeButton("Отменить") { dialog: DialogInterface, _: Int ->
+            dialog.dismiss()
+        }
+
+        val dialog = builder.create()
+        dialog.show()
+    }
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class FridgeViewModel: ViewModel(){
+class FridgeViewModel : ViewModel() {
 
     private val _listOfingredients = MutableLiveData<MutableList<String>>(mutableListOf())
     val listOfSelectedIngredients: LiveData<MutableList<String>> = _listOfingredients
@@ -370,7 +386,7 @@ class FridgeViewModel: ViewModel(){
         _listOfingredients.value = newList
     }
 
-    fun getselectedIngredientsCount(): Int{
+    fun getselectedIngredientsCount(): Int {
         return _listOfingredients.value?.size ?: 0
     }
 

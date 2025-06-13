@@ -70,7 +70,6 @@ class VerifyOTP : Fragment() {
         vm = (requireActivity() as MainActivity).viewModel
         vmRegister = (requireActivity() as MainActivity).viewModelRegistration
 
-        Log.d("Null", "1")
 
         try {
             email = args.email
@@ -83,8 +82,6 @@ class VerifyOTP : Fragment() {
         } catch (_: Exception) {
 
         }
-
-        Log.d("Null", "2")
 
         super.onCreate(savedInstanceState)
     }
@@ -117,7 +114,7 @@ class VerifyOTP : Fragment() {
         }
 
         else{
-            vmRegister.email.observe(viewLifecycleOwner){
+            vmRegister!!.email.observe(viewLifecycleOwner){
                 binding.typeOfVerification.text = it
             }
         }
@@ -258,8 +255,8 @@ class VerifyOTP : Fragment() {
         }
         else{
             val TursoConnection = Turso(requireActivity() as MainActivity, requireContext())
-            TursoConnection.registerUser(vmRegister.fullName.value!!, vmRegister.userName.value!!, vmRegister.phone.value!!,
-                vmRegister.email.value!!, vmRegister.password.value!!, findNavController())
+            TursoConnection.registerUser(vmRegister!!.fullName.value!!, vmRegister!!.userName.value!!, vmRegister!!.phone.value!!,
+                vmRegister!!.email.value!!, vmRegister!!.password.value!!, findNavController())
         }
     }
 
@@ -273,60 +270,6 @@ class VerifyOTP : Fragment() {
         super.onDestroyView()
     }
 
-    /*
-    //TODO: Check that email and phone number are unique.
-    private fun registerUser(fullname: String, username: String, phone_number: String, email: String, password: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val dbUrl = (activity as MainActivity).TURSO_DATABASE_URL
-                val dbAuthToken = (activity as MainActivity).TURSO_AUTH_TOKEN
-
-                Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
-                    db.connect().use { conn ->
-                        // Проверяем, существует ли пользователь
-                        conn.query("SELECT username FROM users WHERE username = '$username'").use { rows ->
-                            if (rows.nextRow() != null) {
-                                activity?.runOnUiThread {
-                                    Toast.makeText(requireContext(), "Username already exists", Toast.LENGTH_SHORT).show()
-                                }
-                                return@use
-                            }
-                        }
-
-                        // TODO: Alter table users in turso for default CURRENT_TIMESTAMP
-                        // Регистрируем нового пользователя
-                        conn.query(
-                            "INSERT INTO users (fullname, username, email, phone_number, password, created_at) VALUES('$fullname','$username', '$email', '$phone_number', '${password.hashCode()}', CURRENT_TIMESTAMP)")
-
-
-                        //TODO: Add progress bar for connection time.
-                        activity?.runOnUiThread {
-
-                            val activity = requireActivity() as MainActivity
-
-                            if(activity.sessionManager.checkLogin()){
-                                activity.findNavController(R.id.fragmentContainerView).navigate(R.id.action_verifyOTP_to_loginFragment)
-                                activity.binding.appContent.visibility = View.VISIBLE
-                                activity.navBottomViewModel.setIsContentVisible(true)
-                                Toast.makeText(requireContext(), "New account successful registered", Toast.LENGTH_SHORT).show()
-
-                            }   else {
-                                Toast.makeText(requireContext(), "Registration successful", Toast.LENGTH_SHORT).show()
-                                findNavController().navigate(R.id.action_verifyOTP_to_loginFragment)
-                            }
-                        }
-                    }
-
-                }
-            } catch (e: Exception) {
-                Log.e("Registration", "Error during registration", e)
-                activity?.runOnUiThread {
-                    Toast.makeText(requireContext(), "Registration failed: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-*/
 
 
 
