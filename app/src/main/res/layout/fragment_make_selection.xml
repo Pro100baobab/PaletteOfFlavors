@@ -40,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Укажите способ подтверждения для восстановления пароля!"
+            android:text="@string/make_selection_text"
             android:textAlignment="center"
             android:textColor="@color/gray"
             android:textSize="16sp" />

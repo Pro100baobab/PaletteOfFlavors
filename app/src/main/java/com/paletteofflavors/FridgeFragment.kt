@@ -94,8 +94,16 @@ class FridgeFragment : Fragment() {
 
     private fun setupMostHaveIngredients() {
         val mostHaveIngredients = listOf(
-            "Спагетти", "Бекон", "Яйца", "Пармезан", "Молоко",
-            "Тыква", "Куриная грудка", "Шоколад", "Сливки", "Гречка"
+            getString(R.string.spaghetti),
+            getString(R.string.bacon),
+            getString(R.string.eggs),
+            getString(R.string.parmesan),
+            getString(R.string.milk),
+            getString(R.string.pumpkin),
+            getString(R.string.chicken_breast),
+            getString(R.string.chocolate),
+            getString(R.string.cream),
+            getString(R.string.buckwheat)
         ).sorted()
 
         val container1 = binding.mostHaveContent1

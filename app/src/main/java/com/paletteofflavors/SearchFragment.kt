@@ -5,60 +5,97 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.widget.NestedScrollView
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import com.paletteofflavors.databinding.BottomSheetLayoutBinding
+import com.paletteofflavors.databinding.FragmentSearchBinding
 
 
 class SearchFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private var _binding: FragmentSearchBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var bottomsheetScrollView: NestedScrollView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        val view =  inflater.inflate(R.layout.fragment_search, container, false)
-
-        val bottomSheet = view.findViewById<NestedScrollView>(R.id.bottomSheet)
-        val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
-        //bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED //  Развернуть
-        //bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED // Свернуть
-        bottomSheetBehavior.peekHeight = 350
-        return view
+    ): View {
+        _binding = FragmentSearchBinding.inflate(inflater, container, false)
+        return _binding!!.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SearchFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SearchFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setupBottomSheetBehavior()
+        setupCategories()
+
+        setupOnClickListeners()
+
+
+    }
+
+    private fun setupOnClickListeners() {
+        binding.searchFragmentDinnerButton.setOnClickListener{
+            Toast.makeText(requireContext(), "Selected: Dinner", Toast.LENGTH_SHORT).show()
+        }
+        binding.searchFragmentLaunchButton.setOnClickListener {
+            Toast.makeText(requireContext(), "Selected: Launch", Toast.LENGTH_SHORT).show()
+        }
+        binding.searchFragmentDessertsButton.setOnClickListener {
+            Toast.makeText(requireContext(), "Selected: Desert", Toast.LENGTH_SHORT).show()
+        }
+        binding.searchFragmentBreakfastButton.setOnClickListener {
+            Toast.makeText(requireContext(), "Selected: Breakfast", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.searchFragmentFilterButton.setOnClickListener {
+            Toast.makeText(requireContext(), "Selected: Show ALL Filters", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setupBottomSheetBehavior() {
+        bottomsheetScrollView = binding.bottomSheetInclude.bottomSheet
+        val bottomSheetBehavior = BottomSheetBehavior.from(bottomsheetScrollView)
+        bottomSheetBehavior.peekHeight = 250
+        bottomSheetBehavior.maxHeight = 1000
+    }
+
+    // В вашем Activity/Fragment:
+    private fun setupCategories() {
+        val categories = listOf(
+            Category(1, getString(R.string.cold_eat), R.drawable.icon_saved),
+            Category(2, getString(R.string.hot_eat)),
+            Category(3, getString(R.string.vegetable_salads)),
+            Category(4, getString(R.string.meat_salads)),
+            Category(5, getString(R.string.poultry_salads)),
+            Category(6, getString(R.string.fish_salads)),
+            Category(7, getString(R.string.soups)),
+            Category(8, getString(R.string.vegetable_dishes)),
+            Category(9, getString(R.string.meat_dishes)),
+            Category(10, getString(R.string.poulry_dishes)),
+            Category(11, getString(R.string.fish_dishes)),
+            Category(12, getString(R.string.side_dishes)),
+            Category(13, getString(R.string.bakery)),
+            Category(14, getString(R.string.drinks)),
+            Category(15, getString(R.string.first_courses)),
+            Category(16, getString(R.string.second_courses))
+        )
+
+        val adapter = CategoriesAdapter(categories) { category ->
+            Toast.makeText(requireContext(), "Selected: ${category.name}", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.bottomSheetInclude.categoriesRecyclerView.adapter = adapter
+        binding.bottomSheetInclude.categoriesRecyclerView.layoutManager = LinearLayoutManager(context)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

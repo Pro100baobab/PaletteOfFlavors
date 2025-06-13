@@ -33,7 +33,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="40dp"
                 android:fontFamily="sans-serif-black"
-                android:text="Подтвердите изменения"
+                android:text="@string/confirm_changes"
                 android:textAlignment="center"
                 android:textAllCaps="true"
                 android:textColor="@color/black"
@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:includeFontPadding="false"
-                android:text="Введите пароль, отправленный на "
+                android:text="@string/enter_password_typeOfverification"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Display4"
 

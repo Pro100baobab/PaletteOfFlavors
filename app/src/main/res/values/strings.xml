@@ -103,4 +103,32 @@
     <string name="drinks">Напитки</string>
     <string name="first_courses">Первые блюда</string>
     <string name="second_courses">Вторые блюда</string>
+    <string name="fruits">Фрукты</string>
+    <string name="vegetables">Овощи</string>
+    <string name="dairy_products">Молочные продукты</string>
+    <string name="berries">Ягоды</string>
+    <string name="mushrooms">Грибы</string>
+    <string name="selected_0">Выбрано 0</string>
+    <string name="show_recipes">См. рецепты</string>
+    <string name="most_have">Самое необходимое</string>
+    <string name="reset_password_text">Укажите email адрес, указанный при регистрации для восстановления пароля!</string>
+    <string name="make_selection_text">Укажите способ подтверждения для восстановления пароля!</string>
+    <string name="confirm_changes">Подтвердите изменения</string>
+    <string name="enter_password_typeOfverification">Введите пароль, отправленный на</string>
+    <string name="enter_new_password_text">Укажите новый пароль для вашей учетной записи</string>
+    <string name="success_changes_password_text">Ваш пароль был успешно изменен!</string>
+
+
+    <string name="spaghetti">Спагетти</string>
+    <string name="bacon">Бекон</string>
+    <string name="eggs">Яйца</string>
+    <string name="parmesan">Пармезан</string>
+    <string name="milk">Молоко</string>
+    <string name="pumpkin">Тыква</string>
+    <string name="chicken_breast">Куриная грудка</string>
+    <string name="chocolate">Шоколад</string>
+    <string name="cream">Сливки</string>
+    <string name="buckwheat">Гречка</string>
+
+
 </resources>

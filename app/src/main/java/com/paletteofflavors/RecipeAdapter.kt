@@ -3,6 +3,8 @@ package com.paletteofflavors
 import DataSource.Local.SavedRecipeDao
 import DataSource.Network.NetworkRecipe
 import Repositories.toSavedRecipe
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,6 +48,7 @@ class RecipeAdapter(
     override fun onBindViewHolder(holder: RecipeHolder, position: Int) {
 
         holder.savedImageView.setImageResource(R.drawable.delete_24px)
+        holder.savedImageView.imageTintList = ColorStateList.valueOf(Color.BLACK)
 
         val recipe = recipeList[position]
 

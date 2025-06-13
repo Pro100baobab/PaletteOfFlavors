@@ -114,7 +114,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Самое необходимое"
+                                android:text="@string/most_have"
                                 android:textColor="@color/black"
                                 android:textSize="18sp"
                                 android:textStyle="bold" />
@@ -239,7 +239,7 @@
                     android:drawableTint="@color/black"
                     android:gravity="start|center_vertical"
                     android:padding="16dp"
-                    android:text="Фрукты"
+                    android:text="@string/fruits"
                     android:textColor="@android:color/black" />
 
                 <Button
@@ -252,7 +252,7 @@
                     android:drawableTint="@color/black"
                     android:gravity="start|center_vertical"
                     android:padding="16dp"
-                    android:text="Овощи"
+                    android:text="@string/vegetables"
                     android:textColor="@android:color/black" />
 
                 <Button
@@ -265,7 +265,7 @@
                     android:drawableTint="@color/black"
                     android:gravity="start|center_vertical"
                     android:padding="16dp"
-                    android:text="Молочные продукты"
+                    android:text="@string/dairy_products"
                     android:textColor="@android:color/black" />
 
                 <Button
@@ -278,7 +278,7 @@
                     android:drawableTint="@color/black"
                     android:gravity="start|center_vertical"
                     android:padding="16dp"
-                    android:text="Ягоды"
+                    android:text="@string/berries"
                     android:textColor="@android:color/black" />
 
                 <Button
@@ -291,7 +291,7 @@
                     android:drawableTint="@color/black"
                     android:gravity="start|center_vertical"
                     android:padding="16dp"
-                    android:text="Грибы"
+                    android:text="@string/mushrooms"
                     android:textColor="@android:color/black" />
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
@@ -301,7 +301,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/dark_red"
-            android:text="Выбрано 0"
+            android:text="@string/selected_0"
             android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -311,7 +311,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/dark_red"
-            android:text="См. рецепты"
+            android:text="@string/show_recipes"
             android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

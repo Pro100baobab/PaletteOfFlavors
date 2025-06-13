@@ -113,11 +113,13 @@ class FavoritesFragment() : Fragment() {
 
     private fun updateMyRecipes() {
         hintuserRecipe.visibility = View.INVISIBLE
-        hintRecipe.visibility = View.INVISIBLE
 
         viewModel.myRecipes.onEach { recipes ->
             if (recipes.isEmpty()) {
                 hintuserRecipe.visibility = View.VISIBLE
+            }
+            else{
+                hintuserRecipe.visibility = View.INVISIBLE
             }
 
             recipeAdapter = RecipeAdapter(
@@ -132,6 +134,7 @@ class FavoritesFragment() : Fragment() {
             )
             recipesRecyclerView.adapter = recipeAdapter
 
+            hintRecipe.visibility = View.INVISIBLE
         }.launchIn(lifecycleScope)
     }
 
@@ -151,6 +154,7 @@ class FavoritesFragment() : Fragment() {
             // Конвертируем SavedRecipe в NetworkRecipe
             val networkRecipes = savedRecipes.map { it.toNetworkRecipe() }
 
+
             savedRecipeAdapter = NetworkRecipeAdapter(
                 onItemClick = { networkRecipe ->
                     // Конвертируем обратно при клике, если нужно
@@ -169,8 +173,9 @@ class FavoritesFragment() : Fragment() {
                 // Добавляем все рецепты сразу
                 addRecipes(networkRecipes)
             }
-
             recipesRecyclerView.adapter = savedRecipeAdapter
+
+            hintuserRecipe.visibility = View.INVISIBLE
         }.launchIn(lifecycleScope)
     }
 
