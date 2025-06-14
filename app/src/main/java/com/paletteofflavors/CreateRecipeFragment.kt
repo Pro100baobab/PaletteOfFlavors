@@ -30,7 +30,6 @@ class CreateRecipeFragment : Fragment() {
     }
 
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -43,7 +42,6 @@ class CreateRecipeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         //viewModel = (requireActivity() as MainActivity).createRecipeViewModel
-
 
 
         // Add Listeners
@@ -76,9 +74,17 @@ class CreateRecipeFragment : Fragment() {
                         viewModel.setTimeInMinutes(text.toString().toInt())
                     }
                 }
-            } catch (_: Exception){
+            } catch (_: Exception) {
                 // стерли последний символ
                 viewModel.setTimeInMinutes(0)
+            }
+        }
+
+        //binding.setComplexityRatingBar.rating = recipe.complexity.toFloat()
+
+        binding.setComplexityRatingBar.setOnRatingBarChangeListener { ratingBar, rating, fromUser ->
+            if (fromUser) {
+                viewModel.setRatingBarCount(rating)
             }
         }
 
@@ -123,21 +129,36 @@ class CreateRecipeFragment : Fragment() {
 
         }
 
+
+        viewModel.ratingBarCount.observe(viewLifecycleOwner) { stars ->
+            if (binding.setComplexityRatingBar.rating.toString() != stars) {
+                userChangeFlag = false
+                binding.setComplexityRatingBar.rating = stars.toFloat()
+                userChangeFlag = true
+            }
+        }
+
         binding.backToFavoritesButton.setOnClickListener {
             (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
         }
 
         binding.saveButton.setOnClickListener {
-            // Проверяем, что все обязательные поля заполнены
-            if (binding.recipeNameEdit.text.isNullOrEmpty() ||
-                binding.ingredientsEdit.text.isNullOrEmpty() ||
-                binding.instructionsEdit.text.isNullOrEmpty() ||
-                binding.recipeCookingTimeEdit.text.toString().isEmpty()
-            ) {
 
-                Toast.makeText(requireContext(), "Заполните все поля", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+            binding.run {
+                if (recipeNameEdit.text.isNullOrEmpty() ||
+                    ingredientsEdit.text.isNullOrEmpty() ||
+                    instructionsEdit.text.isNullOrEmpty() ||
+                    recipeCookingTimeEdit.text.toString().isEmpty() ||
+                    setComplexityRatingBar.rating == 0f
+                ) {
+
+                    Toast.makeText(requireContext(), "Заполните все поля", Toast.LENGTH_SHORT)
+                        .show()
+                    return@setOnClickListener
+                }
             }
+
+
 
             /*
             // Устанавливаем время приготовления
@@ -160,7 +181,8 @@ class CreateRecipeFragment : Fragment() {
                     viewModel.saveRecipe()
 
                     // Показываем уведомление и возвращаемся назад
-                    Toast.makeText(requireContext(), "Рецепт сохранен!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Рецепт сохранен!", Toast.LENGTH_SHORT)
+                        .show()
                     viewModel.cleanRecipeData()
                     (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
 

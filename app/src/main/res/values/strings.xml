@@ -129,6 +129,7 @@
     <string name="chocolate">Шоколад</string>
     <string name="cream">Сливки</string>
     <string name="buckwheat">Гречка</string>
+    <string name="complexity">Сложность</string>
 
 
 </resources>

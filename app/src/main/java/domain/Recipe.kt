@@ -1,5 +1,6 @@
 package domain
 
+import android.icu.util.MeasureUnit.Complexity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
@@ -12,9 +13,9 @@ data class Recipe(
     val ingredients: List<String>, // Конвертируется в JSON
     val instruction: String,
     val cookTime: Int,  // в минутах
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
+
+    val complexity: Int
 )
-
-
 
 

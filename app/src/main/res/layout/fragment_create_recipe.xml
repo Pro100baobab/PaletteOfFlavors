@@ -25,7 +25,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp">
 
             <!-- Заголовок -->
             <TextView
@@ -60,7 +61,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/recipe_name_hint"
-                    android:inputType="textCapWords" />
+                    android:inputType="textCapWords"
+                    android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Поле ингредиентов -->
@@ -86,7 +88,8 @@
                     android:gravity="top"
                     android:hint="@string/ingredients_hint"
                     android:inputType="textMultiLine"
-                    android:minLines="3" />
+                    android:minLines="3"
+                    android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Поле инструкций -->
@@ -169,19 +172,64 @@
                     android:textSize="16sp" />
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/complexity_linear_layout"
+                android:layout_marginTop="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recipe_time_container">
+
+                <TextView
+                    android:paddingTop="8dp"
+                    android:layout_gravity="start"
+                    android:id="@+id/ratingBarText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/complexity"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/instructions_input" />
+
+
+                <RatingBar
+                    style = "@style/Widget.AppCompat.RatingBar.Indicator"
+                    android:id="@+id/setComplexityRatingBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:isIndicator="false"
+                    android:numStars="5"
+                    android:progressTint="#EF6C00"
+                    android:secondaryProgressTint="@color/dark_red"
+                    android:progressBackgroundTint="@color/dark_red"
+                    android:stepSize="1"
+                    android:theme="@style/RatingBar"/>
+
+
+            </LinearLayout>
+
+
             <!-- Кнопка сохранения -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/save_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="2dp"
                 android:backgroundTint="@color/light_pink"
                 android:text="@string/save_recipe"
                 android:textColor="@color/black"
                 app:cornerRadius="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/recipe_time_container" />
+                app:layout_constraintTop_toBottomOf="@id/complexity_linear_layout" />
+
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

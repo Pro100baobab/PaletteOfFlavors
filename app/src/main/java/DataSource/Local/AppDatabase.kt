@@ -12,7 +12,7 @@ import domain.SavedRecipe
 
 // Singleton-паттерн для жизненного цикла БД
 
-@Database(entities = [Recipe::class, SavedRecipe::class], version = 2)
+@Database(entities = [Recipe::class, SavedRecipe::class], version = 3)
 @TypeConverters(Converters::class)
 abstract  class AppDatabase: RoomDatabase(){
     abstract fun recipeDao(): RecipeDao
@@ -41,6 +41,12 @@ abstract  class AppDatabase: RoomDatabase(){
             }
         }
 
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE recipes ADD COLUMN complexity INTEGER")
+            }
+        }
+
 
         @Volatile var INSTANCE: AppDatabase? = null
 
@@ -51,7 +57,7 @@ abstract  class AppDatabase: RoomDatabase(){
                     AppDatabase::class.java,
                     "recipes_db"
                 )
-                    .addMigrations(MIGRATION_1_2) // Для перехода на новую версию бд
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3) // Для перехода на новую версию бд
                     .build()
 
                 INSTANCE = instance

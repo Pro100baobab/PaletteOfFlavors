@@ -2,14 +2,15 @@ package com.paletteofflavors
 
 import DataSource.Local.SavedRecipeDao
 import DataSource.Network.NetworkRecipe
-import Repositories.toSavedRecipe
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.RatingBar
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import domain.Recipe
 import domain.SavedRecipe
@@ -27,11 +28,11 @@ class RecipeAdapter(
 
     class RecipeHolder(view: View): RecyclerView.ViewHolder(view){
         val titleOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_name)
-        val likesOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_likes)
-        val commentsOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_comments)
+        val likesOfRecipeIcon: ImageView = itemView.findViewById(R.id.likeIcon)
+        val commentsOfRecipeIcon: ImageView = itemView.findViewById(R.id.commentIcon)
         val timeOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_time)
         val savedImageView: ImageView = itemView.findViewById(R.id.favorites_fragment_item_saved_icon)
-
+        val complexity: RatingBar = itemView.findViewById(R.id.complexityRatingBar)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeHolder {
@@ -49,13 +50,14 @@ class RecipeAdapter(
 
         holder.savedImageView.setImageResource(R.drawable.delete_24px)
         holder.savedImageView.imageTintList = ColorStateList.valueOf(Color.BLACK)
-
+        holder.likesOfRecipeIcon.isVisible = false
+        holder.commentsOfRecipeIcon.isVisible = false
         val recipe = recipeList[position]
 
         holder.titleOfRecipe.text = recipe.title
-        //holder.likesOfRecipe.text = recipeList[position].likes.toString()
-        //holder.commentsOfRecipe.text = recipeList[position].comments.toString()
+
         holder.timeOfRecipe.text = recipe.cookTime.toString()
+        holder.complexity.rating = recipe.complexity.toFloat()
 
         holder.itemView.setOnClickListener {
             onItemClick(recipe)
@@ -82,6 +84,7 @@ class NetworkRecipeAdapter(
         val commentsOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_comments)
         val timeOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_time)
         val savedOrDeletedImageView: ImageView = itemView.findViewById(R.id.favorites_fragment_item_saved_icon)
+        val complexity: RatingBar = itemView.findViewById(R.id.complexityRatingBar)
 
     }
 
@@ -136,6 +139,7 @@ class NetworkRecipeAdapter(
             likesOfRecipe.text = networkRecipe.likesCount.toString()
             commentsOfRecipe.text = networkRecipe.commentsCount.toString()
             timeOfRecipe.text = networkRecipe.cookTime.toString()
+            complexity.rating = networkRecipe.complexity.toFloat()
         }
 
 

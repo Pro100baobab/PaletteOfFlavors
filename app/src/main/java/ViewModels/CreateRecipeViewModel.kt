@@ -17,11 +17,13 @@ class CreateRecipeViewModel(private val recipeDao: RecipeDao): ViewModel() {
     private val _ingredients = MutableLiveData<String>()
     private val _instruction = MutableLiveData<String>()
     private val _timeInMinutes = MutableLiveData<String>()
+    private val _ratingBarCount = MutableLiveData<String>()
 
     val title: LiveData<String> = _title
     val ingredients: LiveData<String> = _ingredients
     val instruction: LiveData<String> = _instruction
     val timeInMinutes: LiveData<String> = _timeInMinutes
+    val ratingBarCount: LiveData<String> = _ratingBarCount
 
     fun setTitle(title: String){
         _title.value = title
@@ -42,6 +44,13 @@ class CreateRecipeViewModel(private val recipeDao: RecipeDao): ViewModel() {
         }
     }
 
+    fun setRatingBarCount(starsCount: Float){
+        _ratingBarCount.value = when(starsCount){
+            0f -> ""
+            else -> starsCount.toString()
+        }
+    }
+
 
     fun saveRecipe() {
         viewModelScope.launch {
@@ -52,7 +61,8 @@ class CreateRecipeViewModel(private val recipeDao: RecipeDao): ViewModel() {
                 title = _title.value ?: "",
                 ingredients = ingredientsList,
                 instruction = _instruction.value ?: "",
-                cookTime = _timeInMinutes.value?.toInt() ?: 0
+                cookTime = _timeInMinutes.value?.toInt() ?: 0,
+                complexity = _ratingBarCount.value?.toFloat()?.toInt()?:1
             )
 
             recipeDao.insert(recipe)
@@ -69,5 +79,6 @@ class CreateRecipeViewModel(private val recipeDao: RecipeDao): ViewModel() {
         _ingredients.value = ""
         _instruction.value = ""
         _timeInMinutes.value = ""
+        _ratingBarCount.value = "0f"
     }
 }

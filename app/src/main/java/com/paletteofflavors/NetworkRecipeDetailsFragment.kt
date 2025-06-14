@@ -2,6 +2,7 @@ package com.paletteofflavors
 
 import DataSource.Network.NetworkRecipe
 import DataSource.model.RecipeSharedViewModel
+import Repositories.toNetworkRecipe
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -15,6 +16,7 @@ import androidx.navigation.fragment.navArgs
 import com.paletteofflavors.databinding.FragmentNetworkRecipeDetailsBinding
 import com.paletteofflavors.databinding.FragmentRecipeDetailsBinding
 import domain.Recipe
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
@@ -34,21 +36,31 @@ class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                sharedViewModel.selectedNetworkRecipe.collect { recipe ->
-                    recipe?.let { bindNetworkRecipeData(it) }
-                }
+
+                if (fragment == "Fridge")
+                    sharedViewModel.selectedNetworkRecipe.collect { recipe ->
+                        recipe?.let { bindNetworkRecipeData(it) }
+                    }
+
+                else if(fragment == "Favorites")
+                    sharedViewModel.selectedSavedRecipe.collect { recipe ->
+                        recipe?.let { bindNetworkRecipeData(it.toNetworkRecipe())}
+                    }
             }
         }
 
 
         binding.backButtonNetworkRecipeDetails.setOnClickListener {
-            when(fragment){
+            when (fragment) {
                 "Favorites" ->
                     (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
+
                 "Fridge" ->
                     (requireActivity() as MainActivity).replaceMainFragment(FridgeFragment())
+
                 else ->
                     (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
             }
@@ -59,8 +71,12 @@ class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
     private fun bindNetworkRecipeData(networkRecipe: NetworkRecipe) {
         binding.recipeDetailsTitle.text = networkRecipe.title
         binding.recipeDetailsCookingTime.text = "${networkRecipe.cookTime} мин"
-        binding.recipeDetailsIngredientsList.text = networkRecipe.ingredients.joinToString("\n") { "• $it" }
+        binding.recipeDetailsIngredientsList.text =
+            networkRecipe.ingredients.joinToString("\n") { "• $it" }
         binding.instructionsText.text = networkRecipe.instruction
+        binding.complexityRating.rating = networkRecipe.complexity.toFloat()
+        binding.likesCount.text = networkRecipe.likesCount.toString()
+        binding.commentsCount.text = networkRecipe.commentsCount.toString()
     }
 
     override fun onDestroyView() {

@@ -47,7 +47,7 @@ class RecipeDetailsFragment : Fragment() {
         }
 
 
-        binding.backButtonRecipeDetails.setOnClickListener {
+        binding.backButtonNetworkRecipeDetails.setOnClickListener {
             //parentFragmentManager.popBackStack()
             //(requireActivity() as MainActivity).returnNavigation()
             (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
@@ -60,6 +60,9 @@ class RecipeDetailsFragment : Fragment() {
         binding.recipeDetailsCookingTime.text = "${recipe.cookTime} мин"
         binding.recipeDetailsIngredientsList.text = recipe.ingredients.joinToString("\n") { "• $it" }
         binding.instructionsText.text = recipe.instruction
+        binding.likesCount.text = "0"
+        binding.commentsCount.text = "0"
+        binding.complexityRating.rating = recipe.complexity.toFloat()
     }
 
     override fun onDestroyView() {
