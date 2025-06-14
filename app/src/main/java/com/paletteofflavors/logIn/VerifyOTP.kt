@@ -54,7 +54,7 @@ class VerifyOTP : Fragment() {
 
     var email: String = ""
     var phone: String = ""
-    var type: String = ""
+    var type: String = ""   // Connection
     var typeOper: String = ""
 
 
@@ -62,12 +62,14 @@ class VerifyOTP : Fragment() {
     private var verificationCode = ""
     private var timer: CountDownTimer? = null
 
-    private lateinit var vm: LoginViewModel
+    private var _vm: LoginViewModel? = null
+    private val vm get() = _vm!!
+
     private lateinit var vmRegister: RegistrationViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        vm = (requireActivity() as MainActivity).viewModel
+        _vm = (requireActivity() as MainActivity).viewModel  // все null, может и не создана
         vmRegister = (requireActivity() as MainActivity).viewModelRegistration
 
 
@@ -77,7 +79,7 @@ class VerifyOTP : Fragment() {
             type = args.typeOfConnection
             typeOper = args.typeOfOperation
             if(typeOper == "reset")
-                vm.setTypeOfVerification(type)
+                vm.setTypeOfConnection(type)
 
         } catch (_: Exception) {
 
@@ -90,8 +92,9 @@ class VerifyOTP : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
+
         _binding = FragmentVerifyOtpBinding.inflate(inflater, container, false)
+
         binding.tvResendCode.isVisible = false
         binding.tvResendCode.paintFlags = Paint.UNDERLINE_TEXT_FLAG
         return _binding.root
@@ -100,39 +103,45 @@ class VerifyOTP : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.d("Null", "3")
+        logCatCheck()
 
-        //Toast.makeText(requireContext(), "${vmRegister.email.value}", Toast.LENGTH_SHORT).show()
-        if(vm?.resetemail?.value != ""){
-            vm.typeOfVerification.observe(viewLifecycleOwner){
+        if(vm.resetemail.value != null){
+
+            binding.typeOfVerification.text = when (vm.typeOfVConnection.value) {
+                "email" -> vm.resetemail.value
+                "phone" -> maskHideChars(vm.resetphone.value!!)
+                else -> {
+                    ""
+                }
+            }
+            /*vm.typeOfVerification.observe(viewLifecycleOwner){
                 binding.typeOfVerification.text = when (vm.typeOfVerification.value) {
                     "email" -> vm.resetemail.value
                     "phone" -> maskHideChars(vm.resetphone.value!!)
                     else -> {""}
                 }
-            }
+            }*/
         }
 
         else{
-            vmRegister!!.email.observe(viewLifecycleOwner){
+            binding.typeOfVerification.text = vmRegister.email.value
+            /*vmRegister!!.email.observe(viewLifecycleOwner){
                 binding.typeOfVerification.text = it
-            }
+            }*/
         }
 
-        Log.d("Null", "4")
 
 
 
         sessionManager = SessionManager(requireContext(), SessionManager.SESSION_CODE)
 
-        if (vm?.typeOfVerification?.value == "email" || vmRegister?.email?.value != null) {
+        if (vm.typeOfVConnection.value == "email" || vmRegister.email.value != null) {
             sendVerificationCodeOnEMail()
         } else {
             //binding.typeOfVerification.text = maskHideChars(phone)
             //phone
         }
 
-        Log.d("Null", "5")
 
 
         binding.btnVerifyCode.setOnClickListener {
@@ -162,12 +171,49 @@ class VerifyOTP : Fragment() {
         }
 
         binding.backButtonVerifyOtp.setOnClickListener {
-            if (vmRegister?.email?.value == null) {
-                vm.setTypeOfVerification("")
+            if (vmRegister.email.value == null) {
+                vm.setTypeOfConnection("")
                 findNavController().navigate(R.id.action_verifyOTP_to_makeSelection)
             } else {
                 findNavController().navigate(R.id.action_verifyOTP_to_registrationFragment)
             }
+        }
+    }
+
+    private fun logCatCheck() {
+        Log.d("ViewModel", "NavArgs Email: ${args.email}")
+        Log.d("ViewModel", "NavArgs Phone: ${args.phone}")
+        Log.d("ViewModel", "NavArgs TypeOfOperation: ${args.typeOfOperation}")
+        Log.d("ViewModel", "NavArgs TypeOfConnection: ${args.typeOfConnection}\n\n")
+
+        Log.d("ViewModel", "")
+        Log.d("ViewModel", "")
+
+
+        vm?.apply {
+            Log.d("ViewModel", "LoginView Username: ${vm.username.value}")
+            Log.d("ViewModel", "LoginView CurrentEmail: ${vm.curemail.value}")
+            Log.d("ViewModel", "LoginView Password: ${vm.password.value}")
+            Log.d("ViewModel", "LoginView ResetEmail: ${vm.resetemail.value}")
+            Log.d("ViewModel", "LoginView ResetPhone: ${vm.resetphone.value}")
+            Log.d("ViewModel", "LoginView typeOfVerification: ${vm.typeOfVConnection.value}")
+            Log.d("ViewModel", "LoginView TypeOfConnection: нет")
+
+            Log.d("ViewModel", "")
+            Log.d("ViewModel", "")
+        }
+
+        vmRegister?.apply {
+            Log.d("ViewModel", "Register FullName: ${vmRegister.fullName.value}")
+            Log.d("ViewModel", "Register Username: ${vmRegister.userName.value}")
+            Log.d("ViewModel", "Register Password: ${vmRegister.password.value}")
+            Log.d("ViewModel", "Register Email: ${vmRegister.email.value}")
+            Log.d("ViewModel", "Register Phone: ${vmRegister.phone.value}")
+            Log.d("ViewModel", "Register TypeOfConnection: нет")
+
+            Log.d("ViewModel", "")
+            Log.d("ViewModel", "")
+
         }
     }
 
@@ -266,8 +312,9 @@ class VerifyOTP : Fragment() {
 
 
     override fun onDestroyView() {
-        timer?.cancel()
         super.onDestroyView()
+        timer?.cancel()
+        _vm = null
     }
 
 

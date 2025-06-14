@@ -36,7 +36,7 @@ class Turso(
     private val dbUrl = (activity as MainActivity).TURSO_DATABASE_URL
     private val dbAuthToken = (activity as MainActivity).TURSO_AUTH_TOKEN
 
-    fun loginUser(username: String, password: String) {
+    fun loginUser(username: String, password: String, isRememberMePressed: Boolean) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
@@ -78,7 +78,10 @@ class Turso(
                                     ).show()
 
                                     // Save LogIn Settings if checked
-                                    rememberMe(username, password)
+                                    when(isRememberMePressed){
+                                        true -> rememberMe(username, password)
+                                        else -> activity.sessionManagerRememberMe.logoutUserSession()
+                                    }
                                     (activity as MainActivity).showNormalFragment(SearchFragment())
                                 }
                             } else {

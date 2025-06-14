@@ -101,7 +101,7 @@ class SessionManager(
         return userData;
     }
 
-    public fun checkRememberMe(): Boolean{
+    fun checkRememberMe(): Boolean{
         return usersSession.getBoolean(IS_REMEMBERME, false)
     }
 

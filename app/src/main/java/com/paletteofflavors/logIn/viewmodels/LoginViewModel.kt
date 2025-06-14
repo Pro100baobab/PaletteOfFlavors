@@ -12,14 +12,14 @@ class LoginViewModel(): ViewModel() {
     private val _email = MutableLiveData<String>()
     private val _resetemail = MutableLiveData<String>()
     private val _resetphone = MutableLiveData<String>()
-    private val _typeOfVerification = MutableLiveData<String>()
+    private val _typeOfConnection = MutableLiveData<String>()
 
     val username: LiveData<String> = _useername
     val password: LiveData<String> = _password
     val curemail: LiveData<String> = _email
     val resetemail: LiveData<String> = _resetemail
     val resetphone: LiveData<String> = _resetphone
-    val typeOfVerification: LiveData<String> = _typeOfVerification
+    val typeOfVConnection: LiveData<String> = _typeOfConnection
 
     fun setUserName(usrname: String) {
         _useername.value = usrname
@@ -41,8 +41,8 @@ class LoginViewModel(): ViewModel() {
         _resetphone.value = phn
     }
 
-    fun setTypeOfVerification(type: String){
-        _typeOfVerification.value = type
+    fun setTypeOfConnection(type: String){
+        _typeOfConnection.value = type
     }
 }
 

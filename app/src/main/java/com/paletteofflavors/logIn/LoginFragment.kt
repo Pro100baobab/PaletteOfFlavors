@@ -133,7 +133,7 @@ class LoginFragment : Fragment() {
 
             //loginUser(username, password)
             val TursoConnection = Turso(requireActivity() as MainActivity, requireContext(), rememberMe)
-            TursoConnection.loginUser(username, password)
+            TursoConnection.loginUser(username, password, binding.rememberMe.isChecked)
             //TODO: progress bar
 
             it.isEnabled = true
