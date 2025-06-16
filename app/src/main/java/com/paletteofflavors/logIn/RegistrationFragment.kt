@@ -104,6 +104,8 @@ class RegistrationFragment : Fragment() {
             if(activity.sessionManager.checkLogin()){
                 activity.findNavController(R.id.fragmentContainerView).navigate(R.id.action_registrationFragment_to_loginFragment)
                 activity.binding.appContent.visibility = View.VISIBLE
+                activity.binding.bottomNavigation.visibility = View.VISIBLE
+                activity.binding.fragmentContainerView.visibility = View.GONE
                 activity.navBottomViewModel.setIsContentVisible(true)
             }
             else{

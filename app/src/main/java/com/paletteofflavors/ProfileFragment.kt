@@ -103,6 +103,10 @@ class ProfileFragment : Fragment() {
         activity.findNavController(R.id.fragmentContainerView).popBackStack()
         activity.navBottomViewModel.setIsContentVisible(false)
         activity.binding.appContent.visibility = View.GONE
+
+        (requireActivity() as MainActivity).binding.appContent.visibility = View.GONE
+        (requireActivity() as MainActivity).binding.bottomNavigation.visibility = View.GONE
+        (requireActivity() as MainActivity).binding.fragmentContainerView.visibility = View.VISIBLE
     }
 
 
@@ -188,10 +192,12 @@ class ProfileFragment : Fragment() {
 
     private fun logOut() {
         (requireActivity() as MainActivity).navBottomViewModel.setSelectedNavItem(R.id.navigation_search)
-        (requireActivity() as MainActivity).sessionManager.logoutUserSession() // userSession
-        //(requireActivity() as MainActivity).showFullscreenFragment(LoginFragment())
+        (requireActivity() as MainActivity).sessionManager.logoutUserSession() // Logout from LogIn session
+
         (requireActivity() as MainActivity).binding.appContent.visibility = View.GONE
-        //activity.navBottomViewModel.setIsContentVisible(false)
+        (requireActivity() as MainActivity).binding.bottomNavigation.visibility = View.GONE
+        (requireActivity() as MainActivity).binding.fragmentContainerView.visibility = View.VISIBLE
+        (requireActivity() as MainActivity).navBottomViewModel.setIsContentVisible(false)
 
     }
 

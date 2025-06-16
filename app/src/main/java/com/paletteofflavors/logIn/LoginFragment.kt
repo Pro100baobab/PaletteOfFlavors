@@ -34,7 +34,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tech.turso.libsql.Libsql
 
-//TODO: Add ViewModel with liveData
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!

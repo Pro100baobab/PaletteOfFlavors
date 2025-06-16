@@ -158,7 +158,10 @@ class MainActivity : AppCompatActivity() {
                 sessionManager.getUsersDetailFromSession()
         } else {
             //showFullscreenFragment(LoginFragment())
-            showFullscreenFragment(AuthorizationFragment())
+            //showFullscreenFragment(AuthorizationFragment())
+            binding.bottomNavigation.visibility = View.GONE
+            binding.appContent.visibility = View.GONE
+            binding.fragmentContainerView.visibility = View.VISIBLE
         }
     }
 

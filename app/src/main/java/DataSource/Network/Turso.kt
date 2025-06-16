@@ -82,7 +82,10 @@ class Turso(
                                         true -> rememberMe(username, password)
                                         else -> activity.sessionManagerRememberMe.logoutUserSession()
                                     }
-                                    (activity as MainActivity).showNormalFragment(SearchFragment())
+
+                                    activity.replaceMainFragment(SearchFragment())
+                                    activity.binding.fragmentContainerView.visibility = View.VISIBLE
+                                    activity.returnNavigation()
                                 }
                             } else {
                                 activity?.runOnUiThread {
