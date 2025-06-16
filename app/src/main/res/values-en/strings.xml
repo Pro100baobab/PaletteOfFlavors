@@ -127,4 +127,13 @@
     <string name="chocolate">Chocolate</string>
     <string name="cream">Cream</string>
     <string name="buckwheat">Buckwheat</string>
+
+
+    <string name="complexity">Complexity</string>
+    <string name="found_recipes">Found recipes</string>
+    <string name="tags">Tags</string>
+    <string name="main_category">Main category</string>
+    <string name="select_main_category">Select main category</string>
+    <string name="secondary_category">Secondary category</string>
+    <string name="select_secondary_category">Select secondary category</string>
 </resources>

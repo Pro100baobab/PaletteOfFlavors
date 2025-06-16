@@ -159,9 +159,7 @@ class ProfileFragment : Fragment() {
     //
 
     private fun changeAvatar() {
-        //TODO("Not yet implemented")
-        Toast.makeText(context, "ok", Toast.LENGTH_SHORT).show()
-
+        Toast.makeText(context, "В разработке", Toast.LENGTH_LONG).show()
     }
 
     private fun changeTheme() {

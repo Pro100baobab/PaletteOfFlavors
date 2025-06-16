@@ -85,7 +85,7 @@ class SearchFragment : Fragment() {
         }
 
         binding.searchFragmentFilterButton.setOnClickListener {
-            Toast.makeText(requireContext(), "Selected: Show ALL Filters", Toast.LENGTH_SHORT)
+            Toast.makeText(requireContext(), "В разработке", Toast.LENGTH_SHORT)
                 .show()
         }
 

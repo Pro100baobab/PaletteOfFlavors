@@ -1,5 +1,6 @@
 package com.paletteofflavors.logIn
 
+import DataSource.Network.Turso
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import android.util.Patterns
 import android.widget.EditText
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.hbb20.CountryCodePicker
@@ -23,6 +25,7 @@ import com.paletteofflavors.logIn.viewmodels.RegistrationViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import tech.turso.libsql.Libsql
 
 //TODO: Add ViewModel with liveData
@@ -61,34 +64,35 @@ class RegistrationFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // If success start registration process
+            val TursoConnection = Turso(requireActivity() as MainActivity, requireContext())
 
-            //val fullname = binding.etFullname.text.toString().trim()
-            //val username = binding.etUsername.text.toString().trim()
-            //val email = binding.etEmail.text.toString().trim()
-            //val phone_number = binding.countryCodePiker.selectedCountryCodeWithPlus + binding.etPhoneNumber.text.toString().trim()
-            ///val password = binding.etPassword.text.toString().trim()
-            //registerUser(fullname, username, phone_number, email, password)
+            lifecycleScope.launch {
+                val isUnique = TursoConnection.checkUniqueUsernameAndEmail(binding.etUsername.text.toString().trim(), binding.etEmail.text.toString().trim())
 
-            try{
-                vm.setFullName(binding.etFullname.text.toString().trim())
-                vm.setUserName(binding.etUsername.text.toString().trim())
-                vm.setEmail(binding.etEmail.text.toString().trim())
-                vm.setPhone(binding.countryCodePiker.selectedCountryCodeWithPlus + binding.etPhoneNumber.text.toString().trim())
-                vm.setPassword(binding.etPassword.text.toString().trim())
+                if (!isUnique) {
+                    return@launch
+                }
+
+                try {
+                    // Заполняем ViewModel
+                    vm.setFullName(binding.etFullname.text.toString().trim())
+                    vm.setUserName(binding.etUsername.text.toString().trim())
+                    vm.setEmail(binding.etEmail.text.toString().trim())
+                    vm.setPhone(binding.countryCodePiker.selectedCountryCodeWithPlus + binding.etPhoneNumber.text.toString().trim())
+                    vm.setPassword(binding.etPassword.text.toString().trim())
+
+                    // Переходим к следующему экрану
+                    val destination = RegistrationFragmentDirections.actionRegistrationFragmentToVerifyOTP(
+                        "registration",
+                        email = vm.email.value!!,
+                        phone = vm.phone.value!!,
+                        "email"
+                    )
+                    findNavController().navigate(destination)
+                } catch (e: Error) {
+                    Log.e("Registration", "Navigation error", e)
+                }
             }
-            catch (e: Error){
-                Log.d("setError", "val Error: $e")
-            }
-
-
-            try {
-                val destination = RegistrationFragmentDirections.actionRegistrationFragmentToVerifyOTP("registration", email = vm.email.value!!, phone = vm.phone.value!!,"email")
-                findNavController().navigate(destination)
-            } catch (e: Error){
-                Log.d("setError", "Nav Erorr: $e")
-            }
-
         }
 
         binding.tvLogin.setOnClickListener {

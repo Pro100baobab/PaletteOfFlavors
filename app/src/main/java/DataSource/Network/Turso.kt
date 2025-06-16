@@ -129,6 +129,56 @@ class Turso(
         }
     }
 
+    suspend fun checkUniqueUsernameAndEmail(username: String, email: String): Boolean =
+        withContext(Dispatchers.IO) {
+            try {
+                Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                    db.connect().use { conn ->
+
+                        var result: Boolean = false
+                        // Проверяем, существует ли пользователь
+                        conn.query("SELECT username, email FROM users WHERE username = '$username' OR email = '$email'")
+                            .use { rows ->
+                                var nameFlag: Boolean = false
+                                var emailFlag: Boolean = false
+                                var row = rows.nextRow()
+
+                                while ( row != null) {
+
+                                    if (nameFlag || emailFlag)
+                                        return@use
+
+                                    if (!nameFlag && row[0].toString() == username){
+                                        withContext(Dispatchers.Main) {
+                                            Toast.makeText(context, "Username already exists", Toast.LENGTH_SHORT).show()
+                                            nameFlag = true
+                                        }
+                                    }
+
+                                    if (!emailFlag && row[1].toString() == email){
+                                        withContext(Dispatchers.Main) {
+                                            Toast.makeText(context, "Email already exists", Toast.LENGTH_SHORT).show()
+                                            emailFlag = true
+                                        }
+                                    }
+
+
+                                    row = rows.nextRow()
+                                }
+
+                                result = !nameFlag && !emailFlag
+                            }
+                        result
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("Registration", "Error checking uniqueness", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Error checking uniqueness: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+                false
+            }
+        }
 
     fun registerUser(
         fullname: String,
@@ -143,21 +193,36 @@ class Turso(
                 Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
                     db.connect().use { conn ->
                         // Проверяем, существует ли пользователь
-                        conn.query("SELECT username FROM users WHERE username = '$username'")
+                        /*conn.query("SELECT username, email FROM users WHERE username = '$username' OR email = '$email'")
                             .use { rows ->
-                                if (rows.nextRow() != null) {
-                                    activity?.runOnUiThread {
-                                        Toast.makeText(
-                                            context,
-                                            "Username already exists",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                    return@use
-                                }
-                            }
+                                var nameFlag: Boolean = false
+                                var emailFlag: Boolean = false
+                                var row = rows.nextRow()
 
-                        // TODO: Alter table users in turso for default CURRENT_TIMESTAMP
+                                while ( row != null) {
+
+                                    if (nameFlag || emailFlag)
+                                        return@use
+
+                                    if (!nameFlag && row[0].toString() == username){
+                                        activity.runOnUiThread {
+                                            Toast.makeText(context, "Username already exists", Toast.LENGTH_SHORT).show()
+                                            nameFlag = true
+                                        }
+                                    }
+
+                                    if (!emailFlag && row[1].toString() == email){
+                                        activity.runOnUiThread {
+                                            Toast.makeText(context, "Email already exists", Toast.LENGTH_SHORT).show()
+                                            emailFlag = true
+                                        }
+                                    }
+
+
+                                    row = rows.nextRow()
+                                }
+                            }*/
+
                         // Регистрируем нового пользователя
                         conn.query(
                             "INSERT INTO users (fullname, username, email, phone_number, password, created_at) VALUES('$fullname','$username', '$email', '$phone_number', '${password.hashCode()}', CURRENT_TIMESTAMP)"

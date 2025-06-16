@@ -65,12 +65,19 @@ class VerifyOTP : Fragment() {
     private var _vm: LoginViewModel? = null
     private val vm get() = _vm!!
 
-    private lateinit var vmRegister: RegistrationViewModel
+    private var _vmRegister: RegistrationViewModel? = null
+    private val vmRegister get() = _vmRegister!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-        _vm = (requireActivity() as MainActivity).viewModel  // все null, может и не создана
-        vmRegister = (requireActivity() as MainActivity).viewModelRegistration
+        Log.d("BLIA", "0")
+        _vm = (requireActivity() as MainActivity).viewModel
+        try{
+            _vmRegister = (requireActivity() as MainActivity).viewModelRegistration
+        } catch (e: Exception){
+
+        }
 
 
         try {
@@ -85,7 +92,7 @@ class VerifyOTP : Fragment() {
 
         }
 
-        super.onCreate(savedInstanceState)
+        Log.d("BLIA", "1")
     }
 
     override fun onCreateView(
@@ -97,13 +104,15 @@ class VerifyOTP : Fragment() {
 
         binding.tvResendCode.isVisible = false
         binding.tvResendCode.paintFlags = Paint.UNDERLINE_TEXT_FLAG
+        Log.d("BLIA", "2")
         return _binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        logCatCheck()
+        //logCatCheck()
+        Log.d("BLIA", "3")
 
         if(vm.resetemail.value != null){
 
@@ -124,7 +133,7 @@ class VerifyOTP : Fragment() {
         }
 
         else{
-            binding.typeOfVerification.text = vmRegister.email.value
+            binding.typeOfVerification.text = vmRegister?.email?.value
             /*vmRegister!!.email.observe(viewLifecycleOwner){
                 binding.typeOfVerification.text = it
             }*/
@@ -135,7 +144,7 @@ class VerifyOTP : Fragment() {
 
         sessionManager = SessionManager(requireContext(), SessionManager.SESSION_CODE)
 
-        if (vm.typeOfVConnection.value == "email" || vmRegister.email.value != null) {
+        if (vm.typeOfVConnection.value == "email" || vmRegister?.email?.value != null) {
             sendVerificationCodeOnEMail()
         } else {
             //binding.typeOfVerification.text = maskHideChars(phone)
@@ -171,7 +180,7 @@ class VerifyOTP : Fragment() {
         }
 
         binding.backButtonVerifyOtp.setOnClickListener {
-            if (vmRegister.email.value == null) {
+            if (vm.resetemail.value != null) {
                 vm.setTypeOfConnection("")
                 findNavController().navigate(R.id.action_verifyOTP_to_makeSelection)
             } else {
@@ -295,11 +304,11 @@ class VerifyOTP : Fragment() {
     private fun onVerificationSuccess() {
         Toast.makeText(context, "Верификация успешна!", Toast.LENGTH_SHORT).show()
 
-        if(vmRegister?.email?.value == null){
+        if(vm?.resetemail?.value != null){
             val direction = VerifyOTPDirections.actionVerifyOTPToSetNewPassword(email, phone)
             findNavController().navigate(direction)
         }
-        else{
+        else if(vmRegister?.email?.value != null){
             val TursoConnection = Turso(requireActivity() as MainActivity, requireContext())
             TursoConnection.registerUser(vmRegister!!.fullName.value!!, vmRegister!!.userName.value!!, vmRegister!!.phone.value!!,
                 vmRegister!!.email.value!!, vmRegister!!.password.value!!, findNavController())
@@ -315,6 +324,7 @@ class VerifyOTP : Fragment() {
         super.onDestroyView()
         timer?.cancel()
         _vm = null
+        _vmRegister = null
     }
 
 
