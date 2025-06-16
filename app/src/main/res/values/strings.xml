@@ -135,6 +135,8 @@
     <string name="select_main_category">Выберите основную категорию</string>
     <string name="secondary_category">Дополнительная категория</string>
     <string name="select_secondary_category">Выберите дополнительную категорию</string>
+    <string name="do_cash_network_recipes">Кешировать сетевые рецепты</string>
+    <string name="do_not_cash_network_recipes">Отменить кеширование рецептов</string>
 
     <string-array name="main_categories">
         <item>@string/breakfast</item>

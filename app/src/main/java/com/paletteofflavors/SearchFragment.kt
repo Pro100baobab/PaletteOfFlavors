@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -95,6 +96,15 @@ class SearchFragment : Fragment() {
             binding.filteredContent.visibility = View.GONE
         }
 
+        binding.searchFragmentSearchRecipeString.setOnKeyListener { _, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+                Log.d("SearchEnter", "Нажат Enter")
+                formatAndSearch(binding.searchFragmentSearchRecipeString.text.toString())
+                return@setOnKeyListener true
+            }
+            return@setOnKeyListener false
+        }
+
     }
 
     private fun setupBottomSheetBehavior() {
@@ -133,6 +143,39 @@ class SearchFragment : Fragment() {
         binding.bottomSheetInclude.categoriesRecyclerView.adapter = adapter
         binding.bottomSheetInclude.categoriesRecyclerView.layoutManager =
             LinearLayoutManager(context)
+    }
+
+    fun formatAndSearch(searchText: String){
+        val searchWords = searchText.split("\\s+".toRegex())
+
+        val formattedWords = searchWords.map { word ->
+            if (word.isNotEmpty()) {
+                word.substring(0, 1).uppercase() + word.substring(1) // Первая буква в верхний регистр, остальное - как есть
+            } else {
+                ""
+            }
+        }
+
+        // Создание строки для IN(...)
+        val words = formattedWords.joinToString(separator = "', '", prefix = "'", postfix = "'")
+
+        //
+        val query = """
+        SELECT * FROM Recipes WHERE title IN ($words)
+        UNION ALL
+        SELECT r.*
+        FROM Recipes r
+        WHERE EXISTS (
+            SELECT 1
+            FROM RecipeIngredients ri
+            JOIN IngredientDictionary id ON ri.ingredient_id = id.ingredient_id
+            WHERE ri.recipe_id = r.recipe_id AND id.name IN ($words)
+        )
+    """
+
+        Log.d("Query", query)
+
+        OnCategoryButtonClick(requireActivity() as MainActivity, requireContext(), query)
     }
 
     private fun createCategoryQuery(

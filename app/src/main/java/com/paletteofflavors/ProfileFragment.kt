@@ -31,6 +31,7 @@ import java.util.*
 import androidx.navigation.findNavController
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.first
+import androidx.core.content.edit
 
 
 class ProfileFragment : Fragment() {
@@ -64,6 +65,10 @@ class ProfileFragment : Fragment() {
 
         binding.profileName.text = usersDetails[SessionManager.KEY_USERNAME]
         binding.profileEmail.text = usersDetails[SessionManager.KEY_EMAIL]
+        when((activity as MainActivity).sessionManagerBaseSettings.usersSession.getBoolean(SessionManager.KEY_CASH, false)){
+            true -> binding.cashLabel.text = getString(R.string.do_not_cash_network_recipes)
+            false -> binding.cashLabel.text = getString(R.string.do_cash_network_recipes)
+        }
 
         //imageViewProfile?.setImageResource(R.drawable.favorites_icon)
 
@@ -76,14 +81,14 @@ class ProfileFragment : Fragment() {
             changeAvatar()
         }
 
-        binding.changeThemeButton.setOnClickListener {
-            changeTheme()
+        binding.changeCashFlagButton.setOnClickListener {
+            changeCashSettings()
         }
 
         binding.changeLanguageButton.setOnClickListener {
             try {
                 changeLanguage()
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 Log.e("ChangeLang", "Error: $e")
             }
         }
@@ -108,8 +113,6 @@ class ProfileFragment : Fragment() {
         (requireActivity() as MainActivity).binding.bottomNavigation.visibility = View.GONE
         (requireActivity() as MainActivity).binding.fragmentContainerView.visibility = View.VISIBLE
     }
-
-
 
 
     // Функции для управления языковыми настройками
@@ -140,7 +143,8 @@ class ProfileFragment : Fragment() {
     private fun getCurrentLanguageCode(): String {
         // Получаем сохраненный язык или системный по умолчанию
         val sharedPref = context?.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-        return sharedPref?.getString("app_language", Locale.getDefault().language) ?: Locale.getDefault().language
+        return sharedPref?.getString("app_language", Locale.getDefault().language)
+            ?: Locale.getDefault().language
     }
 
     private fun restartActivity() {
@@ -153,18 +157,24 @@ class ProfileFragment : Fragment() {
     }
 
 
-
-
-
     //
 
     private fun changeAvatar() {
         Toast.makeText(context, "В разработке", Toast.LENGTH_LONG).show()
     }
 
-    private fun changeTheme() {
-        //TODO("Not yet implemented")
-        Toast.makeText(context, "ok", Toast.LENGTH_SHORT).show()
+    private fun changeCashSettings() {
+        val session = (requireActivity() as MainActivity).sessionManagerBaseSettings.usersSession
+        val newFlag = !session.getBoolean(SessionManager.KEY_CASH, true)
+        session.edit {
+            putBoolean(SessionManager.KEY_CASH, newFlag)
+        }
+
+        when(newFlag){
+            true -> binding.cashLabel.text = getString(R.string.do_not_cash_network_recipes)
+            false -> binding.cashLabel.text = getString(R.string.do_cash_network_recipes)
+        }
+        Log.d("IsCashed", (requireActivity() as MainActivity).sessionManagerBaseSettings.usersSession.getBoolean(SessionManager.KEY_CASH, false).toString())
     }
 
 

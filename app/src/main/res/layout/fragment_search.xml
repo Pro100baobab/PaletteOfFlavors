@@ -248,6 +248,8 @@
                 android:paddingHorizontal="12dp"
                 app:boxBackgroundColor="@android:color/white"
                 app:boxStrokeColor="@color/dark_red"
+                app:cursorColor="@color/dark_red"
+                app:hintTextColor="@color/dark_red"
                 app:boxStrokeWidth="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -256,7 +258,7 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/search_fragment_search_recipe_string"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="55dp"
                     android:hint="@string/favorites_search_hint"
                     android:inputType="text"
                     android:paddingStart="16dp"

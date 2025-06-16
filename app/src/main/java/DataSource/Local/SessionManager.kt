@@ -19,7 +19,7 @@ class SessionManager(
         const val SESSION_USERSESSION = "userLoginSession"
         const val SESSION_REMEMBERME = "rememberMe"
         const val SESSION_CODE = "verificationSession"
-
+        const val SESSION_BASESETTINGS = "baseSettingsSession"
 
         //LogIn variables
         const val IS_LOGIN = "IsLoggedIn"
@@ -36,13 +36,35 @@ class SessionManager(
         const val KEY_SESSION_USERNAME = "username"
         const val KEY_SESSION_PASSWORD = "password"
 
-        //Verification veriables
+        //Verification variables
         const val IS_VERIFICATION_CODE = "IsVerificationCode"
         const val KEY_CODE = "verificationCode"
         const val KEY_TIME = "timerEndTime"
         const val TIMER_DURATION: Long = 60000 // 1 минута
 
+        //BaseSettings variables
+        const val IS_BASESETINGS = "IsBaseSettings"
+        const val KEY_CASH = "cash"
     }
+
+    // functions for BaseSettings Session
+    public fun createBaseSettingSession(cashFlag: Boolean){
+        editor.putBoolean(IS_BASESETINGS, true)
+        editor.putBoolean(KEY_CASH, false)
+        editor.commit()
+    }
+    public fun getBaseSettingsDetailFromSession(): HashMap<String, String?>{
+        val userData = HashMap<String, String?>()
+
+        userData[KEY_CASH] = usersSession.getString(KEY_CASH, null)
+        return userData
+    }
+
+    public fun checkBaseSettings(): Boolean{
+        return usersSession.getBoolean(IS_BASESETINGS, false)
+    }
+
+
 
     // function for LogIn Session
     public fun createLoginSession(fullName: String, username: String, email: String, phoneNumber: String, password: String){

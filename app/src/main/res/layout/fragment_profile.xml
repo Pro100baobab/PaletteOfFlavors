@@ -216,7 +216,7 @@
                     android:orientation="vertical">
 
                     <LinearLayout
-                        android:id="@+id/change_theme_button"
+                        android:id="@+id/change_cashFlag_button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@color/gray_for_filters"
@@ -227,14 +227,15 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_marginEnd="16dp"
-                            android:src="@drawable/light_mode_24px"
+                            android:src="@drawable/clock_arrow_down_24px"
                             app:tint="@color/black" />
 
                         <TextView
+                            android:id="@+id/cash_label"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="@string/change_theme"
+                            android:text="@string/do_cash_network_recipes"
                             android:textColor="@color/gray_text" />
 
                         <ImageView

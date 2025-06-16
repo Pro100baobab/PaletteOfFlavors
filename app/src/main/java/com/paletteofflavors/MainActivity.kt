@@ -60,6 +60,7 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var sessionManager: SessionManager;
     lateinit var sessionManagerRememberMe: SessionManager;
+    lateinit var sessionManagerBaseSettings: SessionManager;
 
     lateinit var viewModel: LoginViewModel
     lateinit var viewModelRegistration: RegistrationViewModel
@@ -124,6 +125,13 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+        sessionManagerBaseSettings = SessionManager(this, SessionManager.SESSION_BASESETTINGS)
+
+        sessionManagerBaseSettings.let {
+            if(!it.checkBaseSettings()){
+                sessionManagerBaseSettings.createBaseSettingSession(false)
+            }
+        }
     }
 
 
