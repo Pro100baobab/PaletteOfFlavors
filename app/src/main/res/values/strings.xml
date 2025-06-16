@@ -70,7 +70,6 @@
     <string name="menu_createRecept">Создать рецепт</string>
 
 
-
     <!--Строковые ресурсы для элементов Профиля-->
     <string name="profile_image_desc">Изображение профиля</string>
     <string name="change_avatar">Поменять аватар</string>
@@ -130,6 +129,38 @@
     <string name="cream">Сливки</string>
     <string name="buckwheat">Гречка</string>
     <string name="complexity">Сложность</string>
+    <string name="found_recipes">Найденные рецепты</string>
+    <string name="tags">Теги</string>
+    <string name="main_category">Основная категория</string>
+    <string name="select_main_category">Выберите основную категорию</string>
+    <string name="secondary_category">Дополнительная категория</string>
+    <string name="select_secondary_category">Выберите дополнительную категорию</string>
 
+    <string-array name="main_categories">
+        <item>@string/breakfast</item>
+        <item>обед</item>
+        <item>ужин</item>
+        <item>десерт</item>
+    </string-array>
+
+    <!-- Дополнительные категории -->
+    <string-array name="secondary_categories">
+        <item>Холодные закуски</item>
+        <item>Горячие закуски</item>
+        <item>Овощные салаты</item>
+        <item>Мясные салаты</item>
+        <item>Салаты с птицей</item>
+        <item>Рыбные салаты</item>
+        <item>Супы</item>
+        <item>Овощные блюда</item>
+        <item>Блюда с мясом</item>
+        <item>Блюда с птицей</item>
+        <item>Блюда с рыбой</item>
+        <item>Гарниры</item>
+        <item>Выпечка</item>
+        <item>Напитки</item>
+        <item>Первые блюда</item>
+        <item>Вторые блюда</item>
+    </string-array>
 
 </resources>

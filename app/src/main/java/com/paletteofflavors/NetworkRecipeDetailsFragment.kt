@@ -3,6 +3,7 @@ package com.paletteofflavors
 import DataSource.Network.NetworkRecipe
 import DataSource.model.RecipeSharedViewModel
 import Repositories.toNetworkRecipe
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -49,6 +50,11 @@ class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
                     sharedViewModel.selectedSavedRecipe.collect { recipe ->
                         recipe?.let { bindNetworkRecipeData(it.toNetworkRecipe())}
                     }
+
+                else if(fragment == "Search")
+                    sharedViewModel.selectedNetworkRecipe.collect { recipe ->
+                        recipe?.let { bindNetworkRecipeData(it)}
+                    }
             }
         }
 
@@ -61,6 +67,9 @@ class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
                 "Fridge" ->
                     (requireActivity() as MainActivity).replaceMainFragment(FridgeFragment())
 
+                "Search" ->
+                    (requireActivity() as MainActivity).replaceMainFragment(SearchFragment())
+
                 else ->
                     (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
             }
@@ -68,6 +77,7 @@ class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
     }
 
 
+    @SuppressLint("SetTextI18n")
     private fun bindNetworkRecipeData(networkRecipe: NetworkRecipe) {
         binding.recipeDetailsTitle.text = networkRecipe.title
         binding.recipeDetailsCookingTime.text = "${networkRecipe.cookTime} мин"
@@ -77,6 +87,7 @@ class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
         binding.complexityRating.rating = networkRecipe.complexity.toFloat()
         binding.likesCount.text = networkRecipe.likesCount.toString()
         binding.commentsCount.text = networkRecipe.commentsCount.toString()
+        binding.recipeTags.text = ": ${networkRecipe.mainCategory}, ${networkRecipe.secondaryCategory}"
     }
 
     override fun onDestroyView() {

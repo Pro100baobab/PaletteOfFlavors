@@ -63,6 +63,8 @@ class RecipeDetailsFragment : Fragment() {
         binding.likesCount.text = "0"
         binding.commentsCount.text = "0"
         binding.complexityRating.rating = recipe.complexity.toFloat()
+        binding.recipeTags.text = ": ${recipe.mainCategory}, ${recipe.secondaryCategory}"
+
     }
 
     override fun onDestroyView() {

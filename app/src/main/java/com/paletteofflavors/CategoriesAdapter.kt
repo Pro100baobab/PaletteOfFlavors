@@ -1,12 +1,15 @@
 package com.paletteofflavors
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.withContext
 
 class CategoriesAdapter(
     private val categories: List<Category>,
@@ -50,6 +53,10 @@ class CategoriesAdapter(
 
 data class Category(
     val id: Int,
+    @StringRes val nameResId: Int,
     val name: String,
     @DrawableRes val icon: Int? = null
-)
+) {
+    constructor(context: Context, id: Int, @StringRes nameResId: Int, @DrawableRes icon: Int? = null) :
+            this(id, nameResId, context.getString(nameResId), icon)
+}

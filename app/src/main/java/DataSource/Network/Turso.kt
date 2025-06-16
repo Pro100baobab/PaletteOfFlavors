@@ -237,6 +237,9 @@ class Turso(
                                 dateTime = recipeRow[8].toString(),
                                 ownerId = recipeRow[9]?.toString()!!.toInt(),
 
+                                mainCategory = recipeRow[10].toString(),
+                                secondaryCategory = recipeRow[11].toString(),
+
                                 // Получаем с помощью отдельного запроса
                                 ingredients = recipeIngredients
                             )

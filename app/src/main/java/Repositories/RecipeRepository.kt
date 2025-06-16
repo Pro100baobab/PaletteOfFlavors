@@ -61,7 +61,9 @@ fun NetworkRecipe.toSavedRecipe() = SavedRecipe(
     likesCount = this.likesCount,
     imageUrl = this.imageUrl,
     dateTime = this.dateTime,
-    ownerId = this.ownerId
+    ownerId = this.ownerId,
+    mainCategory = this.mainCategory,
+    secondaryCategory = this.secondaryCategory
 )
 
 fun SavedRecipe.toNetworkRecipe() = NetworkRecipe(
@@ -75,6 +77,8 @@ fun SavedRecipe.toNetworkRecipe() = NetworkRecipe(
     likesCount = this.likesCount,
     imageUrl = this.imageUrl,
     dateTime = this.dateTime,
-    ownerId = this.ownerId
+    ownerId = this.ownerId,
+    mainCategory = this.mainCategory,
+    secondaryCategory = this.secondaryCategory
 )
 

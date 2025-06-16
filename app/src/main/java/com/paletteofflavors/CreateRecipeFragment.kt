@@ -2,19 +2,26 @@ package com.paletteofflavors
 
 import DataSource.model.CreateRecipeViewModelFactory
 import ViewModels.CreateRecipeViewModel
+import android.R
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.Editable
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.ListPopupWindow
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.paletteofflavors.databinding.FragmentCreateRecipeBinding
-
+import com.paletteofflavors.R.array
 
 class CreateRecipeFragment : Fragment() {
 
@@ -30,6 +37,18 @@ class CreateRecipeFragment : Fragment() {
     }
 
 
+    val mainCategories = listOf("завтрак", "обед", "ужин", "десерт")
+    val secondaryCategories = listOf(
+        "Холодные закуски", "Горячие закуски", "Овощные салаты",
+        "Мясные салаты", "Салаты с птицей", "Рыбные салаты", "Супы",
+        "Овощные блюда", "Блюда с мясом", "Блюда с птицей",
+        "Блюда с рыбой", "Гарниры", "Выпечка", "Напитки",
+        "Первые блюда", "Вторые блюда"
+    )
+
+    private lateinit var spinner1: Spinner
+    private lateinit var spinner2: Spinner
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -40,8 +59,11 @@ class CreateRecipeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupAutoCompleteViews()
+
 
         //viewModel = (requireActivity() as MainActivity).createRecipeViewModel
+
 
 
         // Add Listeners
@@ -85,6 +107,28 @@ class CreateRecipeFragment : Fragment() {
         binding.setComplexityRatingBar.setOnRatingBarChangeListener { ratingBar, rating, fromUser ->
             if (fromUser) {
                 viewModel.setRatingBarCount(rating)
+            }
+        }
+
+        binding.spinner1.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedItem = parent?.getItemAtPosition(position) as? String
+                viewModel.setMainCategory(selectedItem.toString(), position.toString())
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                //
+            }
+        }
+
+        binding.spinner2.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedItem = parent?.getItemAtPosition(position) as? String
+                viewModel.setSecondaryCategory(selectedItem.toString(), position.toString())
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                //
             }
         }
 
@@ -150,6 +194,7 @@ class CreateRecipeFragment : Fragment() {
                     instructionsEdit.text.isNullOrEmpty() ||
                     recipeCookingTimeEdit.text.toString().isEmpty() ||
                     setComplexityRatingBar.rating == 0f
+                    //TODO:
                 ) {
 
                     Toast.makeText(requireContext(), "Заполните все поля", Toast.LENGTH_SHORT)
@@ -193,6 +238,70 @@ class CreateRecipeFragment : Fragment() {
             //viewModel.saveRecipe()
         }
 
+    }
+
+
+    // Фильтрация дополнительных категорий (пример)
+    private fun filterSecondaryCategories(mainCategory: String) {
+        val filteredList = when (mainCategory) {
+            "завтрак" -> secondaryCategories.filter { it in listOf("Выпечка", "Горячие закуски", "Овощные блюда") }
+            "обед" -> secondaryCategories.filter { it in listOf("Супы", "Первые блюда", "Вторые блюда") }
+            "ужин" -> secondaryCategories.filter { it in listOf("Блюда с мясом", "Блюда с рыбой", "Гарниры") }
+            "десерт" -> secondaryCategories.filter { it in listOf("Выпечка", "Холодные закуски") }
+            else -> secondaryCategories.toList()
+        }
+
+        (binding.spinner2.adapter as? ArrayAdapter<String>)?.apply {
+            clear()
+            addAll(filteredList)
+            notifyDataSetChanged()
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupAutoCompleteViews() {
+
+        spinner1 = binding.spinner1
+        spinner2 = binding.spinner2
+
+
+        val adapter1 = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, mainCategories)
+        val adapter2 = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, secondaryCategories)
+
+        spinner1.adapter = adapter1
+        spinner2.adapter = adapter2
+
+        val popup = ListPopupWindow(requireContext())
+        popup.setAdapter(spinner2.adapter as ArrayAdapter<*>)
+        popup.anchorView = spinner2
+        popup.height = (300 * resources.displayMetrics.density).toInt() // Максимальная высота в dp, преобразованная в пиксели
+        popup.setOnItemClickListener { _, _, position, _ ->
+            spinner2.setSelection(position)
+            popup.dismiss()
+        }
+        spinner2.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_DOWN){
+                popup.show()
+                return@setOnTouchListener true
+            }
+            return@setOnTouchListener false
+        }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        viewModel.mainPos.value?.let { pos ->
+            if(pos.isNotEmpty()){
+                binding.spinner1.setSelection(pos.toInt())
+            }
+        }
+        viewModel.secondaryPos.value?.let { pos ->
+            if(pos.isNotEmpty()){
+                binding.spinner2.setSelection(pos.toInt())
+            }
+        }
     }
 
     override fun onDestroyView() {

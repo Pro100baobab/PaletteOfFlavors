@@ -25,12 +25,13 @@
             app:layout_constraintTop_toTopOf="parent">
 
         </ImageView>
+
         <TextView
             android:id="@+id/find_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Найденные рецепты"
+            android:text="@string/found_recipes"
             android:textColor="@color/black"
             android:textSize="24sp"
             android:textStyle="bold"

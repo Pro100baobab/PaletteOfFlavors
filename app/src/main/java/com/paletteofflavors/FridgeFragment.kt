@@ -20,6 +20,8 @@ import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.ui.unit.DpSize
 import androidx.core.content.ContextCompat
@@ -38,6 +40,7 @@ import com.paletteofflavors.databinding.FragmentFridgeBinding
 import domain.Recipe
 import domain.SavedRecipe
 import kotlinx.coroutines.launch
+import java.util.Locale
 import kotlin.io.encoding.Base64
 
 
@@ -92,19 +95,26 @@ class FridgeFragment : Fragment() {
         }
     }
 
+    fun getRussianString(@StringRes resId: Int): String {
+        val configuration = android.content.res.Configuration(context?.resources?.configuration)
+        configuration.setLocale(Locale("ru"))
+        Log.d("Name", context?.createConfigurationContext(configuration)?.getString(resId) ?: "")
+        return context?.createConfigurationContext(configuration)?.getString(resId) ?: ""
+    }
+
     private fun setupMostHaveIngredients() {
         val mostHaveIngredients = listOf(
-            getString(R.string.spaghetti),
-            getString(R.string.bacon),
-            getString(R.string.eggs),
-            getString(R.string.parmesan),
-            getString(R.string.milk),
-            getString(R.string.pumpkin),
-            getString(R.string.chicken_breast),
-            getString(R.string.chocolate),
-            getString(R.string.cream),
-            getString(R.string.buckwheat)
-        ).sorted()
+            MostHave(1, R.string.spaghetti),
+            MostHave(2, R.string.bacon),
+            MostHave(3, R.string.eggs),
+            MostHave(4, R.string.parmesan),
+            MostHave(5, R.string.milk),
+            MostHave(6, R.string.pumpkin),
+            MostHave(7, R.string.chicken_breast),
+            MostHave(8, R.string.chocolate),
+            MostHave(9, R.string.cream),
+            MostHave(10, R.string.buckwheat)
+        )
 
         val container1 = binding.mostHaveContent1
         val container2 = binding.mostHaveContent2
@@ -119,7 +129,7 @@ class FridgeFragment : Fragment() {
         // Первый столбец
         firstColumnItems.forEach { ingredient ->
             val checkBox = CheckBox(requireContext()).apply {
-                text = ingredient
+                text = getString(ingredient.nameResId)
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
                 buttonTintList = ColorStateList.valueOf(
                     ContextCompat.getColor(requireContext(), R.color.dark_red))
@@ -131,8 +141,8 @@ class FridgeFragment : Fragment() {
 
             checkBox.setOnClickListener {
                 when (checkBox.isChecked) {
-                    true -> fridgeViewModel.addIngredient(ingredient)
-                    false -> fridgeViewModel.removeIngredient(ingredient)
+                    true -> fridgeViewModel.addIngredient(getRussianString(ingredient.nameResId))
+                    false -> fridgeViewModel.removeIngredient(getRussianString(ingredient.nameResId))
                 }
             }
             container1.addView(checkBox)
@@ -141,7 +151,7 @@ class FridgeFragment : Fragment() {
         // Второй столбец
         secondColumnItems.forEach { ingredient ->
             val checkBox = CheckBox(requireContext()).apply {
-                text = ingredient
+                text = getString(ingredient.nameResId)
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
                 buttonTintList = ColorStateList.valueOf(
                     ContextCompat.getColor(requireContext(), R.color.dark_red))
@@ -153,8 +163,8 @@ class FridgeFragment : Fragment() {
 
             checkBox.setOnClickListener {
                 when(checkBox.isChecked){
-                    true -> fridgeViewModel.addIngredient(ingredient)
-                    false ->fridgeViewModel.removeIngredient(ingredient)
+                    true -> fridgeViewModel.addIngredient(getRussianString(ingredient.nameResId))
+                    false ->fridgeViewModel.removeIngredient(getRussianString(ingredient.nameResId))
                 }
             }
             container2.addView(checkBox)
@@ -373,6 +383,11 @@ class FridgeFragment : Fragment() {
         val dialog = builder.create()
         dialog.show()
     }
+
+    data class MostHave(
+        val id: Int,
+        @StringRes val nameResId: Int,
+    )
 }
 
 
@@ -397,5 +412,4 @@ class FridgeViewModel : ViewModel() {
     fun getselectedIngredientsCount(): Int {
         return _listOfingredients.value?.size ?: 0
     }
-
 }

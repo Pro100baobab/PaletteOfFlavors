@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.androidx.ui.text.android)
     implementation(libs.core.ktx)
     implementation(libs.androidx.junit.ktx)
+    implementation(libs.androidx.work.runtime.ktx)
     //implementation(libs.androidx.runtime.saved.instance.state)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

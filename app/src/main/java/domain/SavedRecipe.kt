@@ -18,6 +18,9 @@ data class SavedRecipe(
     val likesCount: Int,
     val imageUrl: String? = null,
     val dateTime: String,
-    val ownerId: Int? = null
+    val ownerId: Int? = null,
+
+    val mainCategory: String,
+    val secondaryCategory: String
 )
 

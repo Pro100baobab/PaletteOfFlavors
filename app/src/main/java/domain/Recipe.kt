@@ -1,5 +1,6 @@
 package domain
 
+import Repositories.toNetworkRecipe
 import android.icu.util.MeasureUnit.Complexity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -15,7 +16,10 @@ data class Recipe(
     val cookTime: Int,  // в минутах
     val imageUrl: String? = null,
 
-    val complexity: Int
+    val complexity: Int,
+
+    val mainCategory: String,
+    val secondaryCategory: String
 )
 
 

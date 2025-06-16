@@ -19,11 +19,21 @@ class CreateRecipeViewModel(private val recipeDao: RecipeDao): ViewModel() {
     private val _timeInMinutes = MutableLiveData<String>()
     private val _ratingBarCount = MutableLiveData<String>()
 
+    private val _mainCategory = MutableLiveData<String>()
+    private val _secondaryCategory = MutableLiveData<String>()
+
+    private var _mainPos = MutableLiveData<String>()
+    private val _secondaryPos = MutableLiveData<String>()
+
     val title: LiveData<String> = _title
     val ingredients: LiveData<String> = _ingredients
     val instruction: LiveData<String> = _instruction
     val timeInMinutes: LiveData<String> = _timeInMinutes
     val ratingBarCount: LiveData<String> = _ratingBarCount
+    val mainCategory: LiveData<String> = _mainCategory
+    val secondaryCategory: LiveData<String> = _secondaryCategory
+    val mainPos: LiveData<String> = _mainPos
+    val secondaryPos: LiveData<String> = _secondaryPos
 
     fun setTitle(title: String){
         _title.value = title
@@ -51,6 +61,16 @@ class CreateRecipeViewModel(private val recipeDao: RecipeDao): ViewModel() {
         }
     }
 
+    fun setMainCategory(category: String, position: String){
+        _mainCategory.value = category
+        _mainPos.value = position
+    }
+
+    fun setSecondaryCategory(category: String, position: String){
+        _secondaryCategory.value = category
+        _secondaryPos.value = position
+    }
+
 
     fun saveRecipe() {
         viewModelScope.launch {
@@ -62,7 +82,9 @@ class CreateRecipeViewModel(private val recipeDao: RecipeDao): ViewModel() {
                 ingredients = ingredientsList,
                 instruction = _instruction.value ?: "",
                 cookTime = _timeInMinutes.value?.toInt() ?: 0,
-                complexity = _ratingBarCount.value?.toFloat()?.toInt()?:1
+                complexity = _ratingBarCount.value?.toFloat()?.toInt()?:1,
+                mainCategory = _mainCategory.value.toString(),
+                secondaryCategory = _secondaryCategory.value.toString()
             )
 
             recipeDao.insert(recipe)
@@ -80,5 +102,9 @@ class CreateRecipeViewModel(private val recipeDao: RecipeDao): ViewModel() {
         _instruction.value = ""
         _timeInMinutes.value = ""
         _ratingBarCount.value = "0f"
+        _mainCategory.value = ""
+        _secondaryCategory.value = ""
+        _mainPos.value = ""
+        _secondaryPos.value = ""
     }
 }
