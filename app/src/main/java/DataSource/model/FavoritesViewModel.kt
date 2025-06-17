@@ -2,6 +2,7 @@ package DataSource.model
 
 import DataSource.Local.RecipeDao
 import DataSource.Local.SavedRecipeDao
+import DataSource.Network.NetworkRecipe
 import Repositories.RecipeRepository
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
@@ -85,4 +86,26 @@ class FavoritesViewModel(
         emit(repository.getSavedRecipeById(id) != null)
     }.flowOn(Dispatchers.IO)
 
+
+
+    val cashedRecipes: Flow<List<NetworkRecipe>> = repository.getAllCashedRecipes()
+
+    fun deleteCashRecipes(){
+        repository.deleteCash()
+    }
+
+    fun addCashedRecipe(recipe: NetworkRecipe?){
+        viewModelScope.launch(Dispatchers.IO) {
+
+            Log.d("FavoritesViewModel", "получен ${recipe?.title}")
+            try {
+                Log.d("FavoritesViewModel", "Adding recipe: ${recipe?.title}")
+                repository.insertCashed(recipe!!)
+                Log.d("FavoritesViewModel", "Recipe added successfully")
+            } catch (e: Exception) {
+                Log.e("FavoritesViewModel", "Error adding recipe", e)
+            }
+        }
+
+    }
 }

@@ -27,6 +27,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.paletteofflavors.databinding.BottomSheetLayoutBinding
 import com.paletteofflavors.databinding.FragmentSearchBinding
 import domain.SavedRecipe
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -212,6 +214,48 @@ class SearchFragment : Fragment() {
         val TursoConnection = Turso(activity, context)
 
 
+        if (!TursoConnection.checkInternetConnection(requireContext())) {
+            Toast.makeText(requireContext(), "Используем кешированные рецепты", Toast.LENGTH_LONG)
+                .show()
+
+            viewModel.cashedRecipes.onEach { networkRecipes ->
+
+                networkRecipeAdapter = NetworkRecipeAdapter(
+                    onItemClick = { networkRecipe ->
+                        sharedViewModel.selectNetworkRecipe(networkRecipe)
+                        (requireActivity() as MainActivity).replaceMainFragment(
+                            NetworkRecipeDetailsFragment("Search")
+                        )
+                    },
+                    onSaveOrDeleteButtonClick = { recipe, holder ->
+                        if (holder.savedOrDeletedImageView.drawable.constantState ==
+                            ContextCompat.getDrawable(
+                                holder.itemView.context,
+                                R.drawable.icon_saved
+                            )?.constantState
+                        ) {
+                            showDeleteRecipeConfirmDialog(recipe.toSavedRecipe(), holder)
+                        } else {
+                            viewModel.addSavedRecipe(recipe.toSavedRecipe())
+                            holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
+                        }
+                    },
+                    isSaved = { recipeId ->
+                        viewModel.isRecipeSaved(recipeId)  // Возвращем сохранен или нет рецепт
+                    }
+                ).apply {
+                    // Добавляем все рецепты сразу
+                    addRecipes(networkRecipes)
+                }
+                recipesRecyclerView.adapter = networkRecipeAdapter
+            }.launchIn(lifecycleScope)
+
+            binding.CoordinatorLayout.visibility = View.GONE
+            binding.filteredContent.visibility = View.VISIBLE
+            return
+        }
+
+        //если подключение есть
         networkRecipeAdapter = NetworkRecipeAdapter(
             onItemClick = { networkRecipe ->
                 sharedViewModel.selectNetworkRecipe(networkRecipe)

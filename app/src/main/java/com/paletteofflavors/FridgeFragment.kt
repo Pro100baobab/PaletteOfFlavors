@@ -3,6 +3,7 @@ package com.paletteofflavors
 import DataSource.Network.Turso
 import DataSource.model.FavoritesViewModel
 import DataSource.model.RecipeSharedViewModel
+import Repositories.toNetworkRecipe
 import Repositories.toSavedRecipe
 import android.app.AlertDialog
 import android.content.Context
@@ -39,6 +40,10 @@ import androidx.transition.Visibility
 import com.paletteofflavors.databinding.FragmentFridgeBinding
 import domain.Recipe
 import domain.SavedRecipe
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.io.encoding.Base64
@@ -49,7 +54,7 @@ class FridgeFragment : Fragment() {
     var _binding: FragmentFridgeBinding? = null
     val binding get() = _binding!!
 
-    class Direction(){
+    class Direction() {
         val forward = "forward"
         val downward = "downward"
         var direction = forward
@@ -90,7 +95,7 @@ class FridgeFragment : Fragment() {
         setupMostHaveIngredients()
         setListeners()
 
-        fridgeViewModel.listOfSelectedIngredients.observe(viewLifecycleOwner){ list ->
+        fridgeViewModel.listOfSelectedIngredients.observe(viewLifecycleOwner) { list ->
             binding.selectedButton.text = "Выбрано " + list.size.toString()
         }
     }
@@ -132,7 +137,8 @@ class FridgeFragment : Fragment() {
                 text = getString(ingredient.nameResId)
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
                 buttonTintList = ColorStateList.valueOf(
-                    ContextCompat.getColor(requireContext(), R.color.dark_red))
+                    ContextCompat.getColor(requireContext(), R.color.dark_red)
+                )
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -154,7 +160,8 @@ class FridgeFragment : Fragment() {
                 text = getString(ingredient.nameResId)
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
                 buttonTintList = ColorStateList.valueOf(
-                    ContextCompat.getColor(requireContext(), R.color.dark_red))
+                    ContextCompat.getColor(requireContext(), R.color.dark_red)
+                )
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
@@ -162,9 +169,9 @@ class FridgeFragment : Fragment() {
             }
 
             checkBox.setOnClickListener {
-                when(checkBox.isChecked){
+                when (checkBox.isChecked) {
                     true -> fridgeViewModel.addIngredient(getRussianString(ingredient.nameResId))
-                    false ->fridgeViewModel.removeIngredient(getRussianString(ingredient.nameResId))
+                    false -> fridgeViewModel.removeIngredient(getRussianString(ingredient.nameResId))
                 }
             }
             container2.addView(checkBox)
@@ -275,6 +282,47 @@ class FridgeFragment : Fragment() {
 
         val TursoConnection = Turso(activity, context)
 
+        if (!TursoConnection.checkInternetConnection(requireContext())) {
+            Toast.makeText(requireContext(), "Используем кешированные рецепты", Toast.LENGTH_LONG)
+                .show()
+
+            viewModel.cashedRecipes.onEach { networkRecipes ->
+
+                networkRecipeAdapter = NetworkRecipeAdapter(
+                    onItemClick = { networkRecipe ->
+                        sharedViewModel.selectNetworkRecipe(networkRecipe)
+                        (requireActivity() as MainActivity).replaceMainFragment(
+                            NetworkRecipeDetailsFragment("Fridge")
+                        )
+                    },
+                    onSaveOrDeleteButtonClick = { recipe, holder ->
+                        if (holder.savedOrDeletedImageView.drawable.constantState ==
+                            ContextCompat.getDrawable(
+                                holder.itemView.context,
+                                R.drawable.icon_saved
+                            )?.constantState
+                        ) {
+                            showDeleteRecipeConfirmDialog(recipe.toSavedRecipe(), holder)
+                        } else {
+                            viewModel.addSavedRecipe(recipe.toSavedRecipe())
+                            holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
+                        }
+                    },
+                    isSaved = { recipeId ->
+                        viewModel.isRecipeSaved(recipeId)  // Возвращем сохранен или нет рецепт
+                    }
+                ).apply {
+                    // Добавляем все рецепты сразу
+                    addRecipes(networkRecipes)
+                }
+                recipesRecyclerView.adapter = networkRecipeAdapter
+            }.launchIn(lifecycleScope)
+
+            binding.fridgeIngredientsContent.visibility = View.GONE
+            return
+        }
+
+
         networkRecipeAdapter = NetworkRecipeAdapter(
             onItemClick = { networkRecipe ->
                 sharedViewModel.selectNetworkRecipe(networkRecipe)
@@ -284,7 +332,11 @@ class FridgeFragment : Fragment() {
             },
             onSaveOrDeleteButtonClick = { recipe, holder -> // TODO: Убрать зависимость от UI
                 if (holder.savedOrDeletedImageView.drawable.constantState ==
-                    ContextCompat.getDrawable(holder.itemView.context, R.drawable.icon_saved)?.constantState) {
+                    ContextCompat.getDrawable(
+                        holder.itemView.context,
+                        R.drawable.icon_saved
+                    )?.constantState
+                ) {
                     // Если иконка показывает "сохранено" - удаляем
                     showDeleteRecipeConfirmDialog(recipe.toSavedRecipe(), holder)
                 } else {
@@ -321,7 +373,11 @@ class FridgeFragment : Fragment() {
                 try {
                     TursoConnection.getAllNetworkRecipesFlow(query)
                         .collect { networkRecipes ->
-                            networkRecipeAdapter.addRecipe(networkRecipes)
+                            try {
+                                networkRecipeAdapter.addRecipe(networkRecipes)
+                            } catch (e: Exception){
+                                Log.d("NetworkProblem", "$e")
+                            }
                         }
                 } catch (e: Exception) {
                     Log.d("NetworkProblem", "$e")
@@ -366,7 +422,10 @@ class FridgeFragment : Fragment() {
     }
 
 
-    private fun showDeleteRecipeConfirmDialog(savedRecipe: SavedRecipe, holder: NetworkRecipeAdapter.RecipeHolder) {
+    private fun showDeleteRecipeConfirmDialog(
+        savedRecipe: SavedRecipe,
+        holder: NetworkRecipeAdapter.RecipeHolder
+    ) {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Удаление рецепта")
         builder.setMessage("Вы уверены, что хотите удалить рецепт ${savedRecipe.title}")

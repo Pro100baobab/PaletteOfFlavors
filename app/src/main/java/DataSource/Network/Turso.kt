@@ -268,73 +268,65 @@ class Turso(
 
     //по умолчанию без фильтра, но можно использовать готовый запрос для получения только нужных рецептов.
     fun getAllNetworkRecipesFlow(sqlQuery: String? = null): Flow<NetworkRecipe> = flow {
-
         if (!checkInternetConnection(context)) {
+            Log.d("NetworkCheck", "No internet connection")
             return@flow
         }
 
+        val db = Libsql.openRemote(dbUrl, dbAuthToken)
+        val conn = db.connect()
+
         try {
-            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
-                db.connect().use { conn ->
+            val query = sqlQuery ?: "SELECT * FROM Recipes"
+            val rows = conn.query(query)
 
-                    val query = when(sqlQuery){
-                        null -> "SELECT * FROM Recipes "
-                        else -> sqlQuery
-                    }
+            while (true) {
+                try {
+                    val recipeRow = rows.nextRow() ?: break // Выходим из цикла, если нет больше строк
 
-                    conn.query(query).use { rows ->
+                    val recipeId = recipeRow[0].toString().toInt()
+                    val recipeIngredients = getIngredientsForRecipe(conn, recipeId)
 
-                        var recipeRow = rows.nextRow()
+                    val networkRecipe = NetworkRecipe(
+                        recipeId = recipeId,
+                        title = recipeRow[1].toString(),
+                        instruction = recipeRow[2].toString(),
+                        cookTime = recipeRow[3].toString().toInt(),
+                        complexity = recipeRow[4].toString().toInt(),
+                        commentsCount = recipeRow[5].toString().toInt(),
+                        likesCount = recipeRow[6].toString().toInt(),
+                        imageUrl = recipeRow[7]?.toString() ?: "",
+                        dateTime = recipeRow[8].toString(),
+                        ownerId = recipeRow[9]?.toString()!!.toInt(),
+                        mainCategory = recipeRow[10].toString(),
+                        secondaryCategory = recipeRow[11].toString(),
+                        ingredients = recipeIngredients
+                    )
 
-                        while (recipeRow != null) {
-
-                            //Log.d("NetworkListSize", "+1")
-
-                            val recipeId = recipeRow[0].toString().toInt()
-                            val recipeIngredients = getIngredientsForRecipe(conn, recipeId)
-
-                            val networkRecipe = NetworkRecipe(
-                                recipeId = recipeRow[0].toString().toInt(),
-                                title = recipeRow[1].toString(),
-                                instruction = recipeRow[2].toString(),
-                                cookTime = recipeRow[3].toString().toInt(),
-                                complexity = recipeRow[4].toString().toInt(),
-                                commentsCount = recipeRow[5].toString().toInt(),
-                                likesCount = recipeRow[6].toString().toInt(),
-                                imageUrl = recipeRow[7]?.toString(),
-                                dateTime = recipeRow[8].toString(),
-                                ownerId = recipeRow[9]?.toString()!!.toInt(),
-
-                                mainCategory = recipeRow[10].toString(),
-                                secondaryCategory = recipeRow[11].toString(),
-
-                                // Получаем с помощью отдельного запроса
-                                ingredients = recipeIngredients
-                            )
-
-                            emit(networkRecipe)
-                            recipeRow = rows.nextRow()
-                        }
-
-                    }
+                    emit(networkRecipe)
+                } catch (e: Exception) {
+                    Log.e("RecipeError", "Failed to process recipe row", e)
+                    // Продолжаем со следующей строки
+                    continue
                 }
             }
-
         } catch (e: Exception) {
-            Log.e("GetRecipeTable", "Error when try to get Recipes table", e)
-            /*activity.runOnUiThread {
-                Toast.makeText(
-                    context,
-                    "Getting rows from Recipes table failed: ${e.message}",
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
-            }*/
+            Log.e("GetRecipeTable", "Error accessing database", e)
+            throw e // Перебрасываем исключение для обработки в collect
+        } finally {
+            // Закрываем ресурсы в блоке finally
+            try {
+                conn?.close()
+            } catch (e: Exception) {
+                Log.e("Turso", "Error closing connection", e)
+            }
+            try {
+                db?.close()
+            } catch (e: Exception) {
+                Log.e("Turso", "Error closing database", e)
+            }
         }
-
     }.flowOn(Dispatchers.IO)
-
-
 
     private suspend fun getIngredientsForRecipe(conn: Connection, recipeId: Int): List<String> {
         val ingredientsList = mutableListOf<String>()
@@ -357,7 +349,7 @@ class Turso(
 
 
 
-    private fun checkInternetConnection(requireContext: Context): Boolean {
+    fun checkInternetConnection(requireContext: Context): Boolean {
         if (isInternetAvailable(requireContext)) {
             //Toast.makeText(requireContext, "Internet is available", Toast.LENGTH_SHORT).show() --Can't toast on a thread that has not called Looper.prepare()
             return true

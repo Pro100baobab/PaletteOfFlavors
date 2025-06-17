@@ -2,6 +2,7 @@ package com.paletteofflavors
 
 import DataSource.Local.AppDatabase
 import DataSource.Local.SessionManager
+import DataSource.Network.Turso
 import DataSource.model.CreateRecipeViewModelFactory
 import DataSource.model.FavoritesViewModel
 import DataSource.model.FavoritesViewModelFactory
@@ -43,6 +44,12 @@ import java.util.Locale
 
 import android.os.Handler
 import android.os.Looper
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.isActive
 
 class MainActivity : AppCompatActivity() {
 
@@ -71,9 +78,17 @@ class MainActivity : AppCompatActivity() {
         CreateRecipeViewModelFactory(database.recipeDao())
     }
     val favoritesViewModel: FavoritesViewModel by viewModels {
-        FavoritesViewModelFactory(RecipeRepository(database.recipeDao(), database.savedRecipeDao()))
+        FavoritesViewModelFactory(
+            RecipeRepository(
+                database.recipeDao(),
+                database.savedRecipeDao(),
+                database.cashDao()
+            )
+        )
     }
     val sharedViewModel: RecipeSharedViewModel by viewModels()
+
+    private var job: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,12 +143,12 @@ class MainActivity : AppCompatActivity() {
         sessionManagerBaseSettings = SessionManager(this, SessionManager.SESSION_BASESETTINGS)
 
         sessionManagerBaseSettings.let {
-            if(!it.checkBaseSettings()){
-                sessionManagerBaseSettings.createBaseSettingSession(false)
+            if (!it.checkBaseSettings()) {
+                sessionManagerBaseSettings.createBaseSettingSession(true)
+                Log.d("dddd", "true")
             }
         }
     }
-
 
 
     override fun onStart() {
@@ -149,8 +164,7 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        if (supportFragmentManager.findFragmentById(R.id.frame_layout) == null)
-        {
+        if (supportFragmentManager.findFragmentById(R.id.frame_layout) == null) {
             replaceMainFragment(SearchFragment())
             binding.bottomNavigation.selectedItemId = R.id.navigation_search
         }
@@ -176,9 +190,38 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        if(navBottomViewModel.isContentVisible.value == false){
+        if (navBottomViewModel.isContentVisible.value == false) {
             binding.appContent.visibility = View.GONE
         }
+
+        val tursoConnection = Turso(this@MainActivity, this@MainActivity)
+        if(tursoConnection.checkInternetConnection(this)){
+            // Запускаем корутину
+            job = lifecycleScope.launch(Dispatchers.IO) {
+
+                if (sessionManagerBaseSettings.usersSession.getBoolean(
+                        SessionManager.KEY_CASH,
+                        true
+                    )
+                ) {
+                    favoritesViewModel.deleteCashRecipes()
+                    try {
+                        tursoConnection.getAllNetworkRecipesFlow()
+                            .collect { networkRecipes ->
+                                favoritesViewModel.addCashedRecipe(networkRecipes)
+                            }
+                    } catch (e: Exception) {
+                        Log.e("FavoritesViewModel", "Flow collection error", e)
+                    }
+                }
+            }
+        }
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        job?.cancel() // Отменяем корутину при уничтожении
     }
 
     // Settings
@@ -202,11 +245,12 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun returnNavigation(){
+    fun returnNavigation() {
         binding.bottomNavigation.visibility = View.VISIBLE
         binding.appContent.isVisible = true
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
     }
+
     // Для показа полноэкранного фрагмента (авторизация/регистрация)
     fun showFullscreenFragment(fragment: Fragment) {
         binding.bottomNavigation.visibility = View.GONE
@@ -237,13 +281,12 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
-
     // Перезапуск активности с новыми языковыми настройками
 
     override fun attachBaseContext(newBase: Context) {
         val sharedPref = newBase.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-        val lang = sharedPref.getString("app_language", Locale.getDefault().language) ?: Locale.getDefault().language
+        val lang = sharedPref.getString("app_language", Locale.getDefault().language)
+            ?: Locale.getDefault().language
         super.attachBaseContext(updateBaseContextLocale(newBase, lang))
     }
 
@@ -254,5 +297,15 @@ class MainActivity : AppCompatActivity() {
         val config = Configuration(context.resources.configuration)
         config.setLocale(locale)
         return context.createConfigurationContext(config)
+    }
+
+
+    private fun logMinuteUpdate() {
+        Log.d("MINUTE_LOG", "Минутное обновление через корутины: ${System.currentTimeMillis()}")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job?.cancel() // Отменяем корутину при уничтожении
     }
 }

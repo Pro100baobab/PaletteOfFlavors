@@ -136,4 +136,8 @@
     <string name="select_main_category">Select main category</string>
     <string name="secondary_category">Secondary category</string>
     <string name="select_secondary_category">Select secondary category</string>
+
+
+    <string name="do_cash_network_recipes">Cache network recipes</string>
+    <string name="do_not_cash_network_recipes">Cancel recipe caching</string>
 </resources>

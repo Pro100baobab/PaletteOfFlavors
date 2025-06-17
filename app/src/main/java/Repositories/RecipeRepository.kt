@@ -1,5 +1,6 @@
 package Repositories
 
+import DataSource.Local.CashDao
 import DataSource.Local.RecipeDao
 import DataSource.Local.SavedRecipeDao
 import DataSource.Network.NetworkRecipe
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 class RecipeRepository(
     private val userRecipeDao: RecipeDao,
     private val savedRecipeDao: SavedRecipeDao,
+    private val cashRecipeDao: CashDao
     //private val turso: Turso
 ) {
     // Собственные рецепты
@@ -25,7 +27,7 @@ class RecipeRepository(
             savedRecipeDao.insert(recipe)
         } catch (e: Exception) {
             Log.e("RecipeRepository", "Error saving recipe", e)
-            throw e // или обработайте ошибку по-другому
+            throw e
         }
     }
 
@@ -34,18 +36,19 @@ class RecipeRepository(
     fun getAllSavedRecipes(): Flow<List<SavedRecipe>> = savedRecipeDao.getAllRecipes()
     suspend fun getSavedRecipeById(id: Int) = savedRecipeDao.getRecipeById(id)
 
-    /*
-     // Специфичные операции для Turso
-     suspend fun fetchFromTurso(): List<NetworkRecipe> {
-         val recipes = turso.getAllNetworkRecipes()
-         // Сохраняем в локальную базу
-         recipes.forEach { recipe ->
-             networkRecipeDao.insert(recipe.toEntity())
-         }
-         return recipes
-     }
-     */
 
+    //  Кешированные рецепты
+    fun deleteCash() = cashRecipeDao.cleanCashTable()
+    fun getAllCashedRecipes(): Flow<List<NetworkRecipe>> = cashRecipeDao.getAllCashRecipes()
+    suspend fun getCashedRecipeById(id: Int) = cashRecipeDao.getRecipeById(id)
+    suspend fun insertCashed(recipe: NetworkRecipe) {
+        try {
+            cashRecipeDao.insert(recipe)
+        } catch (e: Exception) {
+            Log.e("RecipeRepository", "Error saving recipe", e)
+            throw e
+        }
+    }
 }
 
 

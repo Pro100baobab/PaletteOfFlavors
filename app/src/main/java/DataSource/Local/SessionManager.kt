@@ -50,7 +50,7 @@ class SessionManager(
     // functions for BaseSettings Session
     public fun createBaseSettingSession(cashFlag: Boolean){
         editor.putBoolean(IS_BASESETINGS, true)
-        editor.putBoolean(KEY_CASH, false)
+        editor.putBoolean(KEY_CASH, cashFlag)
         editor.commit()
     }
     public fun getBaseSettingsDetailFromSession(): HashMap<String, String?>{

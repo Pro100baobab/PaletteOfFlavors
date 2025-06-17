@@ -1,5 +1,6 @@
 package DataSource.Local
 
+import DataSource.Network.NetworkRecipe
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
@@ -12,11 +13,12 @@ import domain.SavedRecipe
 
 // Singleton-паттерн для жизненного цикла БД
 
-@Database(entities = [Recipe::class, SavedRecipe::class], version = 3)
+@Database(entities = [Recipe::class, SavedRecipe::class, NetworkRecipe::class], version = 3)
 @TypeConverters(Converters::class)
 abstract  class AppDatabase: RoomDatabase(){
     abstract fun recipeDao(): RecipeDao
     abstract fun savedRecipeDao(): SavedRecipeDao
+    abstract fun cashDao(): CashDao
 
     companion object{
 

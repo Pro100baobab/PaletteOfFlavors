@@ -6,9 +6,11 @@ import androidx.room.PrimaryKey
 import domain.Recipe
 import kotlinx.serialization.Serializable
 
+
+@Entity(tableName = "cashRecipes")
 data class NetworkRecipe(
     //Base margins
-    val recipeId: Int,
+    @PrimaryKey val recipeId: Int,
     val title: String,
     val ingredients: List<String>, // Будет получено путем комбинированного запроса с JOIN
     val instruction: String,
