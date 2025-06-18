@@ -78,11 +78,8 @@ class Turso(
                                         Toast.LENGTH_SHORT
                                     ).show()
 
-                                    // Save LogIn Settings if checked (RememberMe Session)
-                                    when (isRememberMePressed) {
-                                        true -> rememberMe(username, password)
-                                        else -> activity.sessionManagerRememberMe.logoutUserSession()
-                                    }
+                                    // Save/del LogIn Settings if checked (RememberMe Session)
+                                    rememberMe(username, password)
 
                                     activity.replaceMainFragment(SearchFragment())
                                     activity.binding.fragmentContainerView.visibility = View.VISIBLE
@@ -125,7 +122,7 @@ class Turso(
                 password = _password
             )
         } else {
-            if (mainActivity.sessionManagerRememberMe.checkRememberMe()) {
+            if (!mainActivity.sessionManagerRememberMe.checkRememberMe()) {
                 mainActivity.sessionManagerRememberMe.logoutUserSession()
             }
         }
