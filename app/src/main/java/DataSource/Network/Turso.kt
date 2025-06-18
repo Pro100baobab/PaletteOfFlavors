@@ -8,8 +8,11 @@ import android.util.Log
 import android.view.View
 import android.widget.CheckBox
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
+import androidx.navigation.Navigation.findNavController
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.paletteofflavors.MainActivity
 import com.paletteofflavors.R
 import com.paletteofflavors.SearchFragment
@@ -328,13 +331,78 @@ class Turso(
     }
 
 
+    suspend fun FindUserByEmail(email: String, callback: (String) -> Unit) {
+
+        try {
+            val dbUrl = activity.TURSO_DATABASE_URL
+            val dbAuthToken = activity.TURSO_AUTH_TOKEN
+
+            var phoneNumber = ""
+
+            withContext(Dispatchers.IO) {
+                Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                    db.connect().use { conn ->
+                        val query = """
+                                SELECT * FROM users 
+                                WHERE email = '$email'
+                            """.trimIndent()
+
+                        conn.query(query).use { rows ->
+                            val nextRow = rows.nextRow()
+                            if (nextRow != null) {
+                                phoneNumber = nextRow[5].toString()
+
+                                activity.runOnUiThread {
+                                    Toast.makeText(
+                                        context,
+                                        "phone: $phoneNumber",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            } else {
+                                activity.runOnUiThread {
+                                    Toast.makeText(
+                                        context,
+                                        "Invalid credentials",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+
+
+                    }
+                }
+            }
+
+            callback(phoneNumber) // return
+
+        } catch (e: Exception) {
+            Log.e("Login", "Error during sending email", e)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    "Login failed: ${e.localizedMessage}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            callback("")
+        }
+
+    }
+
+
     // Функции для проверки подключения к интернету
     fun checkInternetConnection(requireContext: Context): Boolean {
         return if (isInternetAvailable(requireContext)) {
             //Toast.makeText(requireContext, "Internet is available", Toast.LENGTH_SHORT).show() --Can't toast on a thread that has not called Looper.prepare()
             true
         } else {
-            //Toast.makeText(requireContext, "No internet connection", Toast.LENGTH_SHORT).show() -- Can't toast on a thread that has not called Looper.prepare()
+            try {
+                Toast.makeText(requireContext, "No internet connection", Toast.LENGTH_SHORT)
+                    .show() // Can't toast on a thread that has not called Looper.prepare()
+            } catch (_: Exception) {
+            }
             false
         }
     }

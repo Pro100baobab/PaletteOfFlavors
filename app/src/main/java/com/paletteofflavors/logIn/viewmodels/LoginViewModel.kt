@@ -3,9 +3,8 @@ package com.paletteofflavors.logIn.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 
-class LoginViewModel(): ViewModel() {
+class LoginViewModel: ViewModel() {
 
     private val _useername = MutableLiveData<String>()
     private val _password = MutableLiveData<String>()
@@ -21,6 +20,8 @@ class LoginViewModel(): ViewModel() {
     val resetphone: LiveData<String> = _resetphone
     val typeOfVConnection: LiveData<String> = _typeOfConnection
 
+
+    // Functions for update MutableLiveData values
     fun setUserName(usrname: String) {
         _useername.value = usrname
     }
@@ -45,13 +46,3 @@ class LoginViewModel(): ViewModel() {
         _typeOfConnection.value = type
     }
 }
-
-/*
-class MyViewModelFactory(private val id: Long) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
-            return LoginViewModel(id) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-}*/

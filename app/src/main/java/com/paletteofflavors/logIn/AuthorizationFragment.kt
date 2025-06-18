@@ -5,9 +5,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import com.paletteofflavors.MainActivity
 import com.paletteofflavors.R
@@ -20,11 +17,6 @@ class AuthorizationFragment : Fragment() {
     private val binding get() = _binding!!
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -35,20 +27,7 @@ class AuthorizationFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.startRegistration.setOnClickListener {
-            findNavController().navigate(R.id.action_authorizationFragment_to_registrationFragment)
-        }
-
-
-        binding.startLogin.setOnClickListener{
-            findNavController().navigate(R.id.action_authorizationFragment_to_loginFragment)
-        }
-
-        binding.aboutUs.setOnClickListener {
-            //TODO:
-            //findNavController().navigate(R.id.)
-        }
+        setUpOnClickListeners()
     }
 
     override fun onResume() {
@@ -58,4 +37,19 @@ class AuthorizationFragment : Fragment() {
             findNavController().navigate(R.id.action_authorizationFragment_to_registrationFragment)
         }
     }
+
+    private fun setUpOnClickListeners() {
+        binding.startRegistration.setOnClickListener {
+            findNavController().navigate(R.id.action_authorizationFragment_to_registrationFragment)
+        }
+
+        binding.startLogin.setOnClickListener{
+            findNavController().navigate(R.id.action_authorizationFragment_to_loginFragment)
+        }
+
+        binding.aboutUs.setOnClickListener {
+            // Soon
+        }
+    }
+
 }

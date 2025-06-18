@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.paletteofflavors.R
 import com.paletteofflavors.databinding.FragmentPasswordSuccessUpdatedBinding
-import com.paletteofflavors.databinding.FragmentSetNewPasswordBinding
 
 
 class PasswordSuccessUpdated : Fragment() {
@@ -16,10 +15,6 @@ class PasswordSuccessUpdated : Fragment() {
     private lateinit var _binding: FragmentPasswordSuccessUpdatedBinding
     private val binding get() = _binding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

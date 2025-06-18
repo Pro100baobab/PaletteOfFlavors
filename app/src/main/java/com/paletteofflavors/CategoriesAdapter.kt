@@ -1,15 +1,11 @@
 package com.paletteofflavors
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.withContext
 
 class CategoriesAdapter(
     private val categories: List<Category>,
@@ -28,35 +24,27 @@ class CategoriesAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val category = categories[position]
-        holder.name.text = category.name
-        holder.itemView.setOnClickListener { onItemClick(category) }
 
-        val bgColor = if (position % 2 == 0) {
-            ContextCompat.getColor(holder.itemView.context, R.color.white)
-        } else {
-            ContextCompat.getColor(holder.itemView.context, R.color.light_pink)
-        }
-        holder.itemView.setBackgroundColor(bgColor)
-
-        /*
-        category.icon?.let { iconRes ->
-            holder.icon.setImageResource(iconRes)
-            holder.icon.visibility = View.VISIBLE
-        } ?: run {
-            holder.icon.visibility = View.GONE
-        }*/
+        bindHolder(holder, category, position)
     }
 
     override fun getItemCount() = categories.size
-}
 
 
-data class Category(
-    val id: Int,
-    @StringRes val nameResId: Int,
-    val name: String,
-    @DrawableRes val icon: Int? = null
-) {
-    constructor(context: Context, id: Int, @StringRes nameResId: Int, @DrawableRes icon: Int? = null) :
-            this(id, nameResId, context.getString(nameResId), icon)
+    private fun bindHolder(holder: ViewHolder, category: Category, position: Int){
+
+        holder.run {
+            name.text = category.name
+            itemView.setOnClickListener {
+                onItemClick(category)
+            }
+
+            val bgColor = if (position % 2 == 0) {
+                ContextCompat.getColor(itemView.context, R.color.white)
+            } else {
+                ContextCompat.getColor(itemView.context, R.color.light_pink)
+            }
+            itemView.setBackgroundColor(bgColor)
+        }
+    }
 }

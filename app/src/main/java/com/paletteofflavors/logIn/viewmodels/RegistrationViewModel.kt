@@ -18,6 +18,8 @@ class RegistrationViewModel: ViewModel() {
     val phone: LiveData<String> = _phone
     val password: LiveData<String> = _password
 
+
+    // Functions for update MutableLiveData values
     fun setFullName(name: String){
         _fullName.value = name
     }

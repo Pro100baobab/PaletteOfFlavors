@@ -223,6 +223,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Скрыть полноэкранные фрагменты
+    fun hideFullScreenContainer(){
+        binding.run {
+            appContent.visibility = View.VISIBLE
+            bottomNavigation.visibility = View.VISIBLE
+            fragmentContainerView.visibility = View.GONE
+        }
+    }
+
     // Смена фрагментов в центральном контейнере
     fun replaceMainFragment(fragment: Fragment) {
 

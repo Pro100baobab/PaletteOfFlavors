@@ -140,6 +140,19 @@
     <string name="cook_method">Способ приготовления:</string>
     <string name="ingredients_label">Ингредиенты:</string>
     <string name="Selected">"Выбрано "</string>
+    <string name="Fill_in_all_fields">Заполните все поля</string>
+    <string name="Do_save_recipe">Сохранить рецепт?</string>
+    <string name="sure_to_save">Вы уверены, что хотите сохранить этот рецепт?</string>
+    <string name="Yes">Да</string>
+    <string name="Save_successful">Рецепт сохранен!</string>
+    <string name="Cancellation">Отмена</string>
+    <string name="Post_code_again_after_seconds">Отправить код повторно через: %1$s с</string>
+    <string name="Post_code_again">Отправить код повторно</string>
+    <string name="Code_post_on_email">Код отправлен на почту</string>
+    <string name="Error_when_send_code">Ошибка отправки кода: %1$s</string>
+    <string name="Connection_error">Ошибка подключения: %1$s</string>
+    <string name="invalid_verification_code">Неверный код подтверждения</string>
+    <string name="success_verification">Верификация успешна!</string>
 
     <string-array name="main_categories">
         <item>@string/breakfast</item>
