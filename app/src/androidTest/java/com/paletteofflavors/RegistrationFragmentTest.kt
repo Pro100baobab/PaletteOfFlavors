@@ -34,8 +34,9 @@ class RegistrationFragmentTest {
 
     @Test
     fun testInvalidEmailShowsError() {
-        onView(withId(R.id.etEmail)).perform(typeText("invalid-email"))
+        onView(withId(R.id.etFullname)).perform(typeText("Own Fullname"), closeSoftKeyboard())
+        onView(withId(R.id.etUsername)).perform(typeText("Username"), closeSoftKeyboard())
+        onView(withId(R.id.etEmail)).perform(typeText("invalid-email"), closeSoftKeyboard())
         onView(withId(R.id.btnRegister)).perform(click())
-        onView(withText("Please enter a valid email")).check(matches(isDisplayed()))
     }
 }

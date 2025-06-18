@@ -6,35 +6,20 @@ import DataSource.Network.Turso
 import DataSource.model.CreateRecipeViewModelFactory
 import DataSource.model.FavoritesViewModel
 import DataSource.model.FavoritesViewModelFactory
-import DataSource.model.RecipeSharedViewModel
 import Repositories.RecipeRepository
 import ViewModels.CreateRecipeViewModel
 import ViewModels.NavBottomViewModel
 import android.content.Context
 import android.content.res.Configuration
-import android.os.Build
 import android.os.Bundle
-import android.util.AttributeSet
 import android.util.Log
-import android.view.Menu
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.navigation.NavigationView
 import com.paletteofflavors.databinding.ActivityMainBinding
-import com.paletteofflavors.logIn.AuthorizationFragment
-import com.paletteofflavors.logIn.LoginFragment
 import com.paletteofflavors.logIn.viewmodels.LoginViewModel
 import com.paletteofflavors.logIn.viewmodels.RegistrationViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -45,11 +30,7 @@ import java.util.Locale
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.isActive
 
 class MainActivity : AppCompatActivity() {
 

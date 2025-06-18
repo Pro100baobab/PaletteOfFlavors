@@ -140,4 +140,21 @@
 
     <string name="do_cash_network_recipes">Cache network recipes</string>
     <string name="do_not_cash_network_recipes">Cancel recipe caching</string>
+
+    <string name="cook_method">Cooking method:</string>
+    <string name="ingredients_label">Ingredients:</string>
+    <string name="Selected">Selected </string>
+    <string name="Fill_in_all_fields">Please fill in all fields</string>
+    <string name="Do_save_recipe">Save recipe?</string>
+    <string name="sure_to_save">Are you sure you want to save this recipe?</string>
+    <string name="Yes">Yes</string>
+    <string name="Save_successful">Recipe saved successfully!</string>
+    <string name="Cancellation">Cancel</string>
+    <string name="Post_code_again_after_seconds">Resend code in: %1$s s</string>
+    <string name="Post_code_again">Resend code</string>
+    <string name="Code_post_on_email">Code sent to email</string>
+    <string name="Error_when_send_code">Error sending code: %1$s</string>
+    <string name="Connection_error">Connection error: %1$s</string>
+    <string name="invalid_verification_code">Invalid verification code</string>
+    <string name="success_verification">Verification successful!</string>
 </resources>
