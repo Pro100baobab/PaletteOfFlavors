@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#EC625D"
-    tools:context=".HomeFragment">
+    tools:context=".presentation.feature.main.view.HomeFragment">
 
 
 </FrameLayout>

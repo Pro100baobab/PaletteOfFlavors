@@ -11,6 +11,8 @@ import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.paletteofflavors.presentation.feature.recipes.view.CreateRecipeFragment
+import com.paletteofflavors.presentation.main.MainActivity
 import org.hamcrest.Matcher
 import org.junit.Before
 import org.junit.Test

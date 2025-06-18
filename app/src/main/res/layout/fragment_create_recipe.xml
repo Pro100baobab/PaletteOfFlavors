@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFFA0"
-    tools:context=".CreateRecipeFragment">
+    tools:context=".presentation.feature.recipes.view.CreateRecipeFragment">
 
 
     <ImageButton

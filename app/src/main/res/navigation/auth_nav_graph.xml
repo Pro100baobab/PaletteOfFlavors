@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/authorizationFragment"
-        android:name="com.paletteofflavors.logIn.AuthorizationFragment"
+        android:name="com.paletteofflavors.presentation.auth.view.AuthorizationFragment"
         android:label="fragment_authorization"
         tools:layout="@layout/fragment_authorization" >
         <action
@@ -19,7 +19,7 @@
     </fragment>
     <fragment
         android:id="@+id/registrationFragment"
-        android:name="com.paletteofflavors.logIn.RegistrationFragment"
+        android:name="com.paletteofflavors.presentation.auth.view.RegistrationFragment"
         android:label="fragment_registration"
         tools:layout="@layout/fragment_registration" >
         <action
@@ -40,7 +40,7 @@
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.paletteofflavors.logIn.LoginFragment"
+        android:name="com.paletteofflavors.presentation.auth.view.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" >
         <action
@@ -55,7 +55,7 @@
     </fragment>
     <fragment
         android:id="@+id/forgetPassword"
-        android:name="com.paletteofflavors.logIn.ForgetPassword"
+        android:name="com.paletteofflavors.presentation.auth.view.ForgetPassword"
         android:label="fragment_forget_password"
         tools:layout="@layout/fragment_forget_password" >
         <action
@@ -78,7 +78,7 @@
     </fragment>
     <fragment
         android:id="@+id/makeSelection"
-        android:name="com.paletteofflavors.logIn.MakeSelection"
+        android:name="com.paletteofflavors.presentation.auth.view.MakeSelection"
         android:label="fragment_make_selection"
         tools:layout="@layout/fragment_make_selection" >
 
@@ -114,7 +114,7 @@
     </fragment>
     <fragment
         android:id="@+id/verifyOTP"
-        android:name="com.paletteofflavors.logIn.VerifyOTP"
+        android:name="com.paletteofflavors.presentation.auth.view.VerifyOTP"
         android:label="fragment_verify_otp"
         tools:layout="@layout/fragment_verify_otp" >
 
@@ -158,7 +158,7 @@
     </fragment>
     <fragment
         android:id="@+id/setNewPassword"
-        android:name="com.paletteofflavors.logIn.SetNewPassword"
+        android:name="com.paletteofflavors.presentation.auth.view.SetNewPassword"
         android:label="fragment_set_new_password"
         tools:layout="@layout/fragment_set_new_password" >
 
@@ -179,7 +179,7 @@
     </fragment>
     <fragment
         android:id="@+id/passwordSuccessUpdated"
-        android:name="com.paletteofflavors.logIn.PasswordSuccessUpdated"
+        android:name="com.paletteofflavors.presentation.auth.view.PasswordSuccessUpdated"
         android:label="fragment_password_success_updated"
         tools:layout="@layout/fragment_password_success_updated" >
         <action

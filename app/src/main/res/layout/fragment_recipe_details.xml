@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFF9C4"
-    tools:context=".RecipeDetailsFragment">
+    tools:context=".presentation.feature.recipes.view.RecipeDetailsFragment">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

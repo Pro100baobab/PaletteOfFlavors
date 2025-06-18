@@ -30,7 +30,7 @@
         android:background="#FBF38D"
         android:fitsSystemWindows="true"
         android:visibility="gone"
-        tools:context=".MainActivity">
+        tools:context=".presentation.main.MainActivity">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/mainToolbar"

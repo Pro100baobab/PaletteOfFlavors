@@ -1,7 +1,7 @@
 package com.paletteofflavors
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.paletteofflavors.logIn.viewmodels.LoginViewModel
+import com.paletteofflavors.presentation.auth.viewmodel.LoginViewModel
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
