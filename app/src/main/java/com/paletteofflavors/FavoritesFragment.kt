@@ -1,44 +1,28 @@
 package com.paletteofflavors
 
-import DataSource.Network.NetworkRecipe
-import DataSource.Network.Turso
 import DataSource.model.FavoritesViewModel
-import DataSource.model.FavoritesViewModelFactory
 import DataSource.model.RecipeSharedViewModel
 import Repositories.toNetworkRecipe
 import Repositories.toSavedRecipe
-import ViewModels.CreateRecipeViewModel
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.text.Layout.Directions
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.paletteofflavors.databinding.ActivityMainBinding
 import com.paletteofflavors.databinding.FragmentFavoritesBinding
-import com.paletteofflavors.logIn.viewmodels.LoginViewModel
 import domain.Recipe
 import domain.SavedRecipe
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class FavoritesFragment() : Fragment() {
@@ -72,7 +56,17 @@ class FavoritesFragment() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        bindData()
+        setUpListenersAndObservers()
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+
+    private fun bindData(){
         hintRecipe = binding.favoritesFragmentMissingItemHint
         hintuserRecipe = binding.favoritesFragmentMissingItemHint2
         radioGroup = binding.favoritesFragmentRadioGroup
@@ -89,6 +83,9 @@ class FavoritesFragment() : Fragment() {
             R.id.favorites_fragment_savedRecipes -> updateSavedRecipes()
             R.id.favorites_fragment_myRecipes -> updateMyRecipes()
         }
+    }
+
+    private fun setUpListenersAndObservers(){
 
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
 
@@ -107,10 +104,11 @@ class FavoritesFragment() : Fragment() {
         binding.createRecipe.setOnClickListener {
             (requireActivity() as MainActivity).replaceMainFragment(CreateRecipeFragment())
         }
-
     }
 
 
+
+    // For show recipe's lists
     private fun updateMyRecipes() {
         hintuserRecipe.visibility = View.INVISIBLE
 
@@ -137,7 +135,6 @@ class FavoritesFragment() : Fragment() {
             hintRecipe.visibility = View.INVISIBLE
         }.launchIn(lifecycleScope)
     }
-
 
     private fun updateSavedRecipes() {
         hintuserRecipe.visibility = View.INVISIBLE
@@ -180,35 +177,6 @@ class FavoritesFragment() : Fragment() {
     }
 
 
-    /*
-    private fun getSavedRecipeList() {
-        val TursoConnection = Turso(requireActivity() as MainActivity, requireContext())
-
-        savedRecipeAdapter = NetworkRecipeAdapter(
-            onItemClick = { networkRecipe ->
-                sharedViewModel.selectNetworkRecipe(networkRecipe)
-                (requireActivity() as MainActivity).replaceMainFragment(
-                    NetworkRecipeDetailsFragment("Favorites")
-                )
-            }
-        )
-        recipesRecyclerView.adapter = savedRecipeAdapter
-
-        lifecycleScope.launch {
-            try {
-
-                hintRecipe.visibility = View.INVISIBLE
-
-                TursoConnection.getAllNetworkRecipesFlow()
-                    .collect { networkRecipes ->
-                        savedRecipeAdapter.addRecipe(networkRecipes)
-                    }
-            } catch (e:Exception){
-                Log.d("NetworkProblem", "$e")
-                hintRecipe.visibility = View.VISIBLE
-            }
-        }
-    }*/
 
 
     private fun showDeleteRecipeConfirmDialog(recipe: Recipe? = null, savedRecipe: SavedRecipe? = null) {
@@ -229,12 +197,6 @@ class FavoritesFragment() : Fragment() {
 
         val dialog = builder.create()
         dialog.show()
-    }
-
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
 }

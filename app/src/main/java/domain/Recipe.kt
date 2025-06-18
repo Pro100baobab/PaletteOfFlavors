@@ -1,7 +1,5 @@
 package domain
 
-import Repositories.toNetworkRecipe
-import android.icu.util.MeasureUnit.Complexity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
@@ -9,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Entity(tableName = "resipes")
 @Serializable // Для JSON-конвертера
 data class Recipe(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,   // автоинкремент
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val title: String,
     val ingredients: List<String>, // Конвертируется в JSON
     val instruction: String,

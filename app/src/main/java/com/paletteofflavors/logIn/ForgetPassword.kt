@@ -54,7 +54,7 @@ class ForgetPassword : Fragment() {
 
         vm = (requireActivity() as MainActivity).viewModel
 
-        binding.forgetPasswotdContinue.setOnClickListener {
+        binding.forgetPasswordContinue.setOnClickListener {
 
 
             if (isValidEmail(binding.emailForReset)) {

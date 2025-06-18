@@ -1,7 +1,6 @@
 package com.paletteofflavors
 
-import DataSource.Local.SavedRecipeDao
-import DataSource.Network.NetworkRecipe
+
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -13,13 +12,8 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import domain.Recipe
-import domain.SavedRecipe
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 
-
+// For user's recipes
 class RecipeAdapter(
     private val recipeList: List<Recipe>,
     private val onItemClick: (Recipe) -> Unit,
@@ -40,25 +34,38 @@ class RecipeAdapter(
         return RecipeHolder(itemView)
     }
 
+    override fun onBindViewHolder(holder: RecipeHolder, position: Int) {
+
+        val recipe = recipeList[position]
+
+        editHolderVisualization(holder, recipe)
+        setUpHolderListener(holder, recipe)
+    }
+
     override fun getItemCount(): Int {
         return recipeList.size
     }
 
 
 
-    override fun onBindViewHolder(holder: RecipeHolder, position: Int) {
 
-        holder.savedImageView.setImageResource(R.drawable.delete_24px)
-        holder.savedImageView.imageTintList = ColorStateList.valueOf(Color.BLACK)
-        holder.likesOfRecipeIcon.isVisible = false
-        holder.commentsOfRecipeIcon.isVisible = false
-        val recipe = recipeList[position]
+    private fun editHolderVisualization(holder: RecipeHolder, recipe: Recipe){
 
-        holder.titleOfRecipe.text = recipe.title
+        holder.run {
+            savedImageView.setImageResource(R.drawable.delete_24px)
+            savedImageView.imageTintList = ColorStateList.valueOf(Color.BLACK)
+            likesOfRecipeIcon.isVisible = false
+            commentsOfRecipeIcon.isVisible = false
 
-        holder.timeOfRecipe.text = recipe.cookTime.toString()
-        holder.complexity.rating = recipe.complexity.toFloat()
+            titleOfRecipe.text = recipe.title
 
+            timeOfRecipe.text = recipe.cookTime.toString()
+            complexity.rating = recipe.complexity.toFloat()
+        }
+
+    }
+
+    private fun setUpHolderListener(holder: RecipeHolder, recipe: Recipe){
         holder.itemView.setOnClickListener {
             onItemClick(recipe)
         }
@@ -68,91 +75,3 @@ class RecipeAdapter(
         }
     }
 }
-
-
-
-class NetworkRecipeAdapter(
-    private val onItemClick: (NetworkRecipe) -> Unit,
-    private val onSaveOrDeleteButtonClick: (NetworkRecipe, RecipeHolder) -> Unit,
-    private val isSaved: (Int) -> Flow<Boolean>
-): RecyclerView.Adapter<NetworkRecipeAdapter.RecipeHolder>() {
-
-
-    class RecipeHolder(view: View): RecyclerView.ViewHolder(view){
-        val titleOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_name)
-        val likesOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_likes)
-        val commentsOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_comments)
-        val timeOfRecipe: TextView = itemView.findViewById(R.id.favorite_fragment_item_time)
-        val savedOrDeletedImageView: ImageView = itemView.findViewById(R.id.favorites_fragment_item_saved_icon)
-        val complexity: RatingBar = itemView.findViewById(R.id.complexityRatingBar)
-
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.recipe_item, parent, false)
-        return RecipeHolder(itemView)
-    }
-
-
-
-    private val recipes = mutableListOf<NetworkRecipe>()
-    private val adapterScope = CoroutineScope(Dispatchers.Main) // Create a CoroutineScope for the adapter
-
-    fun addRecipe(recipe: NetworkRecipe) {
-        recipes.add(recipe)
-        notifyItemInserted(recipes.size - 1)
-    }
-
-    fun addRecipes(newRecipes: List<NetworkRecipe>) {
-        val startPosition = recipes.size
-        recipes.addAll(newRecipes)
-        notifyItemRangeInserted(startPosition, newRecipes.size)
-    }
-
-    fun clearRecipes() {
-        recipes.clear()
-        notifyDataSetChanged()
-    }
-
-    override fun getItemCount(): Int {
-        return recipes.size
-    }
-
-    override fun onBindViewHolder(holder: RecipeHolder, position: Int) {
-
-        val networkRecipe = recipes[position]
-
-        // Запускаем корутину для наблюдения за Flow
-        adapterScope.launch {
-            isSaved(networkRecipe.recipeId).collect { isSaved ->
-                // Обновляем изображение, когда значение Flow меняется
-                if (isSaved) {
-                    holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
-                } else {
-                    holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_unsaved)
-                }
-            }
-        }
-
-        with(holder) {
-            titleOfRecipe.text = networkRecipe.title
-            likesOfRecipe.text = networkRecipe.likesCount.toString()
-            commentsOfRecipe.text = networkRecipe.commentsCount.toString()
-            timeOfRecipe.text = networkRecipe.cookTime.toString()
-            complexity.rating = networkRecipe.complexity.toFloat()
-        }
-
-
-        holder.itemView.setOnClickListener {
-            onItemClick(networkRecipe)
-        }
-
-        // Для удаления или сохранения в локальную бд сетевых рецептов
-        holder.savedOrDeletedImageView.setOnClickListener {
-            onSaveOrDeleteButtonClick(networkRecipe, holder)
-        }
-    }
-}
-
-
-

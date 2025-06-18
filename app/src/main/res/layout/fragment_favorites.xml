@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".FavoritesFragment"> <!-- Желтый фон android:background="#FBF38D"-->
-я
+    tools:context=".FavoritesFragment">
+    я
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#FBF38D"
-        > <!-- Желтый фон -->
+        android:background="@color/light_yellow">
 
         <EditText
             android:id="@+id/favorites_fragment_search_recipe_string"
@@ -44,12 +44,12 @@
                 android:id="@+id/favorites_fragment_savedRecipes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:buttonTint="@color/dark_red"
+                android:checked="true"
                 android:text="@string/saved"
                 android:textAllCaps="true"
                 android:textColor="#333333"
                 android:textStyle="italic"
-                android:checked="true"/>
+                app:buttonTint="@color/dark_red" />
 
             <View
                 android:id="@+id/view"
@@ -60,11 +60,11 @@
                 android:id="@+id/favorites_fragment_myRecipes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:buttonTint="@color/dark_red"
                 android:text="@string/myResipes"
                 android:textAllCaps="true"
                 android:textColor="#333333"
-                android:textStyle="italic" />
+                android:textStyle="italic"
+                app:buttonTint="@color/dark_red" />
 
         </RadioGroup>
 
@@ -109,10 +109,10 @@
             android:text="@string/hint_favorite_recipes"
             android:textAlignment="center"
             android:textAllCaps="false"
+            android:textColor="@color/black"
             android:textSize="20sp"
             android:textStyle="italic"
             android:visibility="visible"
-            android:textColor="@color/black"
             app:layout_constraintBottom_toBottomOf="@+id/recipesRecyclerView"
             app:layout_constraintEnd_toEndOf="@+id/recipesRecyclerView"
             app:layout_constraintHorizontal_bias="0.497"
@@ -127,10 +127,10 @@
             android:text="@string/hint_your_recipes"
             android:textAlignment="center"
             android:textAllCaps="false"
+            android:textColor="@color/black"
             android:textSize="20sp"
             android:textStyle="italic"
             android:visibility="invisible"
-            android:textColor="@color/black"
             app:layout_constraintBottom_toBottomOf="@+id/recipesRecyclerView"
             app:layout_constraintEnd_toEndOf="@+id/recipesRecyclerView"
             app:layout_constraintHorizontal_bias="0.497"

@@ -3,8 +3,8 @@ package com.paletteofflavors
 import DataSource.Network.Turso
 import DataSource.model.FavoritesViewModel
 import DataSource.model.RecipeSharedViewModel
-import Repositories.toNetworkRecipe
 import Repositories.toSavedRecipe
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
@@ -21,38 +21,21 @@ import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.compose.ui.unit.DpSize
 import androidx.core.content.ContextCompat
-import androidx.core.view.get
-import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.Visibility
 import com.paletteofflavors.databinding.FragmentFridgeBinding
-import domain.Recipe
 import domain.SavedRecipe
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Locale
-import kotlin.io.encoding.Base64
 
 
 class FridgeFragment : Fragment() {
-
-    var _binding: FragmentFridgeBinding? = null
-    val binding get() = _binding!!
 
     class Direction() {
         val forward = "forward"
@@ -67,6 +50,11 @@ class FridgeFragment : Fragment() {
     val berriesDirection = Direction()
     val mushroomsDirection = Direction()
 
+
+    var _binding: FragmentFridgeBinding? = null
+    val binding get() = _binding!!
+
+    private val sharedViewModel: RecipeSharedViewModel by activityViewModels()
     private val fridgeViewModel by lazy { FridgeViewModel() }
     private val viewModel: FavoritesViewModel by lazy {
         (requireActivity() as MainActivity).favoritesViewModel
@@ -74,7 +62,6 @@ class FridgeFragment : Fragment() {
 
     private lateinit var networkRecipeAdapter: NetworkRecipeAdapter
     private lateinit var recipesRecyclerView: RecyclerView
-    private val sharedViewModel: RecipeSharedViewModel by activityViewModels()
 
 
     override fun onCreateView(
@@ -89,22 +76,20 @@ class FridgeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recipesRecyclerView = binding.recipesRecyclerView
-        recipesRecyclerView.layoutManager = LinearLayoutManager(context)
-
+        setUpRecyclerView()
         setupMostHaveIngredients()
         setListeners()
-
-        fridgeViewModel.listOfSelectedIngredients.observe(viewLifecycleOwner) { list ->
-            binding.selectedButton.text = "Выбрано " + list.size.toString()
-        }
+        setUpRecipesCountObserver()
     }
 
-    fun getRussianString(@StringRes resId: Int): String {
-        val configuration = android.content.res.Configuration(context?.resources?.configuration)
-        configuration.setLocale(Locale("ru"))
-        Log.d("Name", context?.createConfigurationContext(configuration)?.getString(resId) ?: "")
-        return context?.createConfigurationContext(configuration)?.getString(resId) ?: ""
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun setUpRecyclerView() {
+        recipesRecyclerView = binding.recipesRecyclerView
+        recipesRecyclerView.layoutManager = LinearLayoutManager(context)
     }
 
     private fun setupMostHaveIngredients() {
@@ -216,6 +201,21 @@ class FridgeFragment : Fragment() {
     }
 
 
+    @SuppressLint("SetTextI18n")
+    private fun setUpRecipesCountObserver() {
+        fridgeViewModel.listOfSelectedIngredients.observe(viewLifecycleOwner) { list ->
+            binding.selectedButton.text = getString(R.string.Selected) + list.size.toString()
+        }
+    }
+
+    private fun getRussianString(@StringRes resId: Int): String {
+        val configuration = android.content.res.Configuration(context?.resources?.configuration)
+        configuration.setLocale(Locale("ru"))
+        Log.d("Name", context?.createConfigurationContext(configuration)?.getString(resId) ?: "")
+        return context?.createConfigurationContext(configuration)?.getString(resId) ?: ""
+    }
+
+    // Open and close drop list
     private fun mostHaveVisible(Direction: Direction, imageView: ImageView) {
 
         val arrowForward = R.drawable.arrow_forward_24px
@@ -278,51 +278,42 @@ class FridgeFragment : Fragment() {
     }
 
 
-    fun postQuery(activity: MainActivity, context: Context) {
+    private fun searchFromCachedRecipes() {
+        viewModel.cashedRecipes.onEach { networkRecipes ->
 
-        val TursoConnection = Turso(activity, context)
-
-        if (!TursoConnection.checkInternetConnection(requireContext())) {
-            Toast.makeText(requireContext(), "Используем кешированные рецепты", Toast.LENGTH_LONG)
-                .show()
-
-            viewModel.cashedRecipes.onEach { networkRecipes ->
-
-                networkRecipeAdapter = NetworkRecipeAdapter(
-                    onItemClick = { networkRecipe ->
-                        sharedViewModel.selectNetworkRecipe(networkRecipe)
-                        (requireActivity() as MainActivity).replaceMainFragment(
-                            NetworkRecipeDetailsFragment("Fridge")
-                        )
-                    },
-                    onSaveOrDeleteButtonClick = { recipe, holder ->
-                        if (holder.savedOrDeletedImageView.drawable.constantState ==
-                            ContextCompat.getDrawable(
-                                holder.itemView.context,
-                                R.drawable.icon_saved
-                            )?.constantState
-                        ) {
-                            showDeleteRecipeConfirmDialog(recipe.toSavedRecipe(), holder)
-                        } else {
-                            viewModel.addSavedRecipe(recipe.toSavedRecipe())
-                            holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
-                        }
-                    },
-                    isSaved = { recipeId ->
-                        viewModel.isRecipeSaved(recipeId)  // Возвращем сохранен или нет рецепт
+            networkRecipeAdapter = NetworkRecipeAdapter(
+                onItemClick = { networkRecipe ->
+                    sharedViewModel.selectNetworkRecipe(networkRecipe)
+                    (requireActivity() as MainActivity).replaceMainFragment(
+                        NetworkRecipeDetailsFragment("Fridge")
+                    )
+                },
+                onSaveOrDeleteButtonClick = { recipe, holder ->
+                    if (holder.savedOrDeletedImageView.drawable.constantState ==
+                        ContextCompat.getDrawable(
+                            holder.itemView.context,
+                            R.drawable.icon_saved
+                        )?.constantState
+                    ) {
+                        showDeleteRecipeConfirmDialog(recipe.toSavedRecipe(), holder)
+                    } else {
+                        viewModel.addSavedRecipe(recipe.toSavedRecipe())
+                        holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
                     }
-                ).apply {
-                    // Добавляем все рецепты сразу
-                    addRecipes(networkRecipes)
+                },
+                isSaved = { recipeId ->
+                    viewModel.isRecipeSaved(recipeId)  // Возвращем сохранен или нет рецепт
                 }
-                recipesRecyclerView.adapter = networkRecipeAdapter
-            }.launchIn(lifecycleScope)
+            ).apply {
+                // Добавляем все рецепты сразу
+                addRecipes(networkRecipes)
+            }
+            recipesRecyclerView.adapter = networkRecipeAdapter
+        }.launchIn(lifecycleScope)
 
-            binding.fridgeIngredientsContent.visibility = View.GONE
-            return
-        }
+    }
 
-
+    private fun recyclerViewForNetwork(activity: MainActivity) {
         networkRecipeAdapter = NetworkRecipeAdapter(
             onItemClick = { networkRecipe ->
                 sharedViewModel.selectNetworkRecipe(networkRecipe)
@@ -351,7 +342,32 @@ class FridgeFragment : Fragment() {
         )
 
         recipesRecyclerView.adapter = networkRecipeAdapter
+    }
 
+    fun postQuery(activity: MainActivity, context: Context) {
+
+        val TursoConnection = Turso(activity, context)
+
+        if (!TursoConnection.checkInternetConnection(requireContext())) {
+            Toast.makeText(requireContext(), "Используем кешированные рецепты", Toast.LENGTH_LONG)
+                .show()
+
+            searchFromCachedRecipes()
+
+            binding.fridgeIngredientsContent.visibility = View.GONE
+            return
+        }
+
+
+        // Если есть подключение к интернету
+        recyclerViewForNetwork(activity)
+        executeQuery(TursoConnection)
+
+        binding.fridgeIngredientsContent.visibility = View.GONE
+
+    }
+
+    private fun executeQuery(TursoConnection: Turso) {
         if (fridgeViewModel.getselectedIngredientsCount() == 0) {
 
             lifecycleScope.launch {
@@ -375,7 +391,7 @@ class FridgeFragment : Fragment() {
                         .collect { networkRecipes ->
                             try {
                                 networkRecipeAdapter.addRecipe(networkRecipes)
-                            } catch (e: Exception){
+                            } catch (e: Exception) {
                                 Log.d("NetworkProblem", "$e")
                             }
                         }
@@ -384,9 +400,6 @@ class FridgeFragment : Fragment() {
                 }
             }
         }
-
-        binding.fridgeIngredientsContent.visibility = View.GONE
-
     }
 
     private fun createQuery(): String {
@@ -416,11 +429,6 @@ class FridgeFragment : Fragment() {
         return query
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
 
     private fun showDeleteRecipeConfirmDialog(
         savedRecipe: SavedRecipe,
@@ -447,28 +455,4 @@ class FridgeFragment : Fragment() {
         val id: Int,
         @StringRes val nameResId: Int,
     )
-}
-
-
-class FridgeViewModel : ViewModel() {
-
-    private val _listOfingredients = MutableLiveData<MutableList<String>>(mutableListOf())
-    val listOfSelectedIngredients: LiveData<MutableList<String>> = _listOfingredients
-
-
-    fun addIngredient(name: String) {
-        val currentList = _listOfingredients.value ?: mutableListOf()
-        val newList = currentList.toMutableList().apply { add(name) }
-        _listOfingredients.value = newList
-    }
-
-    fun removeIngredient(name: String) {
-        val currentList = _listOfingredients.value ?: mutableListOf()
-        val newList = currentList.toMutableList().apply { remove(name) }
-        _listOfingredients.value = newList
-    }
-
-    fun getselectedIngredientsCount(): Int {
-        return _listOfingredients.value?.size ?: 0
-    }
 }

@@ -13,11 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.navArgs
 import com.paletteofflavors.databinding.FragmentNetworkRecipeDetailsBinding
-import com.paletteofflavors.databinding.FragmentRecipeDetailsBinding
-import domain.Recipe
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
@@ -37,28 +33,37 @@ class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        bindCurrentNetworkRecipe()
+        setUpBackButtonListener()
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun bindCurrentNetworkRecipe() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-                if (fragment == "Fridge")
-                    sharedViewModel.selectedNetworkRecipe.collect { recipe ->
+                when (fragment) {
+                    "Fridge" -> sharedViewModel.selectedNetworkRecipe.collect { recipe ->
                         recipe?.let { bindNetworkRecipeData(it) }
                     }
 
-                else if(fragment == "Favorites")
-                    sharedViewModel.selectedSavedRecipe.collect { recipe ->
-                        recipe?.let { bindNetworkRecipeData(it.toNetworkRecipe())}
+                    "Favorites" -> sharedViewModel.selectedSavedRecipe.collect { recipe ->
+                        recipe?.let { bindNetworkRecipeData(it.toNetworkRecipe()) }
                     }
 
-                else if(fragment == "Search")
-                    sharedViewModel.selectedNetworkRecipe.collect { recipe ->
-                        recipe?.let { bindNetworkRecipeData(it)}
+                    "Search" -> sharedViewModel.selectedNetworkRecipe.collect { recipe ->
+                        recipe?.let { bindNetworkRecipeData(it) }
                     }
+                }
             }
         }
+    }
 
-
+    private fun setUpBackButtonListener() {
         binding.backButtonNetworkRecipeDetails.setOnClickListener {
             when (fragment) {
                 "Favorites" ->
@@ -79,20 +84,17 @@ class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun bindNetworkRecipeData(networkRecipe: NetworkRecipe) {
-        binding.recipeDetailsTitle.text = networkRecipe.title
-        binding.recipeDetailsCookingTime.text = "${networkRecipe.cookTime} мин"
-        binding.recipeDetailsIngredientsList.text =
-            networkRecipe.ingredients.joinToString("\n") { "• $it" }
-        binding.instructionsText.text = networkRecipe.instruction
-        binding.complexityRating.rating = networkRecipe.complexity.toFloat()
-        binding.likesCount.text = networkRecipe.likesCount.toString()
-        binding.commentsCount.text = networkRecipe.commentsCount.toString()
-        binding.recipeTags.text = ": ${networkRecipe.mainCategory}, ${networkRecipe.secondaryCategory}"
-    }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+        binding.run {
+            recipeDetailsTitle.text = networkRecipe.title
+            recipeDetailsCookingTime.text = "${networkRecipe.cookTime} мин"
+            recipeDetailsIngredientsList.text =
+                networkRecipe.ingredients.joinToString("\n") { "• $it" }
+            instructionsText.text = networkRecipe.instruction
+            complexityRating.rating = networkRecipe.complexity.toFloat()
+            likesCount.text = networkRecipe.likesCount.toString()
+            commentsCount.text = networkRecipe.commentsCount.toString()
+            recipeTags.text = ": ${networkRecipe.mainCategory}, ${networkRecipe.secondaryCategory}"
+        }
     }
-
 }

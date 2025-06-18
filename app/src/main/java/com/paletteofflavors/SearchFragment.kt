@@ -22,9 +22,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.work.Configuration
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.paletteofflavors.databinding.BottomSheetLayoutBinding
 import com.paletteofflavors.databinding.FragmentSearchBinding
 import domain.SavedRecipe
 import kotlinx.coroutines.flow.launchIn
@@ -40,11 +38,13 @@ class SearchFragment : Fragment() {
 
     private lateinit var bottomsheetScrollView: NestedScrollView
     private lateinit var networkRecipeAdapter: NetworkRecipeAdapter
+    private lateinit var recipesRecyclerView: RecyclerView
+
+
     private val sharedViewModel: RecipeSharedViewModel by activityViewModels()
     private val viewModel: FavoritesViewModel by lazy {
         (requireActivity() as MainActivity).favoritesViewModel
     }
-    private lateinit var recipesRecyclerView: RecyclerView
 
 
     override fun onCreateView(
@@ -58,18 +58,29 @@ class SearchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recipesRecyclerView = binding.recipesRecyclerView
-        recipesRecyclerView.layoutManager = LinearLayoutManager(context)
-
+        setUpRecyclerView()
         setupBottomSheetBehavior()
         setupCategories()
-
         setupOnClickListeners()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
 
+
+
+
+    private fun setUpRecyclerView(){
+        recipesRecyclerView = binding.recipesRecyclerView
+        recipesRecyclerView.layoutManager = LinearLayoutManager(context)
     }
 
     private fun setupOnClickListeners() {
+
+        // Main category button
         binding.searchFragmentDinnerButton.setOnClickListener {
             createCategoryQuery(mainCategory = getRussianString(R.string.dinner))
             Toast.makeText(requireContext(), "Selected: Dinner", Toast.LENGTH_SHORT).show()
@@ -87,17 +98,19 @@ class SearchFragment : Fragment() {
             Toast.makeText(requireContext(), "Selected: Breakfast", Toast.LENGTH_SHORT).show()
         }
 
+        // Filter button
         binding.searchFragmentFilterButton.setOnClickListener {
             Toast.makeText(requireContext(), "В разработке", Toast.LENGTH_SHORT)
                 .show()
         }
 
-
+        // Back button
         binding.backToSearchButton.setOnClickListener {
             binding.CoordinatorLayout.visibility = View.VISIBLE
             binding.filteredContent.visibility = View.GONE
         }
 
+        // Search button
         binding.searchFragmentSearchRecipeString.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
                 Log.d("SearchEnter", "Нажат Enter")
@@ -115,7 +128,6 @@ class SearchFragment : Fragment() {
         bottomSheetBehavior.peekHeight = 250
         bottomSheetBehavior.maxHeight = 1000
     }
-
     private fun setupCategories() {
         val categories = listOf(
             Category(requireContext(),1, R.string.cold_eat, R.drawable.icon_saved),
@@ -146,7 +158,19 @@ class SearchFragment : Fragment() {
         binding.bottomSheetInclude.categoriesRecyclerView.layoutManager =
             LinearLayoutManager(context)
     }
+    // Получение слов по id для составления запроса к бд
+    fun getRussianString(@StringRes resId: Int): String {
+        val configuration = android.content.res.Configuration(context?.resources?.configuration)
+        configuration.setLocale(Locale("ru"))
+        Log.d("Name", context?.createConfigurationContext(configuration)?.getString(resId) ?: "")
+        return context?.createConfigurationContext(configuration)?.getString(resId) ?: ""
+    }
 
+
+
+
+
+    // Преобразование строки поиска и создание запроса
     fun formatAndSearch(searchText: String){
         val searchWords = searchText.split("\\s+".toRegex())
 
@@ -180,6 +204,7 @@ class SearchFragment : Fragment() {
         OnCategoryButtonClick(requireActivity() as MainActivity, requireContext(), query)
     }
 
+    // Создание запросов по категориям
     private fun createCategoryQuery(
         mainCategory: String? = null,
         secondaryCategory: String? = null
@@ -208,54 +233,70 @@ class SearchFragment : Fragment() {
         OnCategoryButtonClick(requireActivity() as MainActivity, requireContext(), query)
     }
 
+    // Поиск по категориям
     private fun OnCategoryButtonClick(activity: MainActivity, context: Context, query: String) {
-
 
         val TursoConnection = Turso(activity, context)
 
-
+        // Если подключения нет
         if (!TursoConnection.checkInternetConnection(requireContext())) {
             Toast.makeText(requireContext(), "Используем кешированные рецепты", Toast.LENGTH_LONG)
                 .show()
 
-            viewModel.cashedRecipes.onEach { networkRecipes ->
-
-                networkRecipeAdapter = NetworkRecipeAdapter(
-                    onItemClick = { networkRecipe ->
-                        sharedViewModel.selectNetworkRecipe(networkRecipe)
-                        (requireActivity() as MainActivity).replaceMainFragment(
-                            NetworkRecipeDetailsFragment("Search")
-                        )
-                    },
-                    onSaveOrDeleteButtonClick = { recipe, holder ->
-                        if (holder.savedOrDeletedImageView.drawable.constantState ==
-                            ContextCompat.getDrawable(
-                                holder.itemView.context,
-                                R.drawable.icon_saved
-                            )?.constantState
-                        ) {
-                            showDeleteRecipeConfirmDialog(recipe.toSavedRecipe(), holder)
-                        } else {
-                            viewModel.addSavedRecipe(recipe.toSavedRecipe())
-                            holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
-                        }
-                    },
-                    isSaved = { recipeId ->
-                        viewModel.isRecipeSaved(recipeId)  // Возвращем сохранен или нет рецепт
-                    }
-                ).apply {
-                    // Добавляем все рецепты сразу
-                    addRecipes(networkRecipes)
-                }
-                recipesRecyclerView.adapter = networkRecipeAdapter
-            }.launchIn(lifecycleScope)
-
+            searchFromCache()
             binding.CoordinatorLayout.visibility = View.GONE
             binding.filteredContent.visibility = View.VISIBLE
             return
         }
 
-        //если подключение есть
+        // Если подключение есть
+        createRecyclerViewAdapter(activity)
+        executeQuery(TursoConnection, query)
+
+
+        binding.CoordinatorLayout.visibility = View.GONE
+        binding.filteredContent.visibility = View.VISIBLE
+    }
+
+
+    // Поиск в кеше
+    private fun searchFromCache(){
+        viewModel.cashedRecipes.onEach { networkRecipes ->
+
+            networkRecipeAdapter = NetworkRecipeAdapter(
+                onItemClick = { networkRecipe ->
+                    sharedViewModel.selectNetworkRecipe(networkRecipe)
+                    (requireActivity() as MainActivity).replaceMainFragment(
+                        NetworkRecipeDetailsFragment("Search")
+                    )
+                },
+                onSaveOrDeleteButtonClick = { recipe, holder ->
+                    if (holder.savedOrDeletedImageView.drawable.constantState ==
+                        ContextCompat.getDrawable(
+                            holder.itemView.context,
+                            R.drawable.icon_saved
+                        )?.constantState
+                    ) {
+                        showDeleteRecipeConfirmDialog(recipe.toSavedRecipe(), holder)
+                    } else {
+                        viewModel.addSavedRecipe(recipe.toSavedRecipe())
+                        holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
+                    }
+                },
+                isSaved = { recipeId ->
+                    viewModel.isRecipeSaved(recipeId)  // Возвращем сохранен или нет рецепт
+                }
+            ).apply {
+                // Добавляем все рецепты сразу
+                addRecipes(networkRecipes)
+            }
+            recipesRecyclerView.adapter = networkRecipeAdapter
+        }.launchIn(lifecycleScope)
+
+    }
+
+    // Создание адаптера
+    private fun createRecyclerViewAdapter(activity: MainActivity){
         networkRecipeAdapter = NetworkRecipeAdapter(
             onItemClick = { networkRecipe ->
                 sharedViewModel.selectNetworkRecipe(networkRecipe)
@@ -284,7 +325,11 @@ class SearchFragment : Fragment() {
         )
 
         recipesRecyclerView.adapter = networkRecipeAdapter
+    }
 
+
+    // Выполнение сетевого запроса
+    private fun executeQuery(TursoConnection: Turso, query: String){
         lifecycleScope.launch {
             try {
                 TursoConnection.getAllNetworkRecipesFlow(query)
@@ -295,29 +340,12 @@ class SearchFragment : Fragment() {
                 Log.d("NetworkProblem", "$e")
             }
         }
-
-
-        /*
-        lifecycleScope.launch {
-            try {
-                TursoConnection.getAllNetworkRecipesFlow(query)
-                    .collect { networkRecipes ->
-
-                        val strike = "${networkRecipes.recipeId} - ${networkRecipes.title} -" +
-                                "${networkRecipes.mainCategory} - ${networkRecipes.secondaryCategory}"
-
-                        Log.d("Recipe", strike)
-
-                    }
-            } catch (e: Exception) {
-                Log.d("NetworkProblem", "$e")
-            }
-        }*/
-
-        binding.CoordinatorLayout.visibility = View.GONE
-        binding.filteredContent.visibility = View.VISIBLE
     }
 
+
+
+
+    // Окно подтверждения для удаления рецепта
     private fun showDeleteRecipeConfirmDialog(
         savedRecipe: SavedRecipe,
         holder: NetworkRecipeAdapter.RecipeHolder
@@ -337,82 +365,5 @@ class SearchFragment : Fragment() {
 
         val dialog = builder.create()
         dialog.show()
-    }
-
-
-    /*
-    fun postQuery(activity: MainActivity, context: Context) {
-
-        val TursoConnection = Turso(activity, context)
-
-        networkRecipeAdapter = NetworkRecipeAdapter(
-            onItemClick = { networkRecipe ->
-                sharedViewModel.selectNetworkRecipe(networkRecipe)
-                activity.replaceMainFragment(
-                    NetworkRecipeDetailsFragment("Fridge")
-                )
-            },
-            onSaveOrDeleteButtonClick = { recipe, holder -> // TODO: Убрать зависимость от UI
-                if (holder.savedOrDeletedImageView.drawable.constantState ==
-                    ContextCompat.getDrawable(holder.itemView.context, R.drawable.icon_saved)?.constantState) {
-                    // Если иконка показывает "сохранено" - удаляем
-                    showDeleteRecipeConfirmDialog(recipe.toSavedRecipe(), holder)
-                } else {
-                    // Если не сохранено - сохраняем
-                    viewModel.addSavedRecipe(recipe.toSavedRecipe())
-                    holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
-                }
-            },
-            isSaved = { recipeId ->
-                viewModel.isRecipeSaved(recipeId)  // Возвращем сохранен или нет рецепт
-            }
-        )
-
-        recipesRecyclerView.adapter = networkRecipeAdapter
-
-        if (fridgeViewModel.getselectedIngredientsCount() == 0) {
-
-            lifecycleScope.launch {
-                try {
-                    TursoConnection.getAllNetworkRecipesFlow()
-                        .collect { networkRecipes ->
-                            networkRecipeAdapter.addRecipe(networkRecipes)
-                        }
-                } catch (e: Exception) {
-                    Log.d("NetworkProblem", "$e")
-                }
-            }
-
-
-        } else {
-            val query = createQuery()
-
-            lifecycleScope.launch {
-                try {
-                    TursoConnection.getAllNetworkRecipesFlow(query)
-                        .collect { networkRecipes ->
-                            networkRecipeAdapter.addRecipe(networkRecipes)
-                        }
-                } catch (e: Exception) {
-                    Log.d("NetworkProblem", "$e")
-                }
-            }
-        }
-
-        binding.fridgeIngredientsContent.visibility = View.GONE
-
-    }
-    */
-
-    fun getRussianString(@StringRes resId: Int): String {
-        val configuration = android.content.res.Configuration(context?.resources?.configuration)
-        configuration.setLocale(Locale("ru"))
-        Log.d("Name", context?.createConfigurationContext(configuration)?.getString(resId) ?: "")
-        return context?.createConfigurationContext(configuration)?.getString(resId) ?: ""
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

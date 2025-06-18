@@ -6,6 +6,5 @@
     android:background="#EC625D"
     tools:context=".HomeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
 
 </FrameLayout>

@@ -1,10 +1,7 @@
 package DataSource.Network
 
-import android.icu.util.MeasureUnit.Complexity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import domain.Recipe
-import kotlinx.serialization.Serializable
 
 
 @Entity(tableName = "cashRecipes")
@@ -12,7 +9,7 @@ data class NetworkRecipe(
     //Base margins
     @PrimaryKey val recipeId: Int,
     val title: String,
-    val ingredients: List<String>, // Будет получено путем комбинированного запроса с JOIN
+    val ingredients: List<String>, // Получается комбинированным запросом с JOIN и преобразованием к списку
     val instruction: String,
     val cookTime: Int,
 
@@ -26,19 +23,4 @@ data class NetworkRecipe(
 
     val mainCategory: String,
     val secondaryCategory: String
-    ){
-
-    /*
-    fun NetworkRecipe.toRecipe(): Recipe {
-        return Recipe(
-            id = recipeId,
-            title = recipeName,
-            ingredients = ingredientsList,
-            instruction = recipeInstructions,
-            imageUrl = recipeImageUrl,
-            cookTime = cookingTime,
-            //comments = recipecomments,
-            //likes = recipelikes
-        )
-    }*/
-}
+    )

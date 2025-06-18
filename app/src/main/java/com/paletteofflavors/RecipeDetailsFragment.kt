@@ -1,6 +1,7 @@
 package com.paletteofflavors
 
 import DataSource.model.RecipeSharedViewModel
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,7 +11,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.navArgs
 import com.paletteofflavors.databinding.FragmentRecipeDetailsBinding
 import domain.Recipe
 import kotlinx.coroutines.launch
@@ -21,11 +21,6 @@ class RecipeDetailsFragment : Fragment() {
     private val binding get() = _binding!!
     private val sharedViewModel: RecipeSharedViewModel by activityViewModels()
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,6 +33,22 @@ class RecipeDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        getAndBindCurrentRecipe()
+
+        binding.backButtonNetworkRecipeDetails.setOnClickListener {
+            (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+
+
+
+    private fun getAndBindCurrentRecipe(){
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 sharedViewModel.selectedRecipe.collect { recipe ->
@@ -45,16 +56,10 @@ class RecipeDetailsFragment : Fragment() {
                 }
             }
         }
-
-
-        binding.backButtonNetworkRecipeDetails.setOnClickListener {
-            //parentFragmentManager.popBackStack()
-            //(requireActivity() as MainActivity).returnNavigation()
-            (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
-        }
     }
 
 
+    @SuppressLint("SetTextI18n")
     private fun bindRecipeData(recipe: Recipe) {
         binding.recipeDetailsTitle.text = recipe.title
         binding.recipeDetailsCookingTime.text = "${recipe.cookTime} мин"
@@ -67,9 +72,6 @@ class RecipeDetailsFragment : Fragment() {
 
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
+
 
 }

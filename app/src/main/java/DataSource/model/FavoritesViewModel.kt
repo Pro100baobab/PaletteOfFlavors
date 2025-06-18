@@ -1,7 +1,5 @@
 package DataSource.model
 
-import DataSource.Local.RecipeDao
-import DataSource.Local.SavedRecipeDao
 import DataSource.Network.NetworkRecipe
 import Repositories.RecipeRepository
 import android.util.Log
@@ -12,18 +10,15 @@ import domain.Recipe
 import domain.SavedRecipe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 class FavoritesViewModel(
-    //private val recipeDao: RecipeDao,
-    //private val savedRecipeDao: SavedRecipeDao
     private val repository: RecipeRepository
 ) : ViewModel() {
 
+    // For checking current group of recipes
     private val _radioButtonId = MutableLiveData<Int>()
     val radioButton get() = _radioButtonId
 
@@ -31,20 +26,9 @@ class FavoritesViewModel(
         _radioButtonId.value = id
     }
 
-    // Get all recipes from local database (User_recipe) as Flow
+    // Get all recipes from local database (User_recipes) as Flow
     val myRecipes: Flow<List<Recipe>> = repository.getAllUsersRecipes()
 
-    suspend fun getRecipes(): List<Recipe> {
-        return myRecipes.first()
-    }
-    suspend fun getRecipeCount(): Int{
-        return myRecipes.count()
-    }
-    fun addRecipe(recipe: Recipe){
-        viewModelScope.launch {
-            repository.insertOwn(recipe)
-        }
-    }
     fun deleteRecipe(recipe: Recipe){
         viewModelScope.launch {
             repository.deleteOwn(recipe)
@@ -52,19 +36,12 @@ class FavoritesViewModel(
     }
 
 
-
-    // Get all recipes from local database (User_recipe) as Flow
+    // Get all recipes from local database (Saved_recipes) as Flow
     val savedRecipes: Flow<List<SavedRecipe>> = repository.getAllSavedRecipes()
 
-    suspend fun getSavedRecipes(): List<SavedRecipe> {
-        return savedRecipes.first()
-    }
-    suspend fun getSavedRecipeCount(): Int{
-        return savedRecipes.count()
-    }
+    // Functions for using with saved recipes state
     fun addSavedRecipe(recipe: SavedRecipe){
         viewModelScope.launch(Dispatchers.IO) {
-            //repository.insertSaved(recipe)
 
             try {
                 Log.d("FavoritesViewModel", "Adding recipe: ${recipe.title}")
@@ -81,19 +58,19 @@ class FavoritesViewModel(
             repository.deleteSaved(recipe)
         }
     }
-
     fun isRecipeSaved(id: Int): Flow<Boolean> = flow {
         emit(repository.getSavedRecipeById(id) != null)
     }.flowOn(Dispatchers.IO)
 
 
 
+    // Get all recipes from local database (Cached_recipes) as Flow
     val cashedRecipes: Flow<List<NetworkRecipe>> = repository.getAllCashedRecipes()
 
+    // Functions for saving cached recipes
     fun deleteCashRecipes(){
         repository.deleteCash()
     }
-
     fun addCashedRecipe(recipe: NetworkRecipe?){
         viewModelScope.launch(Dispatchers.IO) {
 

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/Theme.ПалитраВкусов.NoActionBar"
     android:layout_width="match_parent"
@@ -74,10 +73,10 @@
                 android:id="@+id/current_phone"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
-                android:gravity="center"
                 android:layout_gravity="bottom"
                 android:layout_marginStart="140dp"
                 android:layout_marginBottom="45dp"
+                android:gravity="center"
                 android:text="+79775425677"
                 android:textColor="@color/black"
                 android:textSize="16sp"
@@ -115,10 +114,10 @@
                 android:id="@+id/current_email"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
-                android:gravity="center"
                 android:layout_gravity="bottom"
                 android:layout_marginStart="130dp"
                 android:layout_marginBottom="45dp"
+                android:gravity="center"
                 android:text="example@gmail.com"
                 android:textColor="@color/black"
                 android:textSize="16sp"
@@ -126,7 +125,6 @@
 
 
         </FrameLayout>
-
 
 
     </LinearLayout>

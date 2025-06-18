@@ -23,7 +23,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:src="@drawable/general_back_icon_24"></ImageView>
+                android:src="@drawable/general_back_icon_24" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -181,13 +181,13 @@
 
             </LinearLayout>
 
-            <!--#FD4400-->
+
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnRegister"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="15dp"
-                android:backgroundTint="#FD4400"
+                android:backgroundTint="@color/bright_red"
                 android:elevation="5dp"
                 android:text="@string/end_create_account"
                 android:textColor="@color/white" />

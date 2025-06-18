@@ -28,8 +28,7 @@ class SessionManager(
         const val KEY_EMAIL = "email"
         const val KEY_PHONE_NUMBER = "phoneNumber"
         const val KEY_PASSWORD = "password"
-        //private const val KEY_DATE = "date"
-        //private const val KEY_GENDER = "gender"
+
 
         //RememberMe variables
         const val IS_REMEMBERME = "IsRememberMe"
@@ -47,27 +46,20 @@ class SessionManager(
         const val KEY_CASH = "cash"
     }
 
-    // functions for BaseSettings Session
-    public fun createBaseSettingSession(cashFlag: Boolean){
+    // Functions for BaseSettings Session
+    fun createBaseSettingSession(cashFlag: Boolean){
         editor.putBoolean(IS_BASESETINGS, true)
         editor.putBoolean(KEY_CASH, cashFlag)
         editor.commit()
     }
-    public fun getBaseSettingsDetailFromSession(): HashMap<String, String?>{
-        val userData = HashMap<String, String?>()
-
-        userData[KEY_CASH] = usersSession.getString(KEY_CASH, null)
-        return userData
-    }
-
-    public fun checkBaseSettings(): Boolean{
+    fun checkBaseSettings(): Boolean{
         return usersSession.getBoolean(IS_BASESETINGS, false)
     }
 
 
 
-    // function for LogIn Session
-    public fun createLoginSession(fullName: String, username: String, email: String, phoneNumber: String, password: String){
+    // Functions for LogIn Session
+    fun createLoginSession(fullName: String, username: String, email: String, phoneNumber: String, password: String){
 
         editor.putBoolean(IS_LOGIN, true)
 
@@ -79,8 +71,7 @@ class SessionManager(
 
         editor.commit()
     }
-
-    public fun getUsersDetailFromSession(): HashMap<String, String?>{
+    fun getUsersDetailFromSession(): HashMap<String, String?>{
         val userData = HashMap<String, String?>()
 
         userData[KEY_FULLNAME] = usersSession.getString(KEY_FULLNAME, null)
@@ -91,20 +82,15 @@ class SessionManager(
 
         return userData;
     }
-
-    public fun checkLogin(): Boolean{
+    fun checkLogin(): Boolean{
         return usersSession.getBoolean(IS_LOGIN, false)
     }
 
-    public fun logoutUserSession(){
-        editor.clear()
-        editor.commit()
-    }
+
 
 
     // function for RememberMe Session
-
-    public fun createRememberMeSession(username: String, password: String){
+    fun createRememberMeSession(username: String, password: String){
 
         editor.putBoolean(IS_REMEMBERME, true)
 
@@ -113,8 +99,7 @@ class SessionManager(
 
         editor.commit()
     }
-
-    public fun getRememberMeDetailsFromSession(): HashMap<String, String?>{
+    fun getRememberMeDetailsFromSession(): HashMap<String, String?>{
         val userData = HashMap<String, String?>()
 
         userData[KEY_SESSION_USERNAME] = usersSession.getString(KEY_SESSION_USERNAME, null)
@@ -122,7 +107,6 @@ class SessionManager(
 
         return userData;
     }
-
     fun checkRememberMe(): Boolean{
         return usersSession.getBoolean(IS_REMEMBERME, false)
     }
@@ -131,8 +115,7 @@ class SessionManager(
 
 
     // function for VerificationCode Session
-
-    public fun createCodeVerificationSession(verificationCode: String){
+    fun createCodeVerificationSession(verificationCode: String){
 
         editor.putBoolean(IS_VERIFICATION_CODE, true)
         editor.putLong(KEY_TIME, System.currentTimeMillis()+TIMER_DURATION)
@@ -140,26 +123,23 @@ class SessionManager(
 
         editor.apply()
     }
+    fun checkVerificationCode(): Boolean = usersSession.getBoolean(IS_VERIFICATION_CODE, false)
 
-    public fun checkVerificationCode(): Boolean{
-        return usersSession.getBoolean(IS_VERIFICATION_CODE, false)
-    }
+    fun getVerificationCodeSessionDetails(): String? = usersSession.getString(KEY_CODE, null)
 
-    public fun getVerificationCodeSessionDetails(): String? {
-        return usersSession.getString(KEY_CODE, null)
-    }
+    fun getVerificationCodeTimer(): Long = usersSession.getLong(KEY_TIME, 0)
 
-    public fun getVerificationCodeTimer(): Long{
-        return usersSession.getLong(KEY_TIME, 0)
-    }
+    fun isVerificationCodeTimerRunning(): Boolean = usersSession.getLong(KEY_TIME, 0) > System.currentTimeMillis()
 
-    public fun clearVerificationCodeTimer() {
+    fun clearVerificationCodeTimer() {
         editor.remove(KEY_TIME)
         editor.apply()
     }
 
-    public fun isVerificationCodeTimerRunning(): Boolean {
-        return usersSession.getLong(KEY_TIME, 0) > System.currentTimeMillis()
-    }
 
+    // Logout from current session (general)
+    fun logoutUserSession(){
+        editor.clear()
+        editor.commit()
+    }
 }

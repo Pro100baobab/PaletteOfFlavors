@@ -24,7 +24,6 @@ abstract  class AppDatabase: RoomDatabase(){
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                // Создаем новую таблицу SavedRecipe
                 database.execSQL("""
             CREATE TABLE IF NOT EXISTS `savedRecipes` (
                 `recipeId` INTEGER NOT NULL PRIMARY KEY,

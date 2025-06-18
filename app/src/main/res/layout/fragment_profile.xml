@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/light_yellow"
-    tools:context=".ProfileFragment"> <!--#FFF9E5-->
+    tools:context=".ProfileFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -87,11 +87,11 @@
 
 
             <View
-
                 android:layout_width="match_parent"
                 android:layout_height="3dp"
                 android:layout_margin="8dp"
                 android:background="@color/dark_red" />
+
             <!-- Статистика профиля -->
             <TextView
                 android:layout_width="match_parent"

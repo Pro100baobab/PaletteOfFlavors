@@ -7,7 +7,7 @@
     android:background="#FFFFFFA0"
     tools:context=".CreateRecipeFragment">
 
-    <!-- Кнопка в левом верхнем углу -->
+
     <ImageButton
         android:id="@+id/back_to_favorites_button"
         android:layout_width="wrap_content"
@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="36dp"
-        android:fillViewport="true"> <!-- Добавлен отступ сверху -->
+        android:fillViewport="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -28,7 +28,7 @@
             android:paddingHorizontal="16dp"
             android:paddingVertical="8dp">
 
-            <!-- Заголовок -->
+
             <TextView
                 android:id="@+id/recipe_title_label"
                 android:layout_width="wrap_content"
@@ -40,7 +40,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- Поле названия -->
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/recipe_name_input"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -65,7 +65,7 @@
                     android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Поле ингредиентов -->
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/ingredients_input"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -92,7 +92,7 @@
                     android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Поле инструкций -->
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/instructions_input"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -119,7 +119,7 @@
                     android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Время приготовления -->
+
             <TextView
                 android:id="@+id/recipe_cooking_time_label"
                 android:layout_width="wrap_content"
@@ -174,28 +174,28 @@
 
             <LinearLayout
                 android:id="@+id/spinner_container"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/recipe_time_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="0dp">
+                android:padding="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recipe_time_container">
 
                 <LinearLayout
                     android:id="@+id/complexity_linear_layout"
-                    android:layout_marginTop="20dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:orientation="horizontal">
 
                     <TextView
-                        android:paddingTop="8dp"
-                        android:layout_gravity="start"
                         android:id="@+id/ratingBarText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="start"
                         android:layout_marginTop="16dp"
+                        android:paddingTop="8dp"
                         android:text="@string/complexity"
                         android:textColor="@color/black"
                         android:textSize="16sp"
@@ -204,18 +204,18 @@
 
 
                     <RatingBar
-                        style = "@style/Widget.AppCompat.RatingBar.Indicator"
                         android:id="@+id/setComplexityRatingBar"
+                        style="@style/Widget.AppCompat.RatingBar.Indicator"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="24dp"
                         android:isIndicator="false"
                         android:numStars="5"
+                        android:progressBackgroundTint="@color/dark_red"
                         android:progressTint="#EF6C00"
                         android:secondaryProgressTint="@color/dark_red"
-                        android:progressBackgroundTint="@color/dark_red"
                         android:stepSize="1"
-                        android:theme="@style/RatingBar"/>
+                        android:theme="@style/RatingBar" />
 
 
                 </LinearLayout>
@@ -224,19 +224,16 @@
                     android:id="@+id/spinner1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    />
+                    android:layout_marginBottom="8dp" />
 
                 <Spinner
                     android:id="@+id/spinner2"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    />
+                    android:layout_height="wrap_content" />
 
             </LinearLayout>
 
 
-            <!-- Кнопка сохранения -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/save_button"
                 android:layout_width="0dp"
@@ -249,7 +246,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/spinner_container" />
-
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

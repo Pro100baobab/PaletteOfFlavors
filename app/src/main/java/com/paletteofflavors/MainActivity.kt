@@ -60,10 +60,7 @@ class MainActivity : AppCompatActivity() {
 
 
     lateinit var binding: ActivityMainBinding
-    private lateinit var appBarConfiguration: AppBarConfiguration
-
     lateinit var navBottomViewModel: NavBottomViewModel
-    private var isFromUserInteraction = true // Флаг для определения источника изменения
 
     lateinit var sessionManager: SessionManager;
     lateinit var sessionManagerRememberMe: SessionManager;
@@ -73,7 +70,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var viewModelRegistration: RegistrationViewModel
 
 
-    val database by lazy { AppDatabase.getInstance(this) }
+    private val database by lazy { AppDatabase.getInstance(this) }
     val createRecipeViewModel: CreateRecipeViewModel by viewModels {
         CreateRecipeViewModelFactory(database.recipeDao())
     }
@@ -86,8 +83,8 @@ class MainActivity : AppCompatActivity() {
             )
         )
     }
-    val sharedViewModel: RecipeSharedViewModel by viewModels()
 
+    private var isFromUserInteraction = true // Флаг для определения источника изменения
     private var job: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,24 +101,9 @@ class MainActivity : AppCompatActivity() {
             }, 100)
         }
 
-        //setSupportActionBar(binding.appBarMain.toolbar)
 
         navBottomViewModel = ViewModelProvider(this)[NavBottomViewModel::class.java]
         viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
-
-
-        val drawerLayout: DrawerLayout = binding.drawerLayout
-        //val navView: NavigationView = binding.navView
-        //val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
-        //val navController = navHostFragment.navController
-
-        appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow //поменять на будущие разделы
-            ), drawerLayout
-        )
-        //setupActionBarWithNavController(navController, appBarConfiguration)
-        //navView.setupWithNavController(navController)
 
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->
@@ -139,29 +121,17 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-
-        sessionManagerBaseSettings = SessionManager(this, SessionManager.SESSION_BASESETTINGS)
-
-        sessionManagerBaseSettings.let {
-            if (!it.checkBaseSettings()) {
-                sessionManagerBaseSettings.createBaseSettingSession(true)
-                Log.d("dddd", "true")
-            }
-        }
+        SetUpBaseSettingsSession()
     }
-
 
     override fun onStart() {
         super.onStart()
 
 
         navBottomViewModel.selectedNavItem.observe(this) { itemId ->
-
             isFromUserInteraction = false // Говорим, что изменение программное
             binding.bottomNavigation.selectedItemId = itemId ?: R.id.navigation_search
             isFromUserInteraction = true // Возвращаем флаг в исходное состояние
-
-
         }
 
         if (supportFragmentManager.findFragmentById(R.id.frame_layout) == null) {
@@ -170,21 +140,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         initDatabase()
-
-
-        // Проверка авторизации
-        sessionManager = SessionManager(this, SessionManager.SESSION_USERSESSION)
-        if (sessionManager.checkLogin()) {
-            binding.appContent.isVisible = true
-            val rememberMeDetails: HashMap<String, String?> =
-                sessionManager.getUsersDetailFromSession()
-        } else {
-            //showFullscreenFragment(LoginFragment())
-            //showFullscreenFragment(AuthorizationFragment())
-            binding.bottomNavigation.visibility = View.GONE
-            binding.appContent.visibility = View.GONE
-            binding.fragmentContainerView.visibility = View.VISIBLE
-        }
+        checkIsLogin()  // Проверка авторизации
+        cashReсipesData()
     }
 
     override fun onResume() {
@@ -194,9 +151,47 @@ class MainActivity : AppCompatActivity() {
             binding.appContent.visibility = View.GONE
         }
 
+    }
+
+    override fun onPause() {
+        super.onPause()
+        job?.cancel()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job?.cancel()
+    }
+
+
+    // Инициализация сессии базовых настроек
+    private fun SetUpBaseSettingsSession() {
+
+        sessionManagerBaseSettings = SessionManager(this, SessionManager.SESSION_BASESETTINGS)
+
+        sessionManagerBaseSettings.let {
+            if (!it.checkBaseSettings()) {
+                sessionManagerBaseSettings.createBaseSettingSession(true)
+                //Log.d("dddd", "true")
+            }
+        }
+    }
+
+    // Проверка авторизации
+    private fun checkIsLogin() {
+        sessionManager = SessionManager(this, SessionManager.SESSION_USERSESSION)
+        if (sessionManager.checkLogin()) {
+            binding.appContent.isVisible = true
+        } else {
+            showFullScreenContainer()
+        }
+    }
+
+    // Кеширование рецептов
+    private fun cashReсipesData() {
         val tursoConnection = Turso(this@MainActivity, this@MainActivity)
-        if(tursoConnection.checkInternetConnection(this)){
-            // Запускаем корутину
+        if (tursoConnection.checkInternetConnection(this)) {
+
             job = lifecycleScope.launch(Dispatchers.IO) {
 
                 if (sessionManagerBaseSettings.usersSession.getBoolean(
@@ -212,30 +207,23 @@ class MainActivity : AppCompatActivity() {
                             }
                     } catch (e: Exception) {
                         Log.e("FavoritesViewModel", "Flow collection error", e)
+                        job?.cancel()
                     }
                 }
             }
         }
-
     }
 
-    override fun onPause() {
-        super.onPause()
-        job?.cancel() // Отменяем корутину при уничтожении
+    // Показ полноэкранных фрагментов
+    fun showFullScreenContainer() {
+        binding.run {
+            bottomNavigation.visibility = View.GONE
+            appContent.visibility = View.GONE
+            fragmentContainerView.visibility = View.VISIBLE
+        }
     }
 
-    // Settings
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main, menu)
-        return true
-    }
-
-    /*
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }*/
-
+    // Смена фрагментов в центральном контейнере
     fun replaceMainFragment(fragment: Fragment) {
 
         supportFragmentManager.beginTransaction()
@@ -244,34 +232,14 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
+    // Показ основного контента после авторизации
     fun returnNavigation() {
         binding.bottomNavigation.visibility = View.VISIBLE
         binding.appContent.isVisible = true
-        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-    }
-
-    // Для показа полноэкранного фрагмента (авторизация/регистрация)
-    fun showFullscreenFragment(fragment: Fragment) {
-        binding.bottomNavigation.visibility = View.GONE
-        binding.appContent.visibility = View.GONE
-        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.frame_layout, fragment)
-            .addToBackStack(null)
-            .commit()
-    }
-
-    // Возвращение нижнего меню
-    fun showNormalFragment(fragment: Fragment) {
-        binding.bottomNavigation.visibility = View.VISIBLE
-        binding.appContent.isVisible = true
-        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-        replaceMainFragment(fragment)
     }
 
 
+    // Безопасная инициализация баы данных - не доделано
     private fun initDatabase() {
         CoroutineScope(Dispatchers.IO).launch {
             val dbFileBasePath = this@MainActivity.filesDir.path
@@ -282,7 +250,6 @@ class MainActivity : AppCompatActivity() {
 
 
     // Перезапуск активности с новыми языковыми настройками
-
     override fun attachBaseContext(newBase: Context) {
         val sharedPref = newBase.getSharedPreferences("Settings", Context.MODE_PRIVATE)
         val lang = sharedPref.getString("app_language", Locale.getDefault().language)
@@ -300,12 +267,4 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun logMinuteUpdate() {
-        Log.d("MINUTE_LOG", "Минутное обновление через корутины: ${System.currentTimeMillis()}")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        job?.cancel() // Отменяем корутину при уничтожении
-    }
 }

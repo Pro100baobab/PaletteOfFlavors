@@ -69,7 +69,7 @@
             android:paddingHorizontal="4dp"
             android:paddingVertical="16dp">
 
-            <!-- Search Bar with Improved Visuals -->
+
             <GridLayout
                 android:id="@+id/search_fragment_main_categories"
                 android:layout_width="match_parent"
@@ -82,7 +82,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/search_fragment_filter_button">
 
-                <!-- Breakfast Card -->
+
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/search_fragment_breakfast_button"
                     android:layout_width="0dp"
@@ -121,7 +121,7 @@
                     </FrameLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Launch Card -->
+
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/search_fragment_launch_button"
                     android:layout_width="0dp"
@@ -160,7 +160,7 @@
                     </FrameLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Dinner Card -->
+
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/search_fragment_dinner_button"
                     android:layout_width="0dp"
@@ -199,7 +199,7 @@
                     </FrameLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Desserts Card -->
+
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/search_fragment_desserts_button"
                     android:layout_width="0dp"
@@ -248,9 +248,9 @@
                 android:paddingHorizontal="12dp"
                 app:boxBackgroundColor="@android:color/white"
                 app:boxStrokeColor="@color/dark_red"
+                app:boxStrokeWidth="1dp"
                 app:cursorColor="@color/dark_red"
                 app:hintTextColor="@color/dark_red"
-                app:boxStrokeWidth="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -268,7 +268,7 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Filter Button with Elevation and Ripple Effect -->
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/search_fragment_filter_button"
                 android:layout_width="wrap_content"
@@ -286,11 +286,10 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/search_container" />
 
-            <!-- Categories Grid with Better Spacing and Shadows -->
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-        <!-- Bottom Sheet -->
         <include
             android:id="@+id/bottomSheetInclude"
             layout="@layout/bottom_sheet_layout"

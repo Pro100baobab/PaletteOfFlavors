@@ -6,9 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.Recipe
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 
 class CreateRecipeViewModel(private val recipeDao: RecipeDao): ViewModel() {
@@ -18,10 +15,8 @@ class CreateRecipeViewModel(private val recipeDao: RecipeDao): ViewModel() {
     private val _instruction = MutableLiveData<String>()
     private val _timeInMinutes = MutableLiveData<String>()
     private val _ratingBarCount = MutableLiveData<String>()
-
     private val _mainCategory = MutableLiveData<String>()
     private val _secondaryCategory = MutableLiveData<String>()
-
     private var _mainPos = MutableLiveData<String>()
     private val _secondaryPos = MutableLiveData<String>()
 
@@ -35,6 +30,7 @@ class CreateRecipeViewModel(private val recipeDao: RecipeDao): ViewModel() {
     val mainPos: LiveData<String> = _mainPos
     val secondaryPos: LiveData<String> = _secondaryPos
 
+    // Функции для обновления значений MutableLiveData переменных
     fun setTitle(title: String){
         _title.value = title
     }
@@ -72,6 +68,7 @@ class CreateRecipeViewModel(private val recipeDao: RecipeDao): ViewModel() {
     }
 
 
+    // Функция сохранения рецепта в локальную БД
     fun saveRecipe() {
         viewModelScope.launch {
             val ingredientsList = _ingredients.value?.split("\n")?.filter {
@@ -91,11 +88,15 @@ class CreateRecipeViewModel(private val recipeDao: RecipeDao): ViewModel() {
         }
     }
 
-    // Получение всех рецептов (getAllRecipes() возвращает List<Recipe>)
+    /* // Получение всех рецептов (getAllRecipes() возвращает List<Recipe>)
     suspend fun getRecipes(): List<Recipe> {
         return recipeDao.getAllRecipes().first()
     }
+       // Теперь через flow
+     */
 
+
+    // Чистка черновика
     fun cleanRecipeData(){
         _title.value = ""
         _ingredients.value = ""

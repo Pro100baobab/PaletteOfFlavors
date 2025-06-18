@@ -137,6 +137,9 @@
     <string name="select_secondary_category">Выберите дополнительную категорию</string>
     <string name="do_cash_network_recipes">Кешировать сетевые рецепты</string>
     <string name="do_not_cash_network_recipes">Отменить кеширование рецептов</string>
+    <string name="cook_method">Способ приготовления:</string>
+    <string name="ingredients_label">Ингредиенты:</string>
+    <string name="Selected">"Выбрано "</string>
 
     <string-array name="main_categories">
         <item>@string/breakfast</item>

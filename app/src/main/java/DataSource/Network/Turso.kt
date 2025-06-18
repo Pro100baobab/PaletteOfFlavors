@@ -8,11 +8,8 @@ import android.util.Log
 import android.view.View
 import android.widget.CheckBox
 import android.widget.Toast
-import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.room.Query
-import com.paletteofflavors.HomeFragment
 import com.paletteofflavors.MainActivity
 import com.paletteofflavors.R
 import com.paletteofflavors.SearchFragment
@@ -33,9 +30,10 @@ class Turso(
     private val rememberMe: CheckBox? = null
 ) {
 
-    private val dbUrl = (activity as MainActivity).TURSO_DATABASE_URL
-    private val dbAuthToken = (activity as MainActivity).TURSO_AUTH_TOKEN
+    private val dbUrl = activity.TURSO_DATABASE_URL
+    private val dbAuthToken = activity.TURSO_AUTH_TOKEN
 
+    // Авторизация пользователя
     fun loginUser(username: String, password: String, isRememberMePressed: Boolean) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -58,12 +56,12 @@ class Turso(
                                 val _email = nextRow[4].toString()
                                 val _phoneNumber = nextRow[5].toString()
 
-                                activity?.runOnUiThread {
+                                activity.runOnUiThread {
 
-                                    // Create a Session by SessionManager
-                                    (activity as MainActivity).sessionManager =
+                                    // LogIn Session
+                                    activity.sessionManager =
                                         SessionManager(context, SessionManager.SESSION_USERSESSION)
-                                    (activity as MainActivity).sessionManager.createLoginSession(
+                                    activity.sessionManager.createLoginSession(
                                         fullName = _fullName,
                                         username = username,
                                         email = _email,
@@ -73,12 +71,12 @@ class Turso(
 
                                     Toast.makeText(
                                         context,
-                                        "Login successful: $username $_fullName $_phoneNumber",
+                                        "Login successful: $username $_fullName $_email",
                                         Toast.LENGTH_SHORT
                                     ).show()
 
-                                    // Save LogIn Settings if checked
-                                    when(isRememberMePressed){
+                                    // Save LogIn Settings if checked (RememberMe Session)
+                                    when (isRememberMePressed) {
                                         true -> rememberMe(username, password)
                                         else -> activity.sessionManagerRememberMe.logoutUserSession()
                                     }
@@ -88,7 +86,7 @@ class Turso(
                                     activity.returnNavigation()
                                 }
                             } else {
-                                activity?.runOnUiThread {
+                                activity.runOnUiThread {
                                     Toast.makeText(
                                         context,
                                         "Invalid credentials",
@@ -101,7 +99,7 @@ class Turso(
                 }
             } catch (e: Exception) {
                 Log.e("Login", "Error during login", e)
-                activity?.runOnUiThread {
+                activity.runOnUiThread {
                     Toast.makeText(
                         context,
                         "Login failed: ${e.localizedMessage}",
@@ -112,9 +110,10 @@ class Turso(
         }
     }
 
+    // Управление сессией Запомнить
     private fun rememberMe(_username: String, _password: String) {
 
-        val mainActivity = activity as MainActivity
+        val mainActivity = activity
         if (rememberMe!!.isChecked) {
             mainActivity.sessionManagerRememberMe =
                 SessionManager(context, SessionManager.SESSION_REMEMBERME)
@@ -129,13 +128,14 @@ class Turso(
         }
     }
 
+    // Проверка почты и имени на уникальность
     suspend fun checkUniqueUsernameAndEmail(username: String, email: String): Boolean =
         withContext(Dispatchers.IO) {
             try {
                 Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
                     db.connect().use { conn ->
 
-                        var result: Boolean = false
+                        var result = false
                         // Проверяем, существует ли пользователь
                         conn.query("SELECT username, email FROM users WHERE username = '$username' OR email = '$email'")
                             .use { rows ->
@@ -143,21 +143,29 @@ class Turso(
                                 var emailFlag: Boolean = false
                                 var row = rows.nextRow()
 
-                                while ( row != null) {
+                                while (row != null) {
 
                                     if (nameFlag || emailFlag)
                                         return@use
 
-                                    if (!nameFlag && row[0].toString() == username){
+                                    if (!nameFlag && row[0].toString() == username) {
                                         withContext(Dispatchers.Main) {
-                                            Toast.makeText(context, "Username already exists", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(
+                                                context,
+                                                "Username already exists",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                             nameFlag = true
                                         }
                                     }
 
-                                    if (!emailFlag && row[1].toString() == email){
+                                    if (!emailFlag && row[1].toString() == email) {
                                         withContext(Dispatchers.Main) {
-                                            Toast.makeText(context, "Email already exists", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(
+                                                context,
+                                                "Email already exists",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                             emailFlag = true
                                         }
                                     }
@@ -174,12 +182,17 @@ class Turso(
             } catch (e: Exception) {
                 Log.e("Registration", "Error checking uniqueness", e)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Error checking uniqueness: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Error checking uniqueness: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 false
             }
         }
 
+    // Регистрация пользователя
     fun registerUser(
         fullname: String,
         username: String,
@@ -192,36 +205,7 @@ class Turso(
             try {
                 Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
                     db.connect().use { conn ->
-                        // Проверяем, существует ли пользователь
-                        /*conn.query("SELECT username, email FROM users WHERE username = '$username' OR email = '$email'")
-                            .use { rows ->
-                                var nameFlag: Boolean = false
-                                var emailFlag: Boolean = false
-                                var row = rows.nextRow()
-
-                                while ( row != null) {
-
-                                    if (nameFlag || emailFlag)
-                                        return@use
-
-                                    if (!nameFlag && row[0].toString() == username){
-                                        activity.runOnUiThread {
-                                            Toast.makeText(context, "Username already exists", Toast.LENGTH_SHORT).show()
-                                            nameFlag = true
-                                        }
-                                    }
-
-                                    if (!emailFlag && row[1].toString() == email){
-                                        activity.runOnUiThread {
-                                            Toast.makeText(context, "Email already exists", Toast.LENGTH_SHORT).show()
-                                            emailFlag = true
-                                        }
-                                    }
-
-
-                                    row = rows.nextRow()
-                                }
-                            }*/
+                        // Проверяем, существует ли пользователь осуществляется до вызова этой функции
 
                         // Регистрируем нового пользователя
                         conn.query(
@@ -230,7 +214,7 @@ class Turso(
 
 
                         //TODO: Add progress bar for connection time.
-                        activity?.runOnUiThread {
+                        activity.runOnUiThread {
 
                             if (activity.sessionManager.checkLogin()) {
                                 activity.findNavController(R.id.fragmentContainerView)
@@ -257,7 +241,7 @@ class Turso(
                 }
             } catch (e: Exception) {
                 Log.e("Registration", "Error during registration", e)
-                activity?.runOnUiThread {
+                activity.runOnUiThread {
                     Toast.makeText(context, "Registration failed: ${e.message}", Toast.LENGTH_SHORT)
                         .show()
                 }
@@ -266,7 +250,8 @@ class Turso(
     }
 
 
-    //по умолчанию без фильтра, но можно использовать готовый запрос для получения только нужных рецептов.
+    // По умолчанию без фильтра, но можно использовать готовый запрос с фильтрацией
+    // Получение сетевых рецептов
     fun getAllNetworkRecipesFlow(sqlQuery: String? = null): Flow<NetworkRecipe> = flow {
         if (!checkInternetConnection(context)) {
             Log.d("NetworkCheck", "No internet connection")
@@ -282,11 +267,13 @@ class Turso(
 
             while (true) {
                 try {
-                    val recipeRow = rows.nextRow() ?: break // Выходим из цикла, если нет больше строк
+                    val recipeRow =
+                        rows.nextRow() ?: break // Выходим из цикла, если нет больше строк
 
                     val recipeId = recipeRow[0].toString().toInt()
                     val recipeIngredients = getIngredientsForRecipe(conn, recipeId)
 
+                    // Получение значений из строки
                     val networkRecipe = NetworkRecipe(
                         recipeId = recipeId,
                         title = recipeRow[1].toString(),
@@ -306,37 +293,30 @@ class Turso(
                     emit(networkRecipe)
                 } catch (e: Exception) {
                     Log.e("RecipeError", "Failed to process recipe row", e)
-                    // Продолжаем со следующей строки
                     continue
                 }
             }
         } catch (e: Exception) {
             Log.e("GetRecipeTable", "Error accessing database", e)
-            throw e // Перебрасываем исключение для обработки в collect
         } finally {
-            // Закрываем ресурсы в блоке finally
-            try {
-                conn?.close()
-            } catch (e: Exception) {
-                Log.e("Turso", "Error closing connection", e)
-            }
-            try {
-                db?.close()
-            } catch (e: Exception) {
-                Log.e("Turso", "Error closing database", e)
-            }
+            conn?.close()
+            db?.close()
         }
     }.flowOn(Dispatchers.IO)
 
-    private suspend fun getIngredientsForRecipe(conn: Connection, recipeId: Int): List<String> {
+
+    // Получение списка ингредиентов по ID рецепта
+    private fun getIngredientsForRecipe(conn: Connection, recipeId: Int): List<String> {
         val ingredientsList = mutableListOf<String>()
 
-        conn.query("""
+        conn.query(
+            """
         SELECT IngredientDictionary.name 
         FROM RecipeIngredients
         JOIN IngredientDictionary ON RecipeIngredients.ingredient_id = IngredientDictionary.ingredient_id
         WHERE RecipeIngredients.recipe_id = $recipeId
-    """).use { rows ->
+    """
+        ).use { rows ->
             var row = rows.nextRow()
             while (row != null) {
                 row[0].toString().let { ingredientsList.add(it) }
@@ -348,14 +328,14 @@ class Turso(
     }
 
 
-
+    // Функции для проверки подключения к интернету
     fun checkInternetConnection(requireContext: Context): Boolean {
-        if (isInternetAvailable(requireContext)) {
+        return if (isInternetAvailable(requireContext)) {
             //Toast.makeText(requireContext, "Internet is available", Toast.LENGTH_SHORT).show() --Can't toast on a thread that has not called Looper.prepare()
-            return true
+            true
         } else {
             //Toast.makeText(requireContext, "No internet connection", Toast.LENGTH_SHORT).show() -- Can't toast on a thread that has not called Looper.prepare()
-            return false
+            false
         }
     }
 

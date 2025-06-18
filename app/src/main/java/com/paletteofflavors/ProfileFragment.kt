@@ -10,26 +10,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
-import androidx.core.app.ActivityCompat.recreate
-import androidx.lifecycle.viewModelScope
 import com.paletteofflavors.databinding.FragmentProfileBinding
-import domain.Recipe
 import kotlinx.coroutines.launch
-
 import android.content.res.Configuration
-import android.os.Build
-import android.util.Log
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
-import com.paletteofflavors.logIn.AuthorizationFragment
-import com.paletteofflavors.logIn.LoginFragment
-import com.paletteofflavors.logIn.RegistrationFragment
 import java.util.*
 import androidx.navigation.findNavController
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.first
 import androidx.core.content.edit
 
@@ -44,7 +31,6 @@ class ProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         return _binding!!.root
     }
@@ -53,50 +39,67 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        /*
-        (requireActivity() as MainActivity).profileViewModel.recipesCount.observe(viewLifecycleOwner){
-            count -> binding.recipesCount.text = count.toString()
-        }*/
-        recipesCountVisualization()
+        setUpRecipesCountObserver()
+        bindData()
+        setOnCLickListeners()
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun setUpRecipesCountObserver() {
+
+        lifecycleScope.launch {
+            val count = (requireActivity() as MainActivity)
+                .favoritesViewModel.myRecipes
+                .first()
+                .size
+
+            binding.recipesCount.text = count.toString()
+        }
+    }
+
+    private fun bindData() {
         // Получение данных сессии
         val usersDetails: HashMap<String, String?> =
             (activity as MainActivity).sessionManager.getUsersDetailFromSession()
 
         binding.profileName.text = usersDetails[SessionManager.KEY_USERNAME]
         binding.profileEmail.text = usersDetails[SessionManager.KEY_EMAIL]
-        when((activity as MainActivity).sessionManagerBaseSettings.usersSession.getBoolean(SessionManager.KEY_CASH, false)){
+        when ((activity as MainActivity).sessionManagerBaseSettings.usersSession.getBoolean(
+            SessionManager.KEY_CASH,
+            false
+        )) {
             true -> binding.cashLabel.text = getString(R.string.do_not_cash_network_recipes)
             false -> binding.cashLabel.text = getString(R.string.do_cash_network_recipes)
         }
-
-        //imageViewProfile?.setImageResource(R.drawable.favorites_icon)
-
-        setObservers()
     }
 
-    private fun setObservers() {
+    private fun setOnCLickListeners() {
 
+        // Смена аватара
         binding.changeAvatarButton.setOnClickListener {
             changeAvatar()
         }
 
+        // Регулирование флага кеширования
         binding.changeCashFlagButton.setOnClickListener {
             changeCashSettings()
         }
 
+        // Смена языковых настроек
         binding.changeLanguageButton.setOnClickListener {
-            try {
-                changeLanguage()
-            } catch (e: Exception) {
-                Log.e("ChangeLang", "Error: $e")
-            }
+            changeLanguage()
         }
 
+        // Выход из аккаунта
         binding.logoutButton.setOnClickListener {
             showConfirmDialog()
         }
 
+        // Создание аккаунта
         binding.addAccountButton.setOnClickListener {
             addAccount()
         }
@@ -105,18 +108,15 @@ class ProfileFragment : Fragment() {
     private fun addAccount() {
         val activity = requireActivity() as MainActivity
 
-        activity.findNavController(R.id.fragmentContainerView).popBackStack()
-        activity.navBottomViewModel.setIsContentVisible(false)
-        activity.binding.appContent.visibility = View.GONE
-
-        (requireActivity() as MainActivity).binding.appContent.visibility = View.GONE
-        (requireActivity() as MainActivity).binding.bottomNavigation.visibility = View.GONE
-        (requireActivity() as MainActivity).binding.fragmentContainerView.visibility = View.VISIBLE
+        activity.run {
+            findNavController(R.id.fragmentContainerView).popBackStack()
+            navBottomViewModel.setIsContentVisible(false)
+            showFullScreenContainer()
+        }
     }
 
 
     // Функции для управления языковыми настройками
-
     private fun changeLanguage() {
         val languageCode = if (getCurrentLanguageCode() == "ru") "en" else "ru"
         setAppLocale(requireContext(), languageCode)
@@ -137,11 +137,11 @@ class ProfileFragment : Fragment() {
 
         // Сохраняем выбранный язык в SharedPreferences
         val sharedPref = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-        sharedPref.edit().putString("app_language", languageCode).apply()
+        sharedPref.edit { putString("app_language", languageCode) }
     }
 
+    // Получаем сохраненный язык или системный по умолчанию
     private fun getCurrentLanguageCode(): String {
-        // Получаем сохраненный язык или системный по умолчанию
         val sharedPref = context?.getSharedPreferences("Settings", Context.MODE_PRIVATE)
         return sharedPref?.getString("app_language", Locale.getDefault().language)
             ?: Locale.getDefault().language
@@ -157,12 +157,12 @@ class ProfileFragment : Fragment() {
     }
 
 
-    //
-
+    // Изменение автара (в процессе) - требует масштабирования бд
     private fun changeAvatar() {
         Toast.makeText(context, "В разработке", Toast.LENGTH_LONG).show()
     }
 
+    // Регулирования флага кеширования
     private fun changeCashSettings() {
         val session = (requireActivity() as MainActivity).sessionManagerBaseSettings.usersSession
         val newFlag = !session.getBoolean(SessionManager.KEY_CASH, true)
@@ -170,62 +170,43 @@ class ProfileFragment : Fragment() {
             putBoolean(SessionManager.KEY_CASH, newFlag)
         }
 
-        when(newFlag){
+        when (newFlag) {
             true -> binding.cashLabel.text = getString(R.string.do_not_cash_network_recipes)
             false -> binding.cashLabel.text = getString(R.string.do_cash_network_recipes)
         }
-        Log.d("IsCashed", (requireActivity() as MainActivity).sessionManagerBaseSettings.usersSession.getBoolean(SessionManager.KEY_CASH, false).toString())
+        //Log.d("IsCashed", (requireActivity() as MainActivity).sessionManagerBaseSettings.usersSession.getBoolean(SessionManager.KEY_CASH, false).toString())
     }
 
 
     // Функции для выхода из аккаунта
-
     private fun showConfirmDialog() {
         val builder = AlertDialog.Builder(context)
-        builder.setTitle("Выход из аккаунта")
-        builder.setMessage("Вы уверены, что хотите выйти из аккаунта" + " ${binding.profileName.text}?")
-
-        builder.setPositiveButton("Выйти") { dialog: DialogInterface, _: Int ->
-            dialog.dismiss()
-            logOut() // Вызываем функцию выхода из аккаунта
-        }
-
-        builder.setNegativeButton("Отмена") { dialog: DialogInterface, _: Int ->
-            dialog.dismiss()
-        }
+        builder
+            .setTitle("Выход из аккаунта")
+            .setMessage("Вы уверены, что хотите выйти из аккаунта" + " ${binding.profileName.text}?")
+            .setPositiveButton("Выйти") { dialog: DialogInterface, _: Int ->
+                dialog.dismiss()
+                logOut() // Вызываем функцию выхода из аккаунта
+            }
+            .setNegativeButton("Отмена") { dialog: DialogInterface, _: Int ->
+                dialog.dismiss()
+            }
 
         val dialog = builder.create()
         dialog.show()
     }
 
     private fun logOut() {
-        (requireActivity() as MainActivity).navBottomViewModel.setSelectedNavItem(R.id.navigation_search)
-        (requireActivity() as MainActivity).sessionManager.logoutUserSession() // Logout from LogIn session
 
-        (requireActivity() as MainActivity).binding.appContent.visibility = View.GONE
-        (requireActivity() as MainActivity).binding.bottomNavigation.visibility = View.GONE
-        (requireActivity() as MainActivity).binding.fragmentContainerView.visibility = View.VISIBLE
-        (requireActivity() as MainActivity).navBottomViewModel.setIsContentVisible(false)
+        val activity = requireActivity() as MainActivity
 
-    }
-
-
-    private fun recipesCountVisualization() {
-
-        lifecycleScope.launch {
-            val count = (requireActivity() as MainActivity)
-                .favoritesViewModel.myRecipes
-                .first()
-                .size
-
-            binding.recipesCount.text = count.toString()
+        activity.run {
+            navBottomViewModel.setSelectedNavItem(R.id.navigation_search)
+            sessionManager.logoutUserSession() // Logout from LogIn session
+            navBottomViewModel.setIsContentVisible(false)
+            showFullScreenContainer()
         }
-    }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-
-        _binding = null
     }
 
 }
