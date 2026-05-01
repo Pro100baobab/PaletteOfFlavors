@@ -1,7 +1,6 @@
 package com.paletteofflavors.presentation.feature.recipes.view
 
 import com.paletteofflavors.data.local.database.model.NetworkRecipe
-import com.paletteofflavors.data.local.database.converters.toNetworkRecipe
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -15,8 +14,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.paletteofflavors.presentation.main.MainActivity
 import com.paletteofflavors.databinding.FragmentNetworkRecipeDetailsBinding
 import com.paletteofflavors.presentation.feature.main.view.FavoritesFragment
-import com.paletteofflavors.presentation.feature.main.view.FridgeFragment
-import com.paletteofflavors.presentation.feature.main.view.SearchFragment
 import com.paletteofflavors.presentation.feature.recipes.viewmodel.RecipeSharedViewModel
 import kotlinx.coroutines.launch
 
@@ -49,19 +46,8 @@ class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
     private fun bindCurrentNetworkRecipe() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-
-                when (fragment) {
-                    "Fridge" -> sharedViewModel.selectedNetworkRecipe.collect { recipe ->
-                        recipe?.let { bindNetworkRecipeData(it) }
-                    }
-
-                    "Favorites" -> sharedViewModel.selectedSavedRecipe.collect { recipe ->
-                        recipe?.let { bindNetworkRecipeData(it.toNetworkRecipe()) }
-                    }
-
-                    "Search" -> sharedViewModel.selectedNetworkRecipe.collect { recipe ->
-                        recipe?.let { bindNetworkRecipeData(it) }
-                    }
+                sharedViewModel.selectedRecipe.collect { recipe ->
+                    recipe?.let { bindNetworkRecipeData(it) }
                 }
             }
         }
@@ -69,22 +55,10 @@ class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
 
     private fun setUpBackButtonListener() {
         binding.backButtonNetworkRecipeDetails.setOnClickListener {
-            when (fragment) {
-                "Favorites" ->
-                    (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
-
-                "Fridge" ->
-                    (requireActivity() as MainActivity).replaceMainFragment(FridgeFragment())
-
-                "Search" ->
-                    (requireActivity() as MainActivity).replaceMainFragment(SearchFragment())
-
-                else ->
-                    (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
-            }
+            (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
+            // TODO: использовать стек в переходах
         }
     }
-
 
     @SuppressLint("SetTextI18n")
     private fun bindNetworkRecipeData(networkRecipe: NetworkRecipe) {

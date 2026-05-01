@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "757558261009",
+    "firebase_url": "https://palitravkysov2025-default-rtdb.firebaseio.com",
+    "project_id": "palitravkysov2025",
+    "storage_bucket": "palitravkysov2025.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:757558261009:android:68386f354be7328d1f88b0",
+        "android_client_info": {
+          "package_name": "com.paletteofflavors"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4ek-I_bxrYRAox3jL6AICi5Y3hraDLDo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

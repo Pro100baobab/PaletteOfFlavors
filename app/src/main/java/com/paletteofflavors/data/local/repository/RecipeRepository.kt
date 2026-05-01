@@ -1,47 +1,98 @@
 package com.paletteofflavors.data.local.repository
 
-import com.paletteofflavors.data.local.database.dao.CashDao
-import com.paletteofflavors.data.local.database.dao.RecipeDao
 import com.paletteofflavors.data.local.database.dao.SavedRecipeDao
 import com.paletteofflavors.data.local.database.model.NetworkRecipe
 import android.util.Log
-import com.paletteofflavors.data.local.database.model.Recipe
-import com.paletteofflavors.data.local.database.model.SavedRecipe
+import com.paletteofflavors.data.local.database.dao.CachedRecipeDao
+import com.paletteofflavors.data.local.database.model.CachedRecipeEntity
+import com.paletteofflavors.data.local.database.model.SavedRecipeEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class RecipeRepository(
-    private val userRecipeDao: RecipeDao,
     private val savedRecipeDao: SavedRecipeDao,
-    private val cashRecipeDao: CashDao
+    private val cachedRecipeDao: CachedRecipeDao
 ) {
-    // Собственные рецепты
-    suspend fun insertOwn(recipe: Recipe) = userRecipeDao.insert(recipe)
-    suspend fun deleteOwn(recipe: Recipe) = userRecipeDao.delete(recipe)
-    fun getAllUsersRecipes(): Flow<List<Recipe>> = userRecipeDao.getAllRecipes()
+    // region <Saved Recipes functions>
 
-    // Сохраненные рецепты
-    suspend fun insertSaved(recipe: SavedRecipe) {
+    suspend fun insertSaved(recipe: NetworkRecipe) {
         try {
-            savedRecipeDao.insert(recipe)
+            savedRecipeDao.insert(recipe.toSavedRecipeEntity())
         } catch (e: Exception) {
             Log.e("RecipeRepository", "Error saving recipe", e)
             throw e
         }
     }
-    suspend fun deleteSaved(recipe: SavedRecipe) = savedRecipeDao.delete(recipe)
-    fun getAllSavedRecipes(): Flow<List<SavedRecipe>> = savedRecipeDao.getAllRecipes()
-    suspend fun getSavedRecipeById(id: Int) = savedRecipeDao.getRecipeById(id)
+    suspend fun deleteSaved(recipe: NetworkRecipe){
+        savedRecipeDao.delete(recipe.toSavedRecipeEntity())
+    }
 
+    fun getAllSavedRecipes(): Flow<List<NetworkRecipe>> = savedRecipeDao.getAllRecipes().map {
+        it.map { savedRecipe -> savedRecipe.toNetworkRecipe() }
+    }
 
-    //  Кешированные рецепты
-    fun deleteCash() = cashRecipeDao.cleanCashTable()
-    fun getAllCashedRecipes(): Flow<List<NetworkRecipe>> = cashRecipeDao.getAllCashRecipes()
-    suspend fun insertCashed(recipe: NetworkRecipe) {
+    suspend fun getSavedRecipeById(id: Int): NetworkRecipe? =
+        savedRecipeDao.getRecipeById(id)?.toNetworkRecipe()
+
+    // endregion
+
+    //  region <Caches Recipes functions>
+
+    fun deleteCached() = cachedRecipeDao.cleanCachedRecipesTable()
+
+    fun getAllCachedRecipes(): Flow<List<NetworkRecipe>> = cachedRecipeDao.getAllCachedRecipes().
+    map {
+        it.map { cachedRecipe -> cachedRecipe.toNetworkRecipe() }
+    }
+
+    suspend fun insertCached(recipe: NetworkRecipe) {
         try {
-            cashRecipeDao.insert(recipe)
+            cachedRecipeDao.insert(recipe.toCachedRecipeEntity())
         } catch (e: Exception) {
             Log.e("RecipeRepository", "Error saving recipe", e)
             throw e
         }
     }
+
+    // endregion
+
+    // region <Mappers>
+
+    private fun NetworkRecipe.toSavedRecipeEntity() = SavedRecipeEntity(
+        recipeId = recipeId, title = title, ingredients = ingredients,
+        instruction = instruction, cookTime = cookTime, complexity = complexity,
+        commentsCount = commentsCount, likesCount = likesCount, imageUrl = imageUrl,
+        dateTime = dateTime, ownerId = ownerId, mainCategory = mainCategory,
+        secondaryCategory = secondaryCategory, isPublic = isPublic,
+        likedListOfUsers = likedListOfUsers, savedListOfUsers = savedListOfUsers
+    )
+
+    private fun NetworkRecipe.toCachedRecipeEntity() = CachedRecipeEntity(
+        recipeId = recipeId, title = title, ingredients = ingredients,
+        instruction = instruction, cookTime = cookTime, complexity = complexity,
+        commentsCount = commentsCount, likesCount = likesCount, imageUrl = imageUrl,
+        dateTime = dateTime, ownerId = ownerId, mainCategory = mainCategory,
+        secondaryCategory = secondaryCategory, isPublic = isPublic,
+        likedListOfUsers = likedListOfUsers, savedListOfUsers = savedListOfUsers
+    )
+
+    private fun SavedRecipeEntity.toNetworkRecipe() = NetworkRecipe(
+        recipeId = recipeId, title = title, ingredients = ingredients,
+        instruction = instruction, cookTime = cookTime, complexity = complexity,
+        commentsCount = commentsCount, likesCount = likesCount, imageUrl = imageUrl,
+        dateTime = dateTime, ownerId = ownerId, mainCategory = mainCategory,
+        secondaryCategory = secondaryCategory, isPublic = isPublic,
+        likedListOfUsers = likedListOfUsers, savedListOfUsers = savedListOfUsers
+    )
+
+    private fun CachedRecipeEntity.toNetworkRecipe() = NetworkRecipe(
+        recipeId = recipeId, title = title, ingredients = ingredients,
+        instruction = instruction, cookTime = cookTime, complexity = complexity,
+        commentsCount = commentsCount, likesCount = likesCount, imageUrl = imageUrl,
+        dateTime = dateTime, ownerId = ownerId, mainCategory = mainCategory,
+        secondaryCategory = secondaryCategory, isPublic = isPublic,
+        likedListOfUsers = likedListOfUsers, savedListOfUsers = savedListOfUsers
+    )
+
+    // endregion
 }

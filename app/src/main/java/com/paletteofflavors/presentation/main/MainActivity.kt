@@ -35,6 +35,7 @@ import com.paletteofflavors.presentation.feature.main.view.FridgeFragment
 import com.paletteofflavors.presentation.feature.main.view.ProfileFragment
 import com.paletteofflavors.presentation.feature.main.view.SearchFragment
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -57,14 +58,13 @@ class MainActivity : AppCompatActivity() {
 
     private val database by lazy { AppDatabase.getInstance(this) }
     val createRecipeViewModel: CreateRecipeViewModel by viewModels {
-        CreateRecipeViewModelFactory(database.recipeDao())
+        CreateRecipeViewModelFactory()
     }
     val favoritesViewModel: FavoritesViewModel by viewModels {
         FavoritesViewModelFactory(
             RecipeRepository(
-                database.recipeDao(),
                 database.savedRecipeDao(),
-                database.cashDao()
+                database.cachedRecipeDao()
             )
         )
     }
@@ -126,7 +126,7 @@ class MainActivity : AppCompatActivity() {
 
         initDatabase()
         checkIsLogin()  // Проверка авторизации
-        cashReсipesData()
+        cacheRecipesData()
     }
 
     override fun onResume() {
@@ -173,7 +173,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Кеширование рецептов
-    private fun cashReсipesData() {
+    private fun cacheRecipesData() {
         val tursoConnection = Turso(this@MainActivity, this@MainActivity)
         if (tursoConnection.checkInternetConnection(this)) {
 
@@ -186,10 +186,12 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     favoritesViewModel.deleteCashRecipes()
                     try {
-                        tursoConnection.getAllNetworkRecipesFlow()
-                            .collect { networkRecipes ->
-                                favoritesViewModel.addCashedRecipe(networkRecipes)
+                        val recipes = tursoConnection.getAllNetworkRecipes()
+                        withContext(Dispatchers.Main) {
+                            recipes.map {
+                                recipe -> favoritesViewModel.addCashedRecipe(recipe)
                             }
+                        }
                     } catch (e: Exception) {
                         Log.e("FavoritesViewModel", "Flow collection error", e)
                         job?.cancel()

@@ -3,7 +3,6 @@ package com.paletteofflavors.presentation.feature.main.view
 import com.paletteofflavors.data.remote.API.Turso.Turso
 import com.paletteofflavors.presentation.feature.main.viewmodel.FavoritesViewModel
 import com.paletteofflavors.presentation.feature.recipes.viewmodel.RecipeSharedViewModel
-import com.paletteofflavors.data.local.database.converters.toSavedRecipe
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
@@ -32,11 +31,13 @@ import com.paletteofflavors.presentation.main.MainActivity
 import com.paletteofflavors.presentation.feature.recipes.view.adapter.NetworkRecipeAdapter
 import com.paletteofflavors.presentation.feature.recipes.view.NetworkRecipeDetailsFragment
 import com.paletteofflavors.R
+import com.paletteofflavors.data.local.database.model.NetworkRecipe
 import com.paletteofflavors.databinding.FragmentFridgeBinding
-import com.paletteofflavors.data.local.database.model.SavedRecipe
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 
@@ -189,7 +190,6 @@ class FridgeFragment : Fragment() {
             changeArrowRotation(binding.mushroomsButton, mushroomsDirection)
         }
 
-
         binding.findButton.setOnClickListener {
             Toast.makeText(
                 requireContext(),
@@ -202,7 +202,6 @@ class FridgeFragment : Fragment() {
         binding.backToFridgeButton.setOnClickListener {
             binding.fridgeIngredientsContent.visibility = View.VISIBLE
         }
-
     }
 
 
@@ -300,9 +299,9 @@ class FridgeFragment : Fragment() {
                             R.drawable.icon_saved
                         )?.constantState
                     ) {
-                        showDeleteRecipeConfirmDialog(recipe.toSavedRecipe(), holder)
+                        showDeleteRecipeConfirmDialog(recipe, holder)
                     } else {
-                        viewModel.addSavedRecipe(recipe.toSavedRecipe())
+                        viewModel.addSavedRecipe(recipe)
                         holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
                     }
                 },
@@ -334,10 +333,10 @@ class FridgeFragment : Fragment() {
                     )?.constantState
                 ) {
                     // Если иконка показывает "сохранено" - удаляем
-                    showDeleteRecipeConfirmDialog(recipe.toSavedRecipe(), holder)
+                    showDeleteRecipeConfirmDialog(recipe, holder)
                 } else {
                     // Если не сохранено - сохраняем
-                    viewModel.addSavedRecipe(recipe.toSavedRecipe())
+                    viewModel.addSavedRecipe(recipe)
                     holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
                 }
             },
@@ -366,8 +365,9 @@ class FridgeFragment : Fragment() {
 
         // Если есть подключение к интернету
         recyclerViewForNetwork(activity)
-        executeQuery(TursoConnection)
-
+        lifecycleScope.launch {
+            executeQuery(TursoConnection)
+        }
         binding.fridgeIngredientsContent.visibility = View.GONE
 
     }
@@ -377,10 +377,10 @@ class FridgeFragment : Fragment() {
 
             lifecycleScope.launch {
                 try {
-                    TursoConnection.getAllNetworkRecipesFlow()
-                        .collect { networkRecipes ->
-                            networkRecipeAdapter.addRecipe(networkRecipes)
-                        }
+                    val recipes = TursoConnection.getAllNetworkRecipes()
+                    withContext(Dispatchers.Main) {
+                        networkRecipeAdapter.addRecipes(recipes)
+                    }
                 } catch (e: Exception) {
                     Log.d("NetworkProblem", "$e")
                 }
@@ -392,14 +392,10 @@ class FridgeFragment : Fragment() {
 
             lifecycleScope.launch {
                 try {
-                    TursoConnection.getAllNetworkRecipesFlow(query)
-                        .collect { networkRecipes ->
-                            try {
-                                networkRecipeAdapter.addRecipe(networkRecipes)
-                            } catch (e: Exception) {
-                                Log.d("NetworkProblem", "$e")
-                            }
-                        }
+                    val recipes = TursoConnection.getAllNetworkRecipes(query)
+                    withContext(Dispatchers.Main) {
+                        networkRecipeAdapter.addRecipes(recipes)
+                    }
                 } catch (e: Exception) {
                     Log.d("NetworkProblem", "$e")
                 }
@@ -436,7 +432,7 @@ class FridgeFragment : Fragment() {
 
 
     private fun showDeleteRecipeConfirmDialog(
-        savedRecipe: SavedRecipe,
+        savedRecipe: NetworkRecipe,
         holder: NetworkRecipeAdapter.RecipeHolder
     ) {
         val builder = AlertDialog.Builder(context)

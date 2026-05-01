@@ -65,7 +65,7 @@ class CreateRecipeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        restoreСategories()
+        restoreCategories()
     }
 
     override fun onDestroyView() {
@@ -75,7 +75,7 @@ class CreateRecipeFragment : Fragment() {
 
 
     // Восстановить выбор в черновике
-    private fun restoreСategories(){
+    private fun restoreCategories(){
         viewModel.mainPos.value?.let { pos ->
             if (pos.isNotEmpty()) {
                 binding.spinner1.setSelection(pos.toInt())
@@ -89,12 +89,15 @@ class CreateRecipeFragment : Fragment() {
     }
 
     private fun saveConfirmDialog(){
-        // Сохраняем рецепт
+        // Создаем рецепт
+        val recipe = viewModel.buildRecipe()
+
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.Do_save_recipe))
             .setMessage(getString(R.string.sure_to_save))
             .setPositiveButton(getString(R.string.Yes)) { _, _ ->
-                viewModel.saveRecipe()
+
+                // TODO: обращение к серверу для сохранения рецепта + фолбэк
 
                 Toast.makeText(requireContext(),
                     getString(R.string.Save_successful), Toast.LENGTH_SHORT)
@@ -230,6 +233,10 @@ class CreateRecipeFragment : Fragment() {
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
+        }
+
+        binding.isPublicCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.setIsPublic(isChecked)
         }
 
         // Обработка кнопок

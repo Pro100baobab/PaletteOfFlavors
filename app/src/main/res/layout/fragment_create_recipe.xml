@@ -231,6 +231,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
+                <CheckBox
+                    android:id="@+id/isPublicCheckbox"
+                    style="@style/Widget.Material3.CompoundButton.CheckBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/isPublicRecipe"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
             </LinearLayout>
 
 

@@ -1,5 +1,8 @@
 package com.paletteofflavors.data.local.database.dao
 
+// TODO: реализовать при добавление собственных рецептов при отсутствии интернета с последующей синхронизацией при следующем подключении.
+
+/*
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -22,5 +25,4 @@ interface RecipeDao {
     @Query("SELECT * FROM resipes WHERE id = :id")
     suspend fun getRecipeById(id: Int): Recipe?
 }
-
-
+*/

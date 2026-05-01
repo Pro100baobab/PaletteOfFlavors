@@ -51,6 +51,13 @@ class ProfileFragment : Fragment() {
         _binding = null
     }
 
+    /** Заглушка */
+    private fun setUpRecipesCountObserver(){
+        binding.recipesCount.text = "-"
+    }
+
+    // TODO: число рецептов из серверной бд.
+    /*
     private fun setUpRecipesCountObserver() {
 
         lifecycleScope.launch {
@@ -61,7 +68,7 @@ class ProfileFragment : Fragment() {
 
             binding.recipesCount.text = count.toString()
         }
-    }
+    }*/
 
     private fun bindData() {
         // Получение данных сессии

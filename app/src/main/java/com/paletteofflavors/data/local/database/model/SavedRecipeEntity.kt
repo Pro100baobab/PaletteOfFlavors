@@ -1,0 +1,26 @@
+package com.paletteofflavors.data.local.database.model
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "savedRecipes")
+data class SavedRecipeEntity(
+    @PrimaryKey val recipeId: Int,
+    val title: String,
+    val ingredients: List<String>,
+    val instruction: String,
+    val cookTime: Int,
+    val complexity: Int,
+    val commentsCount: Int,
+    val likesCount: Int,
+    val imageUrl: String? = null,
+    val dateTime: String,
+    val ownerId: Int? = null,
+    val mainCategory: String,
+    val secondaryCategory: String,
+    val isPublic: Boolean,
+    val likedListOfUsers: List<Int>,
+    val savedListOfUsers: List<Int>,
+)
+
+// TODO: SavedRecipeEntity: обновить room-сущности после пересмотра сущностей серверной БД

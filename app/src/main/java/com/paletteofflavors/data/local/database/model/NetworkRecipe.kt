@@ -1,26 +1,25 @@
 package com.paletteofflavors.data.local.database.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+// Единая модель рецепта для использования по всему приложению.
+// Не является Room-сущностью, конвертируется в/из CachedRecipeEntity и SavedRecipeEntity.
 
-
-@Entity(tableName = "cashRecipes")
 data class NetworkRecipe(
-    //Base margins
-    @PrimaryKey val recipeId: Int,
+    val recipeId: Int,
     val title: String,
     val ingredients: List<String>, // Получается комбинированным запросом с JOIN и преобразованием к списку
-    val instruction: String,
+    val instruction: String,       // Возможно, стоит получать при открытии конкретного рецепта
     val cookTime: Int,
-
-    //Only networks margins
     val complexity: Int,
-    val commentsCount: Int,
-    val likesCount: Int,
+    val commentsCount: Int,        // Убрать лишнее поле и добавить commentsList
+    val likesCount: Int,           // Убрать лишнее поле
     val imageUrl: String? = null,
     val dateTime: String,
     val ownerId: Int? = null,
-
     val mainCategory: String,
-    val secondaryCategory: String
+    val secondaryCategory: String,
+    val isPublic: Boolean,
+    val likedListOfUsers: List<Int> = emptyList(),
+    val savedListOfUsers: List<Int> = emptyList(),
     )
+
+// TODO: перерассмотреть сущности серверной БД для нормализации и оптимизации запросов

@@ -157,4 +157,5 @@
     <string name="Connection_error">Connection error: %1$s</string>
     <string name="invalid_verification_code">Invalid verification code</string>
     <string name="success_verification">Verification successful!</string>
+    <string name="isPublicRecipe">Сделать рецепт публичным</string>
 </resources>

@@ -14,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-// For network/cached and saved recipes
 class NetworkRecipeAdapter(
     private val onItemClick: (NetworkRecipe) -> Unit,
     private val onSaveOrDeleteButtonClick: (NetworkRecipe, RecipeHolder) -> Unit,

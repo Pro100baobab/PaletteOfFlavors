@@ -6,8 +6,6 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.paletteofflavors.data.local.database.model.Recipe
-import com.paletteofflavors.data.local.database.model.SavedRecipe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -26,21 +24,14 @@ class FavoritesViewModel(
         _radioButtonId.value = id
     }
 
-    // Get all recipes from local database (User_recipes) as Flow
-    val myRecipes: Flow<List<Recipe>> = repository.getAllUsersRecipes()
-
-    fun deleteRecipe(recipe: Recipe){
-        viewModelScope.launch {
-            repository.deleteOwn(recipe)
-        }
-    }
-
-
     // Get all recipes from local database (Saved_recipes) as Flow
-    val savedRecipes: Flow<List<SavedRecipe>> = repository.getAllSavedRecipes()
+    val savedRecipes: Flow<List<NetworkRecipe>> = repository.getAllSavedRecipes()
+
+    // TODO: пересмотреть MVVM подход: сейчас фрагмент View вызывает методы ViewModel напрямую,
+    //  возможно, не сомсем корректно и нужна подписка на события для меньшей связанности.
 
     // Functions for using with saved recipes state
-    fun addSavedRecipe(recipe: SavedRecipe){
+    fun addSavedRecipe(recipe: NetworkRecipe){
         viewModelScope.launch(Dispatchers.IO) {
 
             try {
@@ -53,7 +44,7 @@ class FavoritesViewModel(
         }
 
     }
-    fun deleteSavedRecipe(recipe: SavedRecipe){
+    fun deleteSavedRecipe(recipe: NetworkRecipe){
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteSaved(recipe)
         }
@@ -64,25 +55,41 @@ class FavoritesViewModel(
 
 
 
+    // TODO: Методы используются вне класса и не имеют отношение к сохраненным и собственным
+    //  рецептам (для кэшированных); целесообразно вынести их из класса FavoritesViewModel.
+
+    // region <Repository operations with cached Recipes>
     // Get all recipes from local database (Cached_recipes) as Flow
-    val cashedRecipes: Flow<List<NetworkRecipe>> = repository.getAllCashedRecipes()
+    val cashedRecipes: Flow<List<NetworkRecipe>> = repository.getAllCachedRecipes()
 
     // Functions for saving cached recipes
     fun deleteCashRecipes(){
-        repository.deleteCash()
+        repository.deleteCached()
     }
+
     fun addCashedRecipe(recipe: NetworkRecipe?){
         viewModelScope.launch(Dispatchers.IO) {
 
             Log.d("FavoritesViewModel", "получен ${recipe?.title}")
             try {
                 Log.d("FavoritesViewModel", "Adding recipe: ${recipe?.title}")
-                repository.insertCashed(recipe!!)
+                repository.insertCached(recipe!!)
                 Log.d("FavoritesViewModel", "Recipe added successfully")
             } catch (e: Exception) {
                 Log.e("FavoritesViewModel", "Error adding recipe", e)
             }
         }
-
     }
+    // endregion
+
+    /*
+// Get all recipes from local database (User_recipes) as Flow
+val myRecipes: Flow<List<NetworkRecipe>> = repository.getAllUsersRecipes()
+
+fun deleteRecipe(recipe: NetworkRecipe){
+    viewModelScope.launch {
+        repository.deleteOwn(recipe)
+    }
+}
+*/
 }

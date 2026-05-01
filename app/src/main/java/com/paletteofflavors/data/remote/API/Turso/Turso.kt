@@ -16,14 +16,15 @@ import com.paletteofflavors.R
 import com.paletteofflavors.presentation.feature.main.view.SearchFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tech.turso.libsql.Connection
 import tech.turso.libsql.Libsql
-
+import org.json.JSONArray
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlinx.serialization.json.Json
 
 class Turso(
     private val activity: MainActivity,
@@ -250,58 +251,134 @@ class Turso(
 
     // По умолчанию без фильтра, но можно использовать готовый запрос с фильтрацией
     // Получение сетевых рецептов
-    fun getAllNetworkRecipesFlow(sqlQuery: String? = null): Flow<NetworkRecipe> = flow {
-        if (!checkInternetConnection(context)) {
-            Log.d("NetworkCheck", "No internet connection")
-            return@flow
-        }
+// Вместо Flow<NetworkRecipe> будет suspend-функция, возвращающая List<NetworkRecipe>
+    suspend fun getAllNetworkRecipes(sqlQuery: String? = null): List<NetworkRecipe> {
+        if (!checkInternetConnection(context)) return emptyList()
 
-        val db = Libsql.openRemote(dbUrl, dbAuthToken)
-        val conn = db.connect()
+        Log.d("TursoHTTP", "Вызываем диспетчер")
 
-        try {
-            val query = sqlQuery ?: "SELECT * FROM Recipes"
-            val rows = conn.query(query)
+        return withContext(Dispatchers.IO) {
+            val result = mutableListOf<NetworkRecipe>()
+            try {
+                val urlStr = dbUrl.replace("libsql://", "https://") + "/v2/pipeline"
+                val url = URL(urlStr)
 
-            while (true) {
-                try {
-                    val recipeRow =
-                        rows.nextRow() ?: break // Выходим из цикла, если нет больше строк
-
-                    val recipeId = recipeRow[0].toString().toInt()
-                    val recipeIngredients = getIngredientsForRecipe(conn, recipeId)
-
-                    // Получение значений из строки
-                    val networkRecipe = NetworkRecipe(
-                        recipeId = recipeId,
-                        title = recipeRow[1].toString(),
-                        instruction = recipeRow[2].toString(),
-                        cookTime = recipeRow[3].toString().toInt(),
-                        complexity = recipeRow[4].toString().toInt(),
-                        commentsCount = recipeRow[5].toString().toInt(),
-                        likesCount = recipeRow[6].toString().toInt(),
-                        imageUrl = recipeRow[7]?.toString() ?: "",
-                        dateTime = recipeRow[8].toString(),
-                        ownerId = recipeRow[9]?.toString()!!.toInt(),
-                        mainCategory = recipeRow[10].toString(),
-                        secondaryCategory = recipeRow[11].toString(),
-                        ingredients = recipeIngredients
-                    )
-
-                    emit(networkRecipe)
-                } catch (e: Exception) {
-                    Log.e("RecipeError", "Failed to process recipe row", e)
-                    continue
+                val requestJson = JSONObject().apply {
+                    put("requests", JSONArray().apply {
+                        put(JSONObject().apply {
+                            put("type", "execute")
+                            put("stmt", JSONObject().apply {
+                                put("sql", sqlQuery ?: "SELECT * FROM Recipes")
+                            })
+                        })
+                        put(JSONObject().apply {
+                            put("type", "close")
+                        })
+                    })
                 }
-            }
-        } catch (e: Exception) {
-            Log.e("GetRecipeTable", "Error accessing database", e)
-        } finally {
-            conn?.close()
-            db?.close()
-        }
-    }.flowOn(Dispatchers.IO)
 
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "POST"
+                connection.setRequestProperty("Authorization", "Bearer $dbAuthToken")
+                connection.setRequestProperty("Content-Type", "application/json")
+                connection.doOutput = true
+
+                connection.outputStream.use { os ->
+                    os.write(requestJson.toString().toByteArray(Charsets.UTF_8))
+                }
+
+                val responseCode = connection.responseCode
+                if (responseCode != HttpURLConnection.HTTP_OK) {
+                    Log.e("TursoHTTP", "Bad response: $responseCode")
+                    return@withContext result
+                }
+
+                val responseBody = connection.inputStream.bufferedReader().readText()
+                Log.d("TursoHTTP", "Response: $responseBody")
+                val jsonResponse = JSONObject(responseBody)
+                val resultsArray = jsonResponse.getJSONArray("results")
+                if (resultsArray.length() == 0) return@withContext result
+
+                // Первый (и единственный) результат – тип "ok"
+                val okResult = resultsArray.getJSONObject(0)
+                if (okResult.getString("type") != "ok") {
+                    Log.e("TursoHTTP", "Unexpected top-level result type: ${okResult.getString("type")}")
+                    return@withContext result
+                }
+
+                val responseObj = okResult.getJSONObject("response")
+                val resultObj = responseObj.getJSONObject("result")
+                val columns = resultObj.getJSONArray("cols")
+                val rows = resultObj.getJSONArray("rows")
+
+                // Строим карту «имя колонки -> индекс»
+                val colIndex = mutableMapOf<String, Int>()
+                for (i in 0 until columns.length()) {
+                    val col = columns.getJSONObject(i)
+                    colIndex[col.getString("name")] = i
+                }
+
+                // Функция для получения значения ячейки (объекта {type, value})
+                fun Any?.cellValue(): String? {
+                    if (this == null || this == JSONObject.NULL) return null
+                    val cell = this as? JSONObject ?: return this.toString()
+                    return cell.optString("value", null) ?: cell.optString("value")
+                }
+
+                fun JSONArray.getColValue(key: String): String? {
+                    val idx = colIndex[key] ?: return null
+                    return get(idx).cellValue()
+                }
+
+                fun JSONArray.getColInt(key: String, default: Int = 0): Int {
+                    val str = getColValue(key) ?: return default
+                    return str.toIntOrNull() ?: default
+                }
+
+                // Парсим строки
+                for (i in 0 until rows.length()) {
+                    val row = rows.getJSONArray(i)
+
+                    val recipe = NetworkRecipe(
+                        recipeId = row.getColInt("recipe_id"),
+                        title = row.getColValue("title") ?: "",
+                        instruction = row.getColValue("instructions") ?: "",
+                        cookTime = row.getColInt("cookTime"),
+                        complexity = row.getColInt("complexity"),
+                        commentsCount = row.getColInt("comments_count"),
+                        likesCount = row.getColInt("likes_count"),
+                        imageUrl = row.getColValue("image_url") ?: "",
+                        dateTime = row.getColValue("publish_dateTime") ?: "",
+                        ownerId = row.getColValue("owner_id")?.toIntOrNull(),
+                        mainCategory = row.getColValue("main_category") ?: "",
+                        secondaryCategory = row.getColValue("secondary_category") ?: "",
+                        ingredients = emptyList(),
+                        isPublic = row.getColInt("isPublic") == 1,
+                        likedListOfUsers = parseJsonIntList(row.getColValue("liked_list")),
+                        savedListOfUsers = parseJsonIntList(row.getColValue("saved_list"))
+                    )
+                    result.add(recipe)
+                }
+
+            } catch (e: Exception) {
+                Log.e("TursoHTTP", "Error: ${e.message}", e)
+            }
+            Log.d("Result", "Всего рецептов: ${result.size}")
+            result
+        }
+    }
+
+    // Вспомогательная функция для парсинга строки вида "[1,2,3]" в List<Int>
+    private fun parseJsonIntList(raw: String?): List<Int> {
+        if (raw.isNullOrBlank() || raw == "[]") return emptyList()
+        return try {
+            JSONArray(raw).let { arr ->
+                (0 until arr.length()).map { arr.getInt(it) }
+            }
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
 
     // Получение списка ингредиентов по ID рецепта
     private fun getIngredientsForRecipe(conn: Connection, recipeId: Int): List<String> {

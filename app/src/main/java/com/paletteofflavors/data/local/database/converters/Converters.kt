@@ -9,6 +9,11 @@ class Converters {
     fun fromList(list: List<String>): String = Json.encodeToString(list)
 
     @TypeConverter
-    fun toList(json: String): List<String> = Json.decodeFromString(json)
-}
+    fun fromIntList(list: List<Int>): String = Json.encodeToString(list)
 
+    @TypeConverter
+    fun toList(json: String): List<String> = Json.decodeFromString(json)
+
+    @TypeConverter
+    fun toIntList(json: String): List<Int> = Json.decodeFromString(json)
+}

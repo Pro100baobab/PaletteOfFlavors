@@ -3,7 +3,6 @@ package com.paletteofflavors.presentation.feature.main.view
 import com.paletteofflavors.data.remote.API.Turso.Turso
 import com.paletteofflavors.presentation.feature.main.viewmodel.FavoritesViewModel
 import com.paletteofflavors.presentation.feature.recipes.viewmodel.RecipeSharedViewModel
-import com.paletteofflavors.data.local.database.converters.toSavedRecipe
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
@@ -29,11 +28,13 @@ import com.paletteofflavors.presentation.main.MainActivity
 import com.paletteofflavors.presentation.feature.recipes.view.adapter.NetworkRecipeAdapter
 import com.paletteofflavors.presentation.feature.recipes.view.NetworkRecipeDetailsFragment
 import com.paletteofflavors.R
+import com.paletteofflavors.data.local.database.model.NetworkRecipe
 import com.paletteofflavors.databinding.FragmentSearchBinding
-import com.paletteofflavors.data.local.database.model.SavedRecipe
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 
@@ -257,8 +258,9 @@ class SearchFragment : Fragment() {
 
         // Если подключение есть
         createRecyclerViewAdapter(activity)
-        executeQuery(TursoConnection, query)
-
+        lifecycleScope.launch {
+            executeQuery(TursoConnection, query)
+        }
 
         binding.CoordinatorLayout.visibility = View.GONE
         binding.filteredContent.visibility = View.VISIBLE
@@ -283,9 +285,9 @@ class SearchFragment : Fragment() {
                             R.drawable.icon_saved
                         )?.constantState
                     ) {
-                        showDeleteRecipeConfirmDialog(recipe.toSavedRecipe(), holder)
+                        showDeleteRecipeConfirmDialog(recipe, holder)
                     } else {
-                        viewModel.addSavedRecipe(recipe.toSavedRecipe())
+                        viewModel.addSavedRecipe(recipe)
                         holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
                     }
                 },
@@ -318,10 +320,10 @@ class SearchFragment : Fragment() {
                     )?.constantState
                 ) {
                     // Если иконка показывает "сохранено" - удаляем
-                    showDeleteRecipeConfirmDialog(recipe.toSavedRecipe(), holder)
+                    showDeleteRecipeConfirmDialog(recipe, holder)
                 } else {
                     // Если не сохранено - сохраняем
-                    viewModel.addSavedRecipe(recipe.toSavedRecipe())
+                    viewModel.addSavedRecipe(recipe)
                     holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
                 }
             },
@@ -338,10 +340,11 @@ class SearchFragment : Fragment() {
     private fun executeQuery(TursoConnection: Turso, query: String){
         lifecycleScope.launch {
             try {
-                TursoConnection.getAllNetworkRecipesFlow(query)
-                    .collect { networkRecipes ->
-                        networkRecipeAdapter.addRecipe(networkRecipes)
-                    }
+                val recipes = TursoConnection.getAllNetworkRecipes(query)
+                withContext(Dispatchers.Main) {
+                    networkRecipeAdapter.addRecipes(recipes)
+                }
+
             } catch (e: Exception) {
                 Log.d("NetworkProblem", "$e")
             }
@@ -353,7 +356,7 @@ class SearchFragment : Fragment() {
 
     // Окно подтверждения для удаления рецепта
     private fun showDeleteRecipeConfirmDialog(
-        savedRecipe: SavedRecipe,
+        savedRecipe: NetworkRecipe,
         holder: NetworkRecipeAdapter.RecipeHolder
     ) {
         val builder = AlertDialog.Builder(context)
