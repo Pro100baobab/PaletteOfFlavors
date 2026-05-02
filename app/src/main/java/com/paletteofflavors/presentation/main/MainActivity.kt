@@ -2,7 +2,7 @@ package com.paletteofflavors.presentation.main
 
 import com.paletteofflavors.data.local.database.AppDatabase
 import com.paletteofflavors.data.local.SessionManager
-import com.paletteofflavors.data.remote.API.Turso.Turso
+import com.paletteofflavors.data.remote.api.turso.Turso
 import com.paletteofflavors.presentation.feature.recipes.di.CreateRecipeViewModelFactory
 import com.paletteofflavors.presentation.feature.main.viewmodel.FavoritesViewModel
 import com.paletteofflavors.presentation.feature.main.di.FavoritesViewModelFactory
@@ -30,20 +30,17 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.lifecycleScope
 import com.paletteofflavors.R
+import com.paletteofflavors.data.remote.repository.RecipeRemoteRepository
+import com.paletteofflavors.presentation.feature.main.di.SearchViewModelFactory
 import com.paletteofflavors.presentation.feature.main.view.FavoritesFragment
 import com.paletteofflavors.presentation.feature.main.view.FridgeFragment
 import com.paletteofflavors.presentation.feature.main.view.ProfileFragment
 import com.paletteofflavors.presentation.feature.main.view.SearchFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
+import com.paletteofflavors.BuildConfig
 
 class MainActivity : AppCompatActivity() {
-
-    val TURSO_AUTH_TOKEN =
-        "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NDQ5MDcyMjMsImlkIjoiZTU4ZTQ5MGEtZmVhYi00MzRiLTgxYTYtNjU1NGM2YjJlZGEwIiwicmlkIjoiMzY2OWJlZTYtYmE4Zi00ODc3LTk4MmItNjYxYzAwMDM5ZGNhIn0.af-7zDFU8XyhiIRP21CGehtSK-00AJGgnuX1y9lXAY_OtEtYn0yervXX31zFzuZGqiEDCO8VACfvjXUi3eyoAg"
-    val TURSO_DATABASE_URL = "libsql://vkr-baobab2049.aws-us-east-1.turso.io"
-    //TODO: replace location of variables
-
 
     lateinit var binding: ActivityMainBinding
     lateinit var navBottomViewModel: NavBottomViewModel
@@ -55,6 +52,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var viewModel: LoginViewModel
     lateinit var viewModelRegistration: RegistrationViewModel
 
+    lateinit var remoteRepository: RecipeRemoteRepository
 
     private val database by lazy { AppDatabase.getInstance(this) }
     val createRecipeViewModel: CreateRecipeViewModel by viewModels {
@@ -68,6 +66,7 @@ class MainActivity : AppCompatActivity() {
             )
         )
     }
+    lateinit var searchViewModelFactory: SearchViewModelFactory
 
     private var isFromUserInteraction = true // Флаг для определения источника изменения
     private var job: Job? = null
@@ -105,6 +104,11 @@ class MainActivity : AppCompatActivity() {
 
             true
         }
+
+        val turso = Turso(this, applicationContext)
+        remoteRepository = RecipeRemoteRepository(turso)
+
+        searchViewModelFactory = SearchViewModelFactory(remoteRepository)
 
         SetUpBaseSettingsSession()
     }
@@ -174,8 +178,8 @@ class MainActivity : AppCompatActivity() {
 
     // Кеширование рецептов
     private fun cacheRecipesData() {
-        val tursoConnection = Turso(this@MainActivity, this@MainActivity)
-        if (tursoConnection.checkInternetConnection(this)) {
+
+        if (true/*turso.checkInternetConnection(this)*/) {
 
             job = lifecycleScope.launch(Dispatchers.IO) {
 
@@ -186,7 +190,7 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     favoritesViewModel.deleteCashRecipes()
                     try {
-                        val recipes = tursoConnection.getAllNetworkRecipes()
+                        val recipes = remoteRepository.getAllRecipes()
                         withContext(Dispatchers.Main) {
                             recipes.map {
                                 recipe -> favoritesViewModel.addCashedRecipe(recipe)
@@ -239,8 +243,8 @@ class MainActivity : AppCompatActivity() {
     private fun initDatabase() {
         CoroutineScope(Dispatchers.IO).launch {
             val dbFileBasePath = this@MainActivity.filesDir.path
-            val dbUrl = TURSO_DATABASE_URL // Должно быть определено в buildConfigField
-            val dbAuthToken = TURSO_AUTH_TOKEN // Должно быть определено в buildConfigField
+            val dbUrl = BuildConfig.TURSO_DATABASE_URL
+            val dbAuthToken = BuildConfig.TURSO_AUTH_TOKEN
         }
     }
 
@@ -261,6 +265,4 @@ class MainActivity : AppCompatActivity() {
         config.setLocale(locale)
         return context.createConfigurationContext(config)
     }
-
-
 }

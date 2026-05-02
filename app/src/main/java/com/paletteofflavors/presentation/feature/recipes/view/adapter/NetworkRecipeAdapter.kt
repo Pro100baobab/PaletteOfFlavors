@@ -1,6 +1,6 @@
 package com.paletteofflavors.presentation.feature.recipes.view.adapter
 
-import com.paletteofflavors.data.local.database.model.NetworkRecipe
+import com.paletteofflavors.domain.model.NetworkRecipe
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,6 +48,12 @@ class NetworkRecipeAdapter(
         val startPosition = recipes.size
         recipes.addAll(newRecipes)
         notifyItemRangeInserted(startPosition, newRecipes.size)
+    }
+
+    fun clearRecipes(){
+        val size = recipes.size
+        recipes.clear()
+        notifyItemRangeRemoved(0, size)
     }
 
     override fun getItemCount(): Int {

@@ -3,7 +3,7 @@ package com.paletteofflavors.presentation.feature.recipes.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.paletteofflavors.data.local.database.model.NetworkRecipe
+import com.paletteofflavors.domain.model.NetworkRecipe
 
 class CreateRecipeViewModel(): ViewModel() {
 

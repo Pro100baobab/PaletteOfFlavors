@@ -1,6 +1,6 @@
 package com.paletteofflavors.presentation.feature.recipes.viewmodel
 
-import com.paletteofflavors.data.local.database.model.NetworkRecipe
+import com.paletteofflavors.domain.model.NetworkRecipe
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow

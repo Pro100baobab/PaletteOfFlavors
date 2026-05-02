@@ -1,7 +1,7 @@
 package com.paletteofflavors.presentation.auth.view
 
 import com.paletteofflavors.data.local.SessionManager
-import com.paletteofflavors.data.remote.API.Turso.Turso
+import com.paletteofflavors.data.remote.api.turso.Turso
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -95,11 +95,11 @@ class LoginFragment : Fragment() {
             }
 
             // Check internet connection
-            val tursoConection = Turso(requireActivity() as MainActivity, requireContext())
+            /*val tursoConection = Turso(requireActivity() as MainActivity, requireContext())
             if(!tursoConection.checkInternetConnection(requireContext())){
                 it.isEnabled = true
                 return@setOnClickListener
-            }
+            }*/
 
 
             // loginUser(username, password) if valid and internet connection is on

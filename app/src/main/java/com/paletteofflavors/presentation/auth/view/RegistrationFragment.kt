@@ -1,6 +1,6 @@
 package com.paletteofflavors.presentation.auth.view
 
-import com.paletteofflavors.data.remote.API.Turso.Turso
+import com.paletteofflavors.data.remote.api.turso.Turso
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater

@@ -1,6 +1,6 @@
 package com.paletteofflavors.presentation.feature.main.view
 
-import com.paletteofflavors.data.remote.API.Turso.Turso
+import com.paletteofflavors.data.remote.api.turso.Turso
 import com.paletteofflavors.presentation.feature.main.viewmodel.FavoritesViewModel
 import com.paletteofflavors.presentation.feature.recipes.viewmodel.RecipeSharedViewModel
 import android.annotation.SuppressLint
@@ -31,7 +31,7 @@ import com.paletteofflavors.presentation.main.MainActivity
 import com.paletteofflavors.presentation.feature.recipes.view.adapter.NetworkRecipeAdapter
 import com.paletteofflavors.presentation.feature.recipes.view.NetworkRecipeDetailsFragment
 import com.paletteofflavors.R
-import com.paletteofflavors.data.local.database.model.NetworkRecipe
+import com.paletteofflavors.domain.model.NetworkRecipe
 import com.paletteofflavors.databinding.FragmentFridgeBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
@@ -351,7 +351,7 @@ class FridgeFragment : Fragment() {
     fun postQuery(activity: MainActivity, context: Context) {
 
         val TursoConnection = Turso(activity, context)
-
+        /*
         if (!TursoConnection.checkInternetConnection(requireContext())) {
             Toast.makeText(requireContext(), "Используем кешированные рецепты", Toast.LENGTH_LONG)
                 .show()
@@ -360,7 +360,7 @@ class FridgeFragment : Fragment() {
 
             binding.fridgeIngredientsContent.visibility = View.GONE
             return
-        }
+        }*/
 
 
         // Если есть подключение к интернету

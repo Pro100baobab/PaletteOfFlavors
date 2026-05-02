@@ -1,7 +1,7 @@
-package com.paletteofflavors.data.remote.API.Turso
+package com.paletteofflavors.data.remote.api.turso
 
 import com.paletteofflavors.data.local.SessionManager
-import com.paletteofflavors.data.local.database.model.NetworkRecipe
+import com.paletteofflavors.domain.model.NetworkRecipe
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -11,6 +11,7 @@ import android.widget.CheckBox
 import android.widget.Toast
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import com.paletteofflavors.BuildConfig
 import com.paletteofflavors.presentation.main.MainActivity
 import com.paletteofflavors.R
 import com.paletteofflavors.presentation.feature.main.view.SearchFragment
@@ -24,17 +25,14 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
-import kotlinx.serialization.json.Json
 
 class Turso(
     private val activity: MainActivity,
     private val context: Context,
-    private val rememberMe: CheckBox? = null
+    private val rememberMe: CheckBox? = null,
+    private val dbUrl: String = BuildConfig.TURSO_DATABASE_URL,
+    private val dbAuthToken: String = BuildConfig.TURSO_AUTH_TOKEN
 ) {
-
-    private val dbUrl = activity.TURSO_DATABASE_URL
-    private val dbAuthToken = activity.TURSO_AUTH_TOKEN
-
     // Авторизация пользователя
     fun loginUser(username: String, password: String, isRememberMePressed: Boolean) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -251,9 +249,8 @@ class Turso(
 
     // По умолчанию без фильтра, но можно использовать готовый запрос с фильтрацией
     // Получение сетевых рецептов
-// Вместо Flow<NetworkRecipe> будет suspend-функция, возвращающая List<NetworkRecipe>
+    // Вместо Flow<NetworkRecipe> будет suspend-функция, возвращающая List<NetworkRecipe>
     suspend fun getAllNetworkRecipes(sqlQuery: String? = null): List<NetworkRecipe> {
-        if (!checkInternetConnection(context)) return emptyList()
 
         Log.d("TursoHTTP", "Вызываем диспетчер")
 
@@ -406,8 +403,6 @@ class Turso(
     suspend fun FindUserByEmail(email: String, callback: (String) -> Unit) {
 
         try {
-            val dbUrl = activity.TURSO_DATABASE_URL
-            val dbAuthToken = activity.TURSO_AUTH_TOKEN
 
             var phoneNumber = ""
 
@@ -464,8 +459,7 @@ class Turso(
     }
 
 
-    // Функции для проверки подключения к интернету
-    fun checkInternetConnection(requireContext: Context): Boolean {
+   /* fun checkInternetConnection(requireContext: Context): Boolean {
         return if (isInternetAvailable(requireContext)) {
             //Toast.makeText(requireContext, "Internet is available", Toast.LENGTH_SHORT).show() --Can't toast on a thread that has not called Looper.prepare()
             true
@@ -477,8 +471,11 @@ class Turso(
             }
             false
         }
-    }
+    }*/
 
+   fun isConnected(): Boolean = isInternetAvailable(context)
+
+    // Функции для проверки подключения к интернету
     private fun isInternetAvailable(context: Context): Boolean {
         val connectivityManager = context.getSystemService(ConnectivityManager::class.java)
         val currentNetwork = connectivityManager.activeNetwork

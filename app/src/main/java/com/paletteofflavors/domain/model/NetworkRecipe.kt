@@ -1,4 +1,4 @@
-package com.paletteofflavors.data.local.database.model
+package com.paletteofflavors.domain.model
 
 // Единая модель рецепта для использования по всему приложению.
 // Не является Room-сущностью, конвертируется в/из CachedRecipeEntity и SavedRecipeEntity.

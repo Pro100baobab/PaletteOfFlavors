@@ -1,6 +1,6 @@
 package com.paletteofflavors.presentation.feature.main.viewmodel
 
-import com.paletteofflavors.data.local.database.model.NetworkRecipe
+import com.paletteofflavors.domain.model.NetworkRecipe
 import com.paletteofflavors.data.local.repository.RecipeRepository
 import android.util.Log
 import androidx.lifecycle.MutableLiveData

@@ -1,6 +1,6 @@
 package com.paletteofflavors.presentation.feature.recipes.view
 
-import com.paletteofflavors.data.local.database.model.NetworkRecipe
+import com.paletteofflavors.domain.model.NetworkRecipe
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment

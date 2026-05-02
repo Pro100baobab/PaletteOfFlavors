@@ -1,7 +1,7 @@
 package com.paletteofflavors.data.local.repository
 
 import com.paletteofflavors.data.local.database.dao.SavedRecipeDao
-import com.paletteofflavors.data.local.database.model.NetworkRecipe
+import com.paletteofflavors.domain.model.NetworkRecipe
 import android.util.Log
 import com.paletteofflavors.data.local.database.dao.CachedRecipeDao
 import com.paletteofflavors.data.local.database.model.CachedRecipeEntity
@@ -9,6 +9,7 @@ import com.paletteofflavors.data.local.database.model.SavedRecipeEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+// TODO: репозиторий --> база данных --> дао
 class RecipeRepository(
     private val savedRecipeDao: SavedRecipeDao,
     private val cachedRecipeDao: CachedRecipeDao

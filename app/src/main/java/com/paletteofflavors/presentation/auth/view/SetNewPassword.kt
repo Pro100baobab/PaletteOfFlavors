@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.paletteofflavors.BuildConfig
 import com.paletteofflavors.presentation.main.MainActivity
 import com.paletteofflavors.R
 import com.paletteofflavors.databinding.FragmentSetNewPasswordBinding
@@ -79,8 +80,8 @@ class SetNewPassword : Fragment() {
     private fun setNewPasswordUser(email: String, phone: String, password: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val dbUrl = (activity as MainActivity).TURSO_DATABASE_URL
-                val dbAuthToken = (activity as MainActivity).TURSO_AUTH_TOKEN
+                val dbUrl = BuildConfig.TURSO_DATABASE_URL
+                val dbAuthToken = BuildConfig.TURSO_AUTH_TOKEN
 
                 Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
                     db.connect().use { conn ->

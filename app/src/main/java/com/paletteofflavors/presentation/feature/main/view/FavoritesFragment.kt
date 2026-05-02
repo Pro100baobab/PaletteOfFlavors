@@ -20,7 +20,7 @@ import com.paletteofflavors.presentation.main.MainActivity
 import com.paletteofflavors.presentation.feature.recipes.view.adapter.NetworkRecipeAdapter
 import com.paletteofflavors.presentation.feature.recipes.view.NetworkRecipeDetailsFragment
 import com.paletteofflavors.R
-import com.paletteofflavors.data.local.database.model.NetworkRecipe
+import com.paletteofflavors.domain.model.NetworkRecipe
 import com.paletteofflavors.databinding.FragmentFavoritesBinding
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn

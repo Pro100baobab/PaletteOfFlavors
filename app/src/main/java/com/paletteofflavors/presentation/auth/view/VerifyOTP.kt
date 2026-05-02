@@ -1,8 +1,8 @@
 package com.paletteofflavors.presentation.auth.view
 
-import com.paletteofflavors.data.remote.API.GoogleScript.GoogleScriptService
+import com.paletteofflavors.data.remote.api.googleScript.GoogleScriptService
 import com.paletteofflavors.data.local.SessionManager
-import com.paletteofflavors.data.remote.API.Turso.Turso
+import com.paletteofflavors.data.remote.api.turso.Turso
 import android.annotation.SuppressLint
 import android.graphics.Paint
 import android.os.Bundle
