@@ -78,7 +78,7 @@ class SessionManager(
         userData[KEY_USERNAME] = usersSession.getString(KEY_USERNAME, null)
         userData[KEY_EMAIL] = usersSession.getString(KEY_EMAIL, null)
         userData[KEY_PHONE_NUMBER] = usersSession.getString(KEY_PHONE_NUMBER, null)
-        userData.put(KEY_PASSWORD, usersSession.getString(KEY_PASSWORD, null))
+        userData[KEY_PASSWORD] = usersSession.getString(KEY_PASSWORD, null)
 
         return userData;
     }
@@ -103,7 +103,7 @@ class SessionManager(
         val userData = HashMap<String, String?>()
 
         userData[KEY_SESSION_USERNAME] = usersSession.getString(KEY_SESSION_USERNAME, null)
-        userData.put(KEY_SESSION_PASSWORD, usersSession.getString(KEY_SESSION_PASSWORD, null))
+        userData[KEY_SESSION_PASSWORD] = usersSession.getString(KEY_SESSION_PASSWORD, null)
 
         return userData;
     }

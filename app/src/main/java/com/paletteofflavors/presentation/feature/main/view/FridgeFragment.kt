@@ -350,7 +350,7 @@ class FridgeFragment : Fragment() {
 
     fun postQuery(activity: MainActivity, context: Context) {
 
-        val TursoConnection = Turso(activity, context)
+        val TursoConnection = Turso()
         /*
         if (!TursoConnection.checkInternetConnection(requireContext())) {
             Toast.makeText(requireContext(), "Используем кешированные рецепты", Toast.LENGTH_LONG)

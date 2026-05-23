@@ -6,10 +6,10 @@ import androidx.lifecycle.ViewModel
 
 class NavBottomViewModel: ViewModel() {
     private val _selectedNavItem = MutableLiveData<Int>()
-    val selectedNavItem: LiveData<Int> = _selectedNavItem
-
     private val _isContentVisible = MutableLiveData<Boolean>()
+
     val isContentVisible: LiveData<Boolean> = _isContentVisible
+    val selectedNavItem: LiveData<Int> = _selectedNavItem
 
     fun setSelectedNavItem(itemId: Int) {
         _selectedNavItem.value = itemId
@@ -18,5 +18,4 @@ class NavBottomViewModel: ViewModel() {
     fun setIsContentVisible(flag: Boolean) {
         _isContentVisible.value = flag
     }
-
 }

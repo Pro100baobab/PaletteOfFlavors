@@ -210,8 +210,10 @@ class ProfileFragment : Fragment() {
         val activity = requireActivity() as MainActivity
 
         activity.run {
+            loginViewModel.clearResults()
+            loginViewModel.clearUserData()
             navBottomViewModel.setSelectedNavItem(R.id.navigation_search)
-            sessionManager.logoutUserSession() // Logout from LogIn session
+            sessionManager.logoutUserSession()
             navBottomViewModel.setIsContentVisible(false)
             showFullScreenContainer()
         }

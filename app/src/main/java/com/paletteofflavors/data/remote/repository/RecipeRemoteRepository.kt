@@ -4,14 +4,14 @@ import com.paletteofflavors.data.remote.api.turso.Turso
 import com.paletteofflavors.data.remote.api.turso.queries.RecipeQueries
 import com.paletteofflavors.domain.exception.NoInternetException
 import com.paletteofflavors.domain.model.NetworkRecipe
+import com.paletteofflavors.domain.utils.InternetChecker
 
-// TODO: Реализовать интерфейс и класс InternetChecker, передавать в конструктор репозитория,
-//  чтобы избавиться от зависимости + реализовать di
-
-class RecipeRemoteRepository(private val turso: Turso) {
-
+class RecipeRemoteRepository(
+    private val turso: Turso,
+    private val internetChecker: InternetChecker
+) {
     private suspend fun <T> ifConnected(block: suspend () -> T): T {
-        if (!turso.isConnected()) {
+        if (!internetChecker.isConnected()) {
             throw NoInternetException()
         }
         return block()

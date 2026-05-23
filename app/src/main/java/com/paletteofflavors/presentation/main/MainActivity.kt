@@ -39,6 +39,10 @@ import com.paletteofflavors.presentation.feature.main.view.SearchFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
 import com.paletteofflavors.BuildConfig
+import com.paletteofflavors.data.remote.repository.UserRemoteRepository
+import com.paletteofflavors.data.remote.utils.AndroidInternetChecker
+import com.paletteofflavors.presentation.auth.di.LoginViewModelFactory
+import com.paletteofflavors.presentation.auth.di.RegistrationViewModelFactory
 
 class MainActivity : AppCompatActivity() {
 
@@ -49,10 +53,11 @@ class MainActivity : AppCompatActivity() {
     lateinit var sessionManagerRememberMe: SessionManager;
     lateinit var sessionManagerBaseSettings: SessionManager;
 
-    lateinit var viewModel: LoginViewModel
+    lateinit var loginViewModel: LoginViewModel
     lateinit var viewModelRegistration: RegistrationViewModel
 
     lateinit var remoteRepository: RecipeRemoteRepository
+    lateinit var userRemoteRepository: UserRemoteRepository
 
     private val database by lazy { AppDatabase.getInstance(this) }
     val createRecipeViewModel: CreateRecipeViewModel by viewModels {
@@ -87,8 +92,6 @@ class MainActivity : AppCompatActivity() {
 
 
         navBottomViewModel = ViewModelProvider(this)[NavBottomViewModel::class.java]
-        viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
-
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             if (isFromUserInteraction) {
@@ -105,10 +108,15 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        val turso = Turso(this, applicationContext)
-        remoteRepository = RecipeRemoteRepository(turso)
+        val turso = Turso()
+        val internetChecker = AndroidInternetChecker(applicationContext)
+        remoteRepository = RecipeRemoteRepository(turso, internetChecker)
+        userRemoteRepository = UserRemoteRepository(turso, internetChecker)
 
         searchViewModelFactory = SearchViewModelFactory(remoteRepository)
+
+        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(userRemoteRepository))[LoginViewModel::class.java]
+        viewModelRegistration = ViewModelProvider(this, RegistrationViewModelFactory(userRemoteRepository))[RegistrationViewModel::class.java]
 
         SetUpBaseSettingsSession()
     }

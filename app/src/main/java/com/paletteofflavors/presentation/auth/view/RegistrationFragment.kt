@@ -1,28 +1,27 @@
 package com.paletteofflavors.presentation.auth.view
 
-import com.paletteofflavors.data.remote.api.turso.Turso
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.paletteofflavors.databinding.FragmentRegistrationBinding
-import android.util.Log
 import android.widget.EditText
+import android.widget.Toast
 import androidx.core.view.isVisible
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.hbb20.CountryCodePicker
-import com.paletteofflavors.presentation.main.MainActivity
 import com.paletteofflavors.R
-import com.paletteofflavors.presentation.auth.viewmodel.RegistrationViewModel
+import com.paletteofflavors.databinding.FragmentRegistrationBinding
 import com.paletteofflavors.domain.utils.validationData.isValidEmail
 import com.paletteofflavors.domain.utils.validationData.isValidFullName
 import com.paletteofflavors.domain.utils.validationData.isValidPassword
 import com.paletteofflavors.domain.utils.validationData.isValidPhone
 import com.paletteofflavors.domain.utils.validationData.isValidUsername
+import com.paletteofflavors.presentation.auth.viewmodel.RegistrationViewModel
+import com.paletteofflavors.presentation.main.MainActivity
 import kotlinx.coroutines.launch
 
 class RegistrationFragment : Fragment() {
@@ -30,7 +29,6 @@ class RegistrationFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var vm: RegistrationViewModel
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,73 +40,77 @@ class RegistrationFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val activity = requireActivity() as MainActivity
+        vm = activity.viewModelRegistration
 
-        (requireActivity() as MainActivity).viewModelRegistration = ViewModelProvider(requireActivity())[RegistrationViewModel::class.java]
-        vm = (requireActivity() as MainActivity).viewModelRegistration
-
-        if((requireActivity() as MainActivity).sessionManager.checkLogin()){
+        if (activity.sessionManager.checkLogin()) {
             binding.tvLogin.isVisible = false
         }
 
         setUpOnClickListeners()
+        observeUniqueCheck()
     }
 
-
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun observeUniqueCheck() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                vm.isUniqueResult.collect { result ->
+                    if (result == null) return@collect
+                    
+                    result.onSuccess { (isUnique, errorMsg) ->
+                        if (isUnique) {
+                            navigateToOTP()
+                        } else {
+                            binding.btnRegister.isEnabled = true
+                            Toast.makeText(requireContext(), errorMsg ?: "User already exists", Toast.LENGTH_SHORT).show()
+                        }
+                    }.onFailure { e ->
+                        binding.btnRegister.isEnabled = true
+                        Toast.makeText(requireContext(), "Error: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
     }
 
+    private fun navigateToOTP() {
+        vm.run {
+            setFullName(binding.etFullname.text.toString().trim())
+            setUserName(binding.etUsername.text.toString().trim())
+            setEmail(binding.etEmail.text.toString().trim())
+            setPhone(binding.countryCodePiker.selectedCountryCodeWithPlus + binding.etPhoneNumber.text.toString().trim())
+            setPassword(binding.etPassword.text.toString().trim())
+        }
+
+        val destination = RegistrationFragmentDirections.actionRegistrationFragmentToVerifyOTP(
+            "registration",
+            email = vm.email.value!!,
+            phone = vm.phone.value!!,
+            "email"
+        )
+        findNavController().navigate(destination)
+        vm.clearResults()
+    }
 
     private fun setUpOnClickListeners() {
-
         binding.btnRegister.setOnClickListener {
-
-            // Check validation for all fills
-            if (!isFillsValid(fullName =  binding.etFullname, username = binding.etUsername, email = binding.etEmail,
-                    phoneNumber = binding.etPhoneNumber, ccp = binding.countryCodePiker,
-                    password = binding.etPassword)) {
+            if (!isFillsValid(
+                    fullName = binding.etFullname,
+                    username = binding.etUsername,
+                    email = binding.etEmail,
+                    phoneNumber = binding.etPhoneNumber,
+                    ccp = binding.countryCodePiker,
+                    password = binding.etPassword
+                )
+            ) {
                 return@setOnClickListener
             }
 
-            val tursoConnection = Turso(requireActivity() as MainActivity, requireContext())
-
-            lifecycleScope.launch {
-
-                // CHeck Unique username and email address
-                val isUnique = tursoConnection.checkUniqueUsernameAndEmail(
-                    binding.etUsername.text.toString().trim(),
-                    binding.etEmail.text.toString().trim()
-                )
-                if (!isUnique) {
-                    return@launch
-                }
-
-                // If unique
-                try {
-
-                    // Заполняем ViewModel
-                    vm.run {
-                        setFullName(binding.etFullname.text.toString().trim())
-                        setUserName(binding.etUsername.text.toString().trim())
-                        setEmail(binding.etEmail.text.toString().trim())
-                        setPhone(binding.countryCodePiker.selectedCountryCodeWithPlus + binding.etPhoneNumber.text.toString().trim())
-                        setPassword(binding.etPassword.text.toString().trim())
-                    }
-
-                    // Переходим к следующему экрану
-                    val destination = RegistrationFragmentDirections.actionRegistrationFragmentToVerifyOTP(
-                        "registration",
-                        email = vm.email.value!!,
-                        phone = vm.phone.value!!,
-                        "email"
-                    )
-                    findNavController().navigate(destination)
-                } catch (e: Error) {
-                    Log.e("Registration", "Navigation error", e)
-                }
-            }
+            binding.btnRegister.isEnabled = false
+            vm.checkUnique(
+                binding.etUsername.text.toString().trim(),
+                binding.etEmail.text.toString().trim()
+            )
         }
 
         binding.tvLogin.setOnClickListener {
@@ -117,30 +119,34 @@ class RegistrationFragment : Fragment() {
         }
 
         binding.signupBackButtonRegistration.setOnClickListener {
-
             val activity = requireActivity() as MainActivity
-
-            if(activity.sessionManager.checkLogin()){
-
-                activity.run{
-                    findNavController(R.id.fragmentContainerView).navigate(R.id.action_registrationFragment_to_loginFragment)
+            if (activity.sessionManager.checkLogin()) {
+                activity.run {
+                    findNavController().navigate(R.id.action_registrationFragment_to_loginFragment)
                     navBottomViewModel.setIsContentVisible(true)
                     hideFullScreenContainer()
                 }
-            }
-            else{
+            } else {
                 requireActivity().viewModelStore.clear()
                 findNavController().navigate(R.id.action_registrationFragment_to_authorizationFragment)
             }
-
         }
     }
 
-    // Check validation
-    fun isFillsValid(fullName: EditText, username: EditText, email: EditText, phoneNumber: EditText, password: EditText, ccp: CountryCodePicker): Boolean {
-
+    private fun isFillsValid(
+        fullName: EditText,
+        username: EditText,
+        email: EditText,
+        phoneNumber: EditText,
+        password: EditText,
+        ccp: CountryCodePicker
+    ): Boolean {
         return isValidFullName(fullName) && isValidUsername(username) && isValidEmail(email)
                 && isValidPhone(phoneEditText = phoneNumber, ccp = ccp) && isValidPassword(password)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

@@ -54,7 +54,7 @@ class MakeSelection : Fragment() {
 
 
     private fun setUpViewModel() {
-        vm = (requireActivity() as MainActivity).viewModel
+        vm = (requireActivity() as MainActivity).loginViewModel
         try {
             email = args.email
             phone = args.phone
@@ -91,5 +91,4 @@ class MakeSelection : Fragment() {
             findNavController().navigate(R.id.action_makeSelection_to_forgetPassword)
         }
     }
-
 }

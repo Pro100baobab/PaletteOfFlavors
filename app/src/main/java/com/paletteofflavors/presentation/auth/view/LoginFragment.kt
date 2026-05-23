@@ -1,32 +1,31 @@
 package com.paletteofflavors.presentation.auth.view
 
-import com.paletteofflavors.data.local.SessionManager
-import com.paletteofflavors.data.remote.api.turso.Turso
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.paletteofflavors.presentation.main.MainActivity
 import com.paletteofflavors.R
+import com.paletteofflavors.data.local.SessionManager
 import com.paletteofflavors.databinding.FragmentLoginBinding
 import com.paletteofflavors.presentation.auth.viewmodel.LoginViewModel
+import com.paletteofflavors.presentation.feature.main.view.SearchFragment
+import com.paletteofflavors.presentation.main.MainActivity
+import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
 
-    lateinit var vm: LoginViewModel
-    private lateinit var rememberMe: CheckBox
-
+    private lateinit var vm: LoginViewModel
     private var isUpdatingFromViewModel = false
-
-    private lateinit var username: String
-    private lateinit var password: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,31 +38,28 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val activity = requireActivity() as MainActivity
+        vm = activity.loginViewModel
 
-        // Check phone_number and password are saved already in Shared Preferences
         checkRememberMeSessionAndBind(activity)
-
-        // ViewModel interaction
-        setUpLoginViewModelObservers(activity)
-
-        // Set up all listeners
+        setUpLoginViewModelObservers()
         setUpListeners()
+        observeLoginResult()
     }
 
     private fun setUpListeners() {
-        // ViewModel interaction
-        binding.etLoginUsername.doAfterTextChanged{
-                editable ->
-            if(!isUpdatingFromViewModel)
+        binding.etLoginUsername.doAfterTextChanged { editable ->
+            if (!isUpdatingFromViewModel) {
                 editable?.toString()?.let { vm.setUserName(it) }
+            }
         }
 
-        binding.etLoginPassword.doAfterTextChanged{
-                editable -> if(!isUpdatingFromViewModel) editable?.toString()?.let { vm.setPassword(it) }
+        binding.etLoginPassword.doAfterTextChanged { editable ->
+            if (!isUpdatingFromViewModel) {
+                editable?.toString()?.let { vm.setPassword(it) }
+            }
         }
 
-        // Buttons onClick
-        binding.forgetPassword.setOnClickListener{
+        binding.forgetPassword.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_forgetPassword)
         }
 
@@ -72,60 +68,95 @@ class LoginFragment : Fragment() {
             findNavController().navigate(R.id.action_loginFragment_to_authorizationFragment)
         }
 
-        binding.tvRegistration.setOnClickListener{
+        binding.tvRegistration.setOnClickListener {
             requireActivity().viewModelStore.clear()
             findNavController().navigate(R.id.action_loginFragment_to_registrationFragment)
         }
 
         binding.btnLogin.setOnClickListener {
+            val username = binding.etLoginUsername.text.toString().trim()
+            val password = binding.etLoginPassword.text.toString().trim()
 
-            it.isEnabled = false
-
-            username = binding.etLoginUsername.text.toString().trim()
-            password = binding.etLoginPassword.text.toString().trim()
-            rememberMe = binding.rememberMe
-
-
-            // Check fields valid
             if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
-                it.isEnabled = true
-
                 return@setOnClickListener
             }
 
-            // Check internet connection
-            /*val tursoConection = Turso(requireActivity() as MainActivity, requireContext())
-            if(!tursoConection.checkInternetConnection(requireContext())){
-                it.isEnabled = true
-                return@setOnClickListener
-            }*/
-
-
-            // loginUser(username, password) if valid and internet connection is on
-            val TursoConnection = Turso(requireActivity() as MainActivity, requireContext(), rememberMe)
-            TursoConnection.loginUser(username, password, binding.rememberMe.isChecked)
-            //TODO: progress bar
-
-            it.isEnabled = true
+            binding.btnLogin.isEnabled = false
+            vm.login(username, password.hashCode())
         }
     }
 
-    private fun setUpLoginViewModelObservers(activity: MainActivity) {
-        vm = activity.viewModel
+    private fun observeLoginResult() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                vm.loginResult.collect { result ->
+                    val user = result.getOrNull()
+                    if (user != null) {
+                        binding.btnLogin.isEnabled = true
+                        val activity = requireActivity() as MainActivity
+                        handleSuccessfulLogin(activity, user)
+                    } else if (result.isSuccess) {
+                        // Initial state or no user found
+                        if (vm.loginResult.value.getOrNull() == null && binding.etLoginUsername.text?.isNotEmpty() == true) {
+                            binding.btnLogin.isEnabled = true
+                            Toast.makeText(requireContext(), "Invalid credentials", Toast.LENGTH_SHORT).show()
+                        }
+                    } else if (result.isFailure) {
+                        binding.btnLogin.isEnabled = true
+                        Toast.makeText(requireContext(), "Login failed: ${result.exceptionOrNull()?.localizedMessage}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+    }
 
-        vm.username.observe(viewLifecycleOwner){
-                newText ->
-            if(binding.etLoginUsername.text.toString() != newText){
+    private fun handleSuccessfulLogin(activity: MainActivity, user: com.paletteofflavors.domain.model.User) {
+        // LogIn Session
+        activity.sessionManager = SessionManager(requireContext(), SessionManager.SESSION_USERSESSION)
+        activity.sessionManager.createLoginSession(
+            fullName = user.fullName,
+            username = user.username,
+            email = user.email,
+            phoneNumber = user.phoneNumber,
+            password = user.passwordHash.toString()
+        )
+
+        Log.d("Login", "Login successful: ${user.username}")
+
+        rememberMe(user.username, binding.etLoginPassword.text.toString())
+
+        activity.replaceMainFragment(SearchFragment())
+        activity.binding.fragmentContainerView.visibility = View.VISIBLE
+        activity.returnNavigation()
+        
+        vm.clearResults()
+    }
+
+    private fun rememberMe(username: String, password: String) {
+        val activity = requireActivity() as MainActivity
+        if (binding.rememberMe.isChecked) {
+            activity.sessionManagerRememberMe = SessionManager(requireContext(), SessionManager.SESSION_REMEMBERME)
+            activity.sessionManagerRememberMe.createRememberMeSession(username, password)
+        } else {
+            activity.sessionManagerRememberMe = SessionManager(requireContext(), SessionManager.SESSION_REMEMBERME)
+            if (activity.sessionManagerRememberMe.checkRememberMe()) {
+                activity.sessionManagerRememberMe.logoutUserSession()
+            }
+        }
+    }
+
+    private fun setUpLoginViewModelObservers() {
+        vm.username.observe(viewLifecycleOwner) { newText ->
+            if (binding.etLoginUsername.text.toString() != newText) {
                 isUpdatingFromViewModel = true
                 binding.etLoginUsername.setText(newText)
                 isUpdatingFromViewModel = false
             }
         }
 
-        vm.password.observe(viewLifecycleOwner){
-                newText ->
-            if(binding.etLoginPassword.text.toString() != newText){
+        vm.password.observe(viewLifecycleOwner) { newText ->
+            if (binding.etLoginPassword.text.toString() != newText) {
                 isUpdatingFromViewModel = true
                 binding.etLoginPassword.setText(newText)
                 isUpdatingFromViewModel = false
@@ -135,13 +166,26 @@ class LoginFragment : Fragment() {
 
     private fun checkRememberMeSessionAndBind(activity: MainActivity) {
         activity.sessionManagerRememberMe = SessionManager(requireContext(), SessionManager.SESSION_REMEMBERME)
-        if(activity.sessionManagerRememberMe.checkRememberMe()){
-            val rememberMeDetails: HashMap<String, String?> = activity.sessionManagerRememberMe.getRememberMeDetailsFromSession()
-
-            binding.run {
-                etLoginPassword.setText(rememberMeDetails[SessionManager.KEY_SESSION_PASSWORD])
-                etLoginUsername.setText(rememberMeDetails[SessionManager.KEY_SESSION_USERNAME])
-                rememberMe.isChecked = true
+        if (activity.sessionManagerRememberMe.checkRememberMe()) {
+            val rememberMeDetails = activity.sessionManagerRememberMe.getRememberMeDetailsFromSession()
+            val savedPassword = rememberMeDetails[SessionManager.KEY_SESSION_PASSWORD]
+            val savedUsername = rememberMeDetails[SessionManager.KEY_SESSION_USERNAME]
+            
+            binding.etLoginPassword.setText(savedPassword)
+            vm.setPassword(savedPassword ?: "")
+            
+            binding.etLoginUsername.setText(savedUsername)
+            vm.setUserName(savedUsername ?: "")
+            
+            binding.rememberMe.isChecked = true
+        } else {
+            binding.rememberMe.isChecked = false
+            // If RememberMe is false, ensure fields are empty (unless user already typed something)
+            if (vm.username.value.isNullOrEmpty()) {
+                binding.etLoginUsername.setText("")
+            }
+            if (vm.password.value.isNullOrEmpty()) {
+                binding.etLoginPassword.setText("")
             }
         }
     }

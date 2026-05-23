@@ -14,6 +14,7 @@ object RecipeQueries {
     fun bySecondaryCategory(category: String): String =
         "SELECT r.* FROM Recipes r WHERE r.secondary_category = '${category.replace("'", "''")}'"
 
+    // TODO: проверить $safeValues или '$safeValues'
     fun byIngredients(ingredients: List<String>): String {
         val safeValues = ingredients.joinToString(",") { "'${it.replace("'", "''")}'" }
         return """
@@ -26,6 +27,7 @@ object RecipeQueries {
         """.trimIndent()
     }
 
+    // TODO: проверить $safeWords или '$safeWords'
     fun searchByTitleOrIngredient(words: List<String>): String {
         val safeWords = words.joinToString(",") { "'${it.replace("'", "''")}'" }
         return """
@@ -41,4 +43,14 @@ object RecipeQueries {
             )
         """.trimIndent()
     }
+
+    fun byIdIngredient(recipeId: Int): String =
+        """
+        SELECT IngredientDictionary.name 
+        FROM RecipeIngredients
+        JOIN IngredientDictionary ON RecipeIngredients.ingredient_id = IngredientDictionary.ingredient_id
+        WHERE RecipeIngredients.recipe_id = $recipeId
+        """.trimIndent()
+
+    // TODO: Добавить запросы из FridgeFragment
 }

@@ -1,32 +1,30 @@
 package com.paletteofflavors.presentation.auth.view
 
-import com.paletteofflavors.data.remote.api.turso.Turso
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.paletteofflavors.presentation.main.MainActivity
 import com.paletteofflavors.R
 import com.paletteofflavors.databinding.FragmentForgetPasswordBinding
-import com.paletteofflavors.presentation.auth.viewmodel.LoginViewModel
 import com.paletteofflavors.domain.utils.validationData.isValidEmail
-import kotlinx.coroutines.Dispatchers
+import com.paletteofflavors.presentation.auth.viewmodel.LoginViewModel
+import com.paletteofflavors.presentation.main.MainActivity
 import kotlinx.coroutines.launch
-
 
 class ForgetPassword : Fragment() {
 
-    private lateinit var _binding: FragmentForgetPasswordBinding
-    private val binding get() = _binding
+    private var _binding: FragmentForgetPasswordBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var vm: LoginViewModel
     private var isUpdatingFromViewModel = false
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,51 +34,54 @@ class ForgetPassword : Fragment() {
         return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        vm = (requireActivity() as MainActivity).loginViewModel
 
-        setUpLoginViewModelAndObservers()
+        setUpLoginViewModelObservers()
         setUpListeners()
+        observeFindUserResult()
+    }
+
+    private fun observeFindUserResult() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                vm.findUserResult.collect { result ->
+                    // Initial success(null) is skipped or handled
+                    val phoneNumber = result.getOrNull()
+                    if (phoneNumber != null) {
+                        binding.forgetPasswordContinue.isEnabled = true
+                        val email = binding.emailForReset.text.toString().trim()
+                        val direction = ForgetPasswordDirections.actionForgetPasswordToMakeSelection(email, phoneNumber)
+                        findNavController().navigate(direction)
+                        vm.clearResults()
+                    } else if (result.isSuccess && binding.forgetPasswordContinue.isEnabled == false) {
+                         // This was a failed search or initial state. 
+                         // If it's a failed search (success(null) after calling findUserByEmail), show error
+                         if (vm.findUserResult.value.getOrNull() == null) {
+                             binding.forgetPasswordContinue.isEnabled = true
+                             if (binding.emailForReset.text?.isNotEmpty() == true) {
+                                 Toast.makeText(requireContext(), "Email is not registered", Toast.LENGTH_SHORT).show()
+                             }
+                         }
+                    } else if (result.isFailure) {
+                        binding.forgetPasswordContinue.isEnabled = true
+                        Toast.makeText(requireContext(), "Error: ${result.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
     }
 
     private fun setUpListeners() {
         binding.forgetPasswordContinue.setOnClickListener {
-
             if (isValidEmail(binding.emailForReset)) {
-
                 val email = binding.emailForReset.text.toString().trim()
-
-                // Check that this email is registered
-                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    Turso(
-                        requireActivity() as MainActivity,
-                        requireContext()
-                    ).FindUserByEmail(email) { phoneNumber ->
-                        if (phoneNumber.isNotEmpty()) {
-                            //Toast.makeText(requireContext(), "phone:$phoneNumber", Toast.LENGTH_SHORT).show()
-                            val direction =
-                                ForgetPasswordDirections.actionForgetPasswordToMakeSelection(
-                                    email,
-                                    phoneNumber
-                                )
-                            findNavController().navigate(direction)
-                        } else {
-                            lifecycleScope.launch(Dispatchers.Main){
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Email is not registered",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-
-                        }
-                    }
-                }
+                binding.forgetPasswordContinue.isEnabled = false
+                vm.findUserByEmail(email)
             } else {
                 Toast.makeText(requireContext(), "Invalid email address", Toast.LENGTH_SHORT).show()
             }
-
         }
 
         binding.signupBackButtonForgetPassword.setOnClickListener {
@@ -93,8 +94,7 @@ class ForgetPassword : Fragment() {
         }
     }
 
-    private fun setUpLoginViewModelAndObservers() {
-        vm = (requireActivity() as MainActivity).viewModel
+    private fun setUpLoginViewModelObservers() {
         vm.curemail.observe(viewLifecycleOwner) { newText ->
             if (binding.emailForReset.text.toString() != newText) {
                 isUpdatingFromViewModel = true
@@ -102,5 +102,10 @@ class ForgetPassword : Fragment() {
                 isUpdatingFromViewModel = false
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

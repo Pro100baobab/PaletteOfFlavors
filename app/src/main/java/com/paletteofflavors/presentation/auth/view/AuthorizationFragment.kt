@@ -12,7 +12,6 @@ import com.paletteofflavors.databinding.FragmentAuthorizationBinding
 
 
 class AuthorizationFragment : Fragment() {
-
     private var _binding: FragmentAuthorizationBinding? = null
     private val binding get() = _binding!!
 
@@ -48,8 +47,7 @@ class AuthorizationFragment : Fragment() {
         }
 
         binding.aboutUs.setOnClickListener {
-            // Soon
+            // Soon TODO: AboutUSPage
         }
     }
-
 }

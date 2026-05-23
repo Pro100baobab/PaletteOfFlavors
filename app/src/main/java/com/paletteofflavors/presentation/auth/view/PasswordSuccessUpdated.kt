@@ -32,6 +32,4 @@ class PasswordSuccessUpdated : Fragment() {
             findNavController().navigate(R.id.action_passwordSuccessUpdated_to_loginFragment)
         }
     }
-
-
 }
