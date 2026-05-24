@@ -206,6 +206,89 @@
                 android:textColor="@color/black"
                 app:layout_constraintTop_toBottomOf="@id/instructions_label" />
 
+            <View
+                android:id="@+id/view_stripe_2"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:layout_marginTop="24dp"
+                android:background="@color/dark_red"
+                app:layout_constraintTop_toBottomOf="@id/instructions_text" />
+
+            <!-- Автор и подписка -->
+            <LinearLayout
+                android:id="@+id/author_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@id/view_stripe_2">
+
+                <TextView
+                    android:id="@+id/author_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Автор рецепта"
+                    android:textColor="@color/black"
+                    android:textStyle="italic" />
+
+                <Button
+                    android:id="@+id/follow_button"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Подписаться"
+                    android:textColor="@color/dark_red"
+                    app:strokeColor="@color/dark_red" />
+            </LinearLayout>
+
+            <!-- Секция комментариев -->
+            <TextView
+                android:id="@+id/comments_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Комментарии"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/author_layout" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/comments_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"
+                app:layout_constraintTop_toBottomOf="@id/comments_label"
+                tools:listitem="@layout/comment_item" />
+
+            <LinearLayout
+                android:id="@+id/add_comment_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@id/comments_recycler_view">
+
+                <EditText
+                    android:id="@+id/comment_input"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Оставьте комментарий..."
+                    android:textColor="@color/black" />
+
+                <ImageButton
+                    android:id="@+id/send_comment_button"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/arrow_forward_24px"
+                    app:tint="@color/dark_red" />
+            </LinearLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 

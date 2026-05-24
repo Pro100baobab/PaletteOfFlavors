@@ -39,4 +39,44 @@ class UserRemoteRepository(
         checkConnection()
         return turso.updatePassword(email, phone, passwordHash)
     }
+
+    suspend fun getUserById(userId: Int): User? {
+        checkConnection()
+        return turso.getUserById(userId)
+    }
+
+    suspend fun followUser(followerId: Int, followedId: Int): Boolean {
+        checkConnection()
+        return turso.followUser(followerId, followedId)
+    }
+
+    suspend fun unfollowUser(followerId: Int, followedId: Int): Boolean {
+        checkConnection()
+        return turso.unfollowUser(followerId, followedId)
+    }
+
+    suspend fun getFollowStats(userId: Int): Pair<Int, Int> {
+        checkConnection()
+        return turso.getFollowStats(userId)
+    }
+
+    suspend fun isFollowing(followerId: Int, followedId: Int): Boolean {
+        checkConnection()
+        return turso.isFollowing(followerId, followedId)
+    }
+
+    suspend fun getUserRecipesCount(userId: Int): Int {
+        checkConnection()
+        return turso.getUserRecipesCount(userId)
+    }
+
+    suspend fun getFollowers(userId: Int): List<User> {
+        checkConnection()
+        return turso.getFollowers(userId)
+    }
+
+    suspend fun getFollowing(userId: Int): List<User> {
+        checkConnection()
+        return turso.getFollowing(userId)
+    }
 }

@@ -18,4 +18,33 @@ object UserQueries{
 
     fun checkPasswordUpdatedQuery(email: String, phone: String, passwordHash: Int): String =
         "SELECT 1 FROM users WHERE password = '$passwordHash' AND email = '$email' AND phone_number = '$phone' LIMIT 1"
+
+    fun followUser(followerId: Int, followedId: Int): String =
+        "INSERT OR IGNORE INTO Followers (follower_id, followed_id) VALUES ($followerId, $followedId)"
+
+    fun unfollowUser(followerId: Int, followedId: Int): String =
+        "DELETE FROM Followers WHERE follower_id = $followerId AND followed_id = $followedId"
+
+    fun getFollowersCount(userId: Int): String =
+        "SELECT COUNT(*) FROM Followers WHERE followed_id = $userId"
+
+    fun getFollowingCount(userId: Int): String =
+        "SELECT COUNT(*) FROM Followers WHERE follower_id = $userId"
+
+    fun isFollowing(followerId: Int, followedId: Int): String =
+        "SELECT 1 FROM Followers WHERE follower_id = $followerId AND followed_id = $followedId"
+
+    fun getFollowersList(userId: Int): String = """
+        SELECT u.* 
+        FROM users u 
+        JOIN Followers f ON u.id = f.follower_id 
+        WHERE f.followed_id = $userId
+    """.trimIndent()
+
+    fun getFollowingList(userId: Int): String = """
+        SELECT u.* 
+        FROM users u 
+        JOIN Followers f ON u.id = f.followed_id 
+        WHERE f.follower_id = $userId
+    """.trimIndent()
 }

@@ -23,6 +23,7 @@ class SessionManager(
 
         //LogIn variables
         const val IS_LOGIN = "IsLoggedIn"
+        const val KEY_USER_ID = "userId"
         const val KEY_FULLNAME = "fullName"
         const val KEY_USERNAME = "username"
         const val KEY_EMAIL = "email"
@@ -59,10 +60,11 @@ class SessionManager(
 
 
     // Functions for LogIn Session
-    fun createLoginSession(fullName: String, username: String, email: String, phoneNumber: String, password: String){
+    fun createLoginSession(userId: Int, fullName: String, username: String, email: String, phoneNumber: String, password: String){
 
         editor.putBoolean(IS_LOGIN, true)
 
+        editor.putInt(KEY_USER_ID, userId)
         editor.putString(KEY_FULLNAME, fullName)
         editor.putString(KEY_USERNAME, username)
         editor.putString(KEY_EMAIL, email)
@@ -74,6 +76,7 @@ class SessionManager(
     fun getUsersDetailFromSession(): HashMap<String, String?>{
         val userData = HashMap<String, String?>()
 
+        userData[KEY_USER_ID] = usersSession.getInt(KEY_USER_ID, -1).toString()
         userData[KEY_FULLNAME] = usersSession.getString(KEY_FULLNAME, null)
         userData[KEY_USERNAME] = usersSession.getString(KEY_USERNAME, null)
         userData[KEY_EMAIL] = usersSession.getString(KEY_EMAIL, null)

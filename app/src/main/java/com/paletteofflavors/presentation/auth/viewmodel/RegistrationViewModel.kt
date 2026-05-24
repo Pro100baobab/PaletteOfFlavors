@@ -1,5 +1,6 @@
 package com.paletteofflavors.presentation.auth.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -33,11 +34,15 @@ class RegistrationViewModel(
     val registrationResult: StateFlow<Result<Boolean>?> = _registrationResult
 
     fun checkUnique(username: String, email: String) {
+        _isUniqueResult.value = null
+        Log.d("RegistrationViewModel", "checkUnique started for $username, $email")
         viewModelScope.launch {
             try {
                 val result = userRemoteRepository.checkUniqueUsernameAndEmail(username, email)
+                Log.d("RegistrationViewModel", "checkUnique result: $result")
                 _isUniqueResult.value = Result.success(result)
             } catch (e: Exception) {
+                Log.e("RegistrationViewModel", "checkUnique error: ${e.message}", e)
                 _isUniqueResult.value = Result.failure(e)
             }
         }
@@ -89,5 +94,9 @@ class RegistrationViewModel(
         _password.value = ""
         _isUniqueResult.value = null
         _registrationResult.value = null
+    }
+
+    fun clearUniqueResult() {
+        _isUniqueResult.value = null
     }
 }

@@ -2,7 +2,9 @@ package com.paletteofflavors.data.remote.api.turso
 
 import android.util.Log
 import com.paletteofflavors.BuildConfig
+import com.paletteofflavors.data.remote.api.turso.queries.RecipeQueries
 import com.paletteofflavors.data.remote.api.turso.queries.UserQueries
+import com.paletteofflavors.domain.model.Comment
 import com.paletteofflavors.domain.model.NetworkRecipe
 import com.paletteofflavors.domain.model.User
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +30,7 @@ class Turso(
                         val nextRow = rows.nextRow()
                         if (nextRow != null) {
                             return@withContext User(
+                                id = nextRow[0]?.toString()?.toIntOrNull(),
                                 fullName = nextRow[3].toString(),
                                 username = username,
                                 email = nextRow[4].toString(),
@@ -112,6 +115,32 @@ class Turso(
         }
     }
 
+    suspend fun getUserById(userId: Int): User? = withContext(Dispatchers.IO) {
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+                    val query = "SELECT * FROM users WHERE id = $userId"
+                    conn.query(query).use { rows ->
+                        val row = rows.nextRow()
+                        if (row != null) {
+                            return@withContext User(
+                                id = row[0]?.toString()?.toIntOrNull(),
+                                fullName = row[3].toString(),
+                                username = row[1].toString(),
+                                email = row[4].toString(),
+                                phoneNumber = row[5].toString(),
+                                passwordHash = row[2]?.toString()?.toIntOrNull() ?: 0
+                            )
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Turso", "Error getting user by id", e)
+        }
+        null
+    }
+
     suspend fun updatePassword(email: String, phone: String, passwordHash: Int): Boolean = withContext(Dispatchers.IO) {
         try {
             Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
@@ -136,13 +165,12 @@ class Turso(
         }
     }
 
-    // По умолчанию без фильтра, но можно использовать готовый запрос с фильтрацией
     // Получение сетевых рецептов
     suspend fun getAllNetworkRecipes(sqlQuery: String? = null): List<NetworkRecipe> {
         return withContext(Dispatchers.IO) {
             val result = mutableListOf<NetworkRecipe>()
             try {
-                val urlStr = dbUrl.replace("libsql://", "https://") + "/v2/pipeline" // TODO: вынести в BuildConfig
+                val urlStr = dbUrl.replace("libsql://", "https://") + "/v2/pipeline"
                 val url = URL(urlStr)
 
                 val requestJson = JSONObject().apply {
@@ -150,7 +178,7 @@ class Turso(
                         put(JSONObject().apply {
                             put("type", "execute")
                             put("stmt", JSONObject().apply {
-                                put("sql", sqlQuery ?: "SELECT * FROM Recipes")
+                                put("sql", sqlQuery ?: RecipeQueries.ALL_PUBLIC_RECIPES)
                             })
                         })
                         put(JSONObject().apply {
@@ -194,7 +222,7 @@ class Turso(
                     colIndex[col.getString("name")] = i
                 }
 
-                // Функция для получения значения ячейки (объекта {type, value})
+                // Функция для получения значения ячейки
                 fun Any?.cellValue(): String? {
                     if (this == null || this == JSONObject.NULL) return null
                     val cell = this as? JSONObject ?: return this.toString()
@@ -215,6 +243,8 @@ class Turso(
                 for (i in 0 until rows.length()) {
                     val row = rows.getJSONArray(i)
 
+                    val likedList = parseJsonIntList(row.getColValue("liked_list"))
+
                     val recipe = NetworkRecipe(
                         recipeId = row.getColInt("recipe_id"),
                         title = row.getColValue("title") ?: "",
@@ -222,7 +252,7 @@ class Turso(
                         cookTime = row.getColInt("cookTime"),
                         complexity = row.getColInt("complexity"),
                         commentsCount = row.getColInt("comments_count"),
-                        likesCount = row.getColInt("likes_count"),
+                        likesCount = likedList.size,
                         imageUrl = row.getColValue("image_url") ?: "",
                         dateTime = row.getColValue("publish_dateTime") ?: "",
                         ownerId = row.getColValue("owner_id")?.toIntOrNull(),
@@ -230,7 +260,7 @@ class Turso(
                         secondaryCategory = row.getColValue("secondary_category") ?: "",
                         ingredients = emptyList(),
                         isPublic = row.getColInt("isPublic") == 1,
-                        likedListOfUsers = parseJsonIntList(row.getColValue("liked_list")),
+                        likedListOfUsers = likedList,
                         savedListOfUsers = parseJsonIntList(row.getColValue("saved_list"))
                     )
                     result.add(recipe)
@@ -240,6 +270,217 @@ class Turso(
             }
             result
         }
+    }
+
+    suspend fun saveRecipe(recipe: NetworkRecipe, ownerId: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+                    conn.execute(RecipeQueries.saveRecipe(recipe, ownerId))
+                    true
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Turso", "Error saving recipe", e)
+            false
+        }
+    }
+
+    suspend fun deleteRecipe(recipeId: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+                    conn.execute(RecipeQueries.deleteRecipe(recipeId))
+                    true
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Turso", "Error deleting recipe", e)
+            false
+        }
+    }
+
+    suspend fun addComment(recipeId: Int, userId: Int, text: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+                    conn.execute(RecipeQueries.addComment(recipeId, userId, text))
+                    true
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Turso", "Error adding comment", e)
+            false
+        }
+    }
+
+    suspend fun getComments(recipeId: Int): List<Comment> = withContext(Dispatchers.IO) {
+        val comments = mutableListOf<Comment>()
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+                    conn.query(RecipeQueries.getComments(recipeId)).use { rows ->
+                        var row = rows.nextRow()
+                        while (row != null) {
+                            comments.add(
+                                Comment(
+                                    id = row[0]?.toString()?.toIntOrNull(),
+                                    recipeId = row[1]?.toString()?.toIntOrNull() ?: recipeId,
+                                    userId = row[2]?.toString()?.toIntOrNull() ?: 0,
+                                    text = row[3].toString(),
+                                    dateTime = row[4].toString(),
+                                    username = row[5].toString()
+                                )
+                            )
+                            row = rows.nextRow()
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Turso", "Error getting comments", e)
+        }
+        comments
+    }
+
+    suspend fun updateLikes(recipeId: Int, likedList: List<Int>): Boolean = withContext(Dispatchers.IO) {
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+                    val json = JSONArray(likedList).toString()
+                    conn.execute(RecipeQueries.updateLikes(recipeId, json))
+                    true
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Turso", "Error updating likes", e)
+            false
+        }
+    }
+
+    suspend fun updateSaved(recipeId: Int, savedList: List<Int>): Boolean = withContext(Dispatchers.IO) {
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+                    val json = JSONArray(savedList).toString()
+                    conn.execute(RecipeQueries.updateSaved(recipeId, json))
+                    true
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Turso", "Error updating saved", e)
+            false
+        }
+    }
+
+    suspend fun followUser(followerId: Int, followedId: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+                    conn.execute(UserQueries.followUser(followerId, followedId))
+                    true
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Turso", "Error following user", e)
+            false
+        }
+    }
+
+    suspend fun unfollowUser(followerId: Int, followedId: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+                    conn.execute(UserQueries.unfollowUser(followerId, followedId))
+                    true
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Turso", "Error unfollowing user", e)
+            false
+        }
+    }
+
+    suspend fun getFollowStats(userId: Int): Pair<Int, Int> = withContext(Dispatchers.IO) {
+        var followers = 0
+        var following = 0
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+                    conn.query(UserQueries.getFollowersCount(userId)).use { rows ->
+                        followers = rows.nextRow()?.get(0)?.toString()?.toIntOrNull() ?: 0
+                    }
+                    conn.query(UserQueries.getFollowingCount(userId)).use { rows ->
+                        following = rows.nextRow()?.get(0)?.toString()?.toIntOrNull() ?: 0
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Turso", "Error getting follow stats", e)
+        }
+        Pair(followers, following)
+    }
+
+    suspend fun isFollowing(followerId: Int, followedId: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+                    conn.query(UserQueries.isFollowing(followerId, followedId)).use { rows ->
+                        rows.nextRow() != null
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Turso", "Error checking if following", e)
+            false
+        }
+    }
+
+    suspend fun getUserRecipesCount(userId: Int): Int = withContext(Dispatchers.IO) {
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+                    conn.query(RecipeQueries.getUserRecipesCount(userId)).use { rows ->
+                        rows.nextRow()?.get(0)?.toString()?.toIntOrNull() ?: 0
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Turso", "Error getting user recipes count", e)
+            0
+        }
+    }
+
+    suspend fun getFollowers(userId: Int): List<User> = getUsersList(UserQueries.getFollowersList(userId))
+    suspend fun getFollowing(userId: Int): List<User> = getUsersList(UserQueries.getFollowingList(userId))
+
+    private suspend fun getUsersList(query: String): List<User> = withContext(Dispatchers.IO) {
+        val users = mutableListOf<User>()
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+                    conn.query(query).use { rows ->
+                        var row = rows.nextRow()
+                        while (row != null) {
+                            users.add(
+                                User(
+                                    id = row[0]?.toString()?.toIntOrNull(),
+                                    fullName = row[3].toString(),
+                                    username = row[1].toString(),
+                                    email = row[4].toString(),
+                                    phoneNumber = row[5].toString(),
+                                    passwordHash = row[2]?.toString()?.toIntOrNull() ?: 0
+                                )
+                            )
+                            row = rows.nextRow()
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Turso", "Error getting users list", e)
+        }
+        users
     }
 
     // Вспомогательная функция для парсинга строки вида "[1,2,3]" в List<Int>

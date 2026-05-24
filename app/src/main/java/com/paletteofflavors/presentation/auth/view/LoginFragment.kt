@@ -115,6 +115,7 @@ class LoginFragment : Fragment() {
         // LogIn Session
         activity.sessionManager = SessionManager(requireContext(), SessionManager.SESSION_USERSESSION)
         activity.sessionManager.createLoginSession(
+            userId = user.id ?: -1,
             fullName = user.fullName,
             username = user.username,
             email = user.email,

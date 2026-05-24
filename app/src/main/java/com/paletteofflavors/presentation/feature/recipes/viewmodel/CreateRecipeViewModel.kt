@@ -3,9 +3,16 @@ package com.paletteofflavors.presentation.feature.recipes.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.paletteofflavors.data.remote.repository.RecipeRemoteRepository
 import com.paletteofflavors.domain.model.NetworkRecipe
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class CreateRecipeViewModel(): ViewModel() {
+class CreateRecipeViewModel(
+    private val remoteRepository: RecipeRemoteRepository? = null
+): ViewModel() {
 
     // region <LiveData initialization>
     private val _title = MutableLiveData<String>()
@@ -30,6 +37,9 @@ class CreateRecipeViewModel(): ViewModel() {
     val secondaryPos: LiveData<String> = _secondaryPos
     val isPublic: LiveData<Boolean> = _isPublic
     // endregion
+
+    private val _saveResult = MutableStateFlow<Result<Boolean>?>(null)
+    val saveResult: StateFlow<Result<Boolean>?> = _saveResult
 
     // region <LiveData functions>
     fun setTitle(title: String) { _title.value = title }
@@ -70,7 +80,8 @@ class CreateRecipeViewModel(): ViewModel() {
         _secondaryCategory.value = ""
         _mainPos.value = ""
         _secondaryPos.value = ""
-        _isPublic.value = false
+        _isPublic.value = true
+        _saveResult.value = null
     }
 
     /** Формирует объект NetworkRecipe без сохранения в локальную БД. */
@@ -93,36 +104,21 @@ class CreateRecipeViewModel(): ViewModel() {
             savedListOfUsers = emptyList(),
             commentsCount = 0,
             likesCount = 0,
-            imageUrl = null, // нужно реализовать загрузку фотографии и получение url из FireBase
-            dateTime = "", // будет присвоено сервером
-            ownerId = null // нужно передавать id авторизованного пользователя
+            imageUrl = null,
+            dateTime = "",
+            ownerId = null
         )
     }
 
-    // TODO: Отправка на сервер должна быть реализована отдельно (заглушка)
-
-    /*
-    // Функция сохранения рецепта в локальную БД
-    fun saveRecipe() {
+    fun saveRecipeToServer(ownerId: Int) {
+        val recipe = buildRecipe()
         viewModelScope.launch {
-            val ingredientsList = _ingredients.value?.split("\n")?.filter {
-                it.isNotBlank() } ?: emptyList()
-
-            val recipe = Recipe(
-                title = _title.value ?: "",
-                ingredients = ingredientsList,
-                instruction = _instruction.value ?: "",
-                cookTime = _timeInMinutes.value?.toInt() ?: 0,
-                complexity = _ratingBarCount.value?.toFloat()?.toInt()?:1,
-                mainCategory = _mainCategory.value.toString(),
-                secondaryCategory = _secondaryCategory.value.toString()
-            )
-
-            recipeDao.insert(recipe)
+            try {
+                val success = remoteRepository?.saveRecipe(recipe, ownerId) ?: false
+                _saveResult.value = Result.success(success)
+            } catch (e: Exception) {
+                _saveResult.value = Result.failure(e)
+            }
         }
     }
-*/
 }
-
-// TODO: Добавить сохранение рецепта во временную локальную БД собственных рецептов после
-//  успешного создания на сервере или синхронизацию и отправку на сервер при первом подключении

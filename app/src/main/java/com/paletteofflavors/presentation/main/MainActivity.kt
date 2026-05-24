@@ -43,6 +43,10 @@ import com.paletteofflavors.data.remote.repository.UserRemoteRepository
 import com.paletteofflavors.data.remote.utils.AndroidInternetChecker
 import com.paletteofflavors.presentation.auth.di.LoginViewModelFactory
 import com.paletteofflavors.presentation.auth.di.RegistrationViewModelFactory
+import com.paletteofflavors.presentation.feature.main.di.ProfileViewModelFactory
+import com.paletteofflavors.presentation.feature.recipes.di.RecipeDetailsViewModelFactory
+import com.paletteofflavors.presentation.feature.recipes.viewmodel.RecipeDetailsViewModel
+import com.paletteofflavors.presentation.feature.main.viewmodel.ProfileViewModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -60,25 +64,19 @@ class MainActivity : AppCompatActivity() {
     lateinit var userRemoteRepository: UserRemoteRepository
 
     private val database by lazy { AppDatabase.getInstance(this) }
-    val createRecipeViewModel: CreateRecipeViewModel by viewModels {
-        CreateRecipeViewModelFactory()
-    }
-    val favoritesViewModel: FavoritesViewModel by viewModels {
-        FavoritesViewModelFactory(
-            RecipeRepository(
-                database.savedRecipeDao(),
-                database.cachedRecipeDao()
-            )
-        )
-    }
+    
+    lateinit var createRecipeViewModel: CreateRecipeViewModel
+    lateinit var favoritesViewModel: FavoritesViewModel
+    lateinit var recipeDetailsViewModel: RecipeDetailsViewModel
+    lateinit var profileViewModel: ProfileViewModel
+    
     lateinit var searchViewModelFactory: SearchViewModelFactory
 
-    private var isFromUserInteraction = true // Флаг для определения источника изменения
+    private var isFromUserInteraction = true 
     private var job: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -90,13 +88,11 @@ class MainActivity : AppCompatActivity() {
             }, 100)
         }
 
-
         navBottomViewModel = ViewModelProvider(this)[NavBottomViewModel::class.java]
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             if (isFromUserInteraction) {
                 when (item.itemId) {
-                    //R.id.navigation_home -> replaceMainFragment(HomeFragment())
                     R.id.navigation_search -> replaceMainFragment(SearchFragment())
                     R.id.navigation_favorites -> replaceMainFragment(FavoritesFragment())
                     R.id.navigation_pantry -> replaceMainFragment(FridgeFragment())
@@ -104,7 +100,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 navBottomViewModel.setSelectedNavItem(item.itemId)
             }
-
             true
         }
 
@@ -118,17 +113,26 @@ class MainActivity : AppCompatActivity() {
         loginViewModel = ViewModelProvider(this, LoginViewModelFactory(userRemoteRepository))[LoginViewModel::class.java]
         viewModelRegistration = ViewModelProvider(this, RegistrationViewModelFactory(userRemoteRepository))[RegistrationViewModel::class.java]
 
+        createRecipeViewModel = ViewModelProvider(this, CreateRecipeViewModelFactory(remoteRepository))[CreateRecipeViewModel::class.java]
+        
+        favoritesViewModel = ViewModelProvider(this, FavoritesViewModelFactory(
+            RecipeRepository(database.savedRecipeDao(), database.cachedRecipeDao()),
+            remoteRepository
+        ))[FavoritesViewModel::class.java]
+
+        recipeDetailsViewModel = ViewModelProvider(this, RecipeDetailsViewModelFactory(remoteRepository, userRemoteRepository))[RecipeDetailsViewModel::class.java]
+        profileViewModel = ViewModelProvider(this, ProfileViewModelFactory(remoteRepository, userRemoteRepository))[ProfileViewModel::class.java]
+
         SetUpBaseSettingsSession()
     }
 
     override fun onStart() {
         super.onStart()
 
-
         navBottomViewModel.selectedNavItem.observe(this) { itemId ->
-            isFromUserInteraction = false // Говорим, что изменение программное
+            isFromUserInteraction = false 
             binding.bottomNavigation.selectedItemId = itemId ?: R.id.navigation_search
-            isFromUserInteraction = true // Возвращаем флаг в исходное состояние
+            isFromUserInteraction = true 
         }
 
         if (supportFragmentManager.findFragmentById(R.id.frame_layout) == null) {
@@ -137,17 +141,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         initDatabase()
-        checkIsLogin()  // Проверка авторизации
+        checkIsLogin()  
         cacheRecipesData()
     }
 
     override fun onResume() {
         super.onResume()
-
         if (navBottomViewModel.isContentVisible.value == false) {
             binding.appContent.visibility = View.GONE
         }
-
     }
 
     override fun onPause() {
@@ -160,21 +162,15 @@ class MainActivity : AppCompatActivity() {
         job?.cancel()
     }
 
-
-    // Инициализация сессии базовых настроек
     private fun SetUpBaseSettingsSession() {
-
         sessionManagerBaseSettings = SessionManager(this, SessionManager.SESSION_BASESETTINGS)
-
         sessionManagerBaseSettings.let {
             if (!it.checkBaseSettings()) {
                 sessionManagerBaseSettings.createBaseSettingSession(true)
-                //Log.d("dddd", "true")
             }
         }
     }
 
-    // Проверка авторизации
     private fun checkIsLogin() {
         sessionManager = SessionManager(this, SessionManager.SESSION_USERSESSION)
         if (sessionManager.checkLogin()) {
@@ -184,13 +180,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Кеширование рецептов
     private fun cacheRecipesData() {
-
         if (true/*turso.checkInternetConnection(this)*/) {
-
             job = lifecycleScope.launch(Dispatchers.IO) {
-
                 if (sessionManagerBaseSettings.usersSession.getBoolean(
                         SessionManager.KEY_CASH,
                         true
@@ -200,8 +192,8 @@ class MainActivity : AppCompatActivity() {
                     try {
                         val recipes = remoteRepository.getAllRecipes()
                         withContext(Dispatchers.Main) {
-                            recipes.map {
-                                recipe -> favoritesViewModel.addCashedRecipe(recipe)
+                            recipes.map { recipe ->
+                                favoritesViewModel.addCashedRecipe(recipe)
                             }
                         }
                     } catch (e: Exception) {
@@ -213,7 +205,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Показ полноэкранных фрагментов
     fun showFullScreenContainer() {
         binding.run {
             bottomNavigation.visibility = View.GONE
@@ -222,7 +213,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Скрыть полноэкранные фрагменты
     fun hideFullScreenContainer(){
         binding.run {
             appContent.visibility = View.VISIBLE
@@ -231,23 +221,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Смена фрагментов в центральном контейнере
     fun replaceMainFragment(fragment: Fragment) {
-
         supportFragmentManager.beginTransaction()
             .replace(R.id.frame_layout, fragment)
             .commit()
-
     }
 
-    // Показ основного контента после авторизации
     fun returnNavigation() {
         binding.bottomNavigation.visibility = View.VISIBLE
         binding.appContent.isVisible = true
     }
 
-
-    // Безопасная инициализация баы данных - не доделано
     private fun initDatabase() {
         CoroutineScope(Dispatchers.IO).launch {
             val dbFileBasePath = this@MainActivity.filesDir.path
@@ -256,8 +240,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    // Перезапуск активности с новыми языковыми настройками
     override fun attachBaseContext(newBase: Context) {
         val sharedPref = newBase.getSharedPreferences("Settings", Context.MODE_PRIVATE)
         val lang = sharedPref.getString("app_language", Locale.getDefault().language)
@@ -268,7 +250,6 @@ class MainActivity : AppCompatActivity() {
     private fun updateBaseContextLocale(context: Context, languageCode: String): Context {
         val locale = Locale(languageCode)
         Locale.setDefault(locale)
-
         val config = Configuration(context.resources.configuration)
         config.setLocale(locale)
         return context.createConfigurationContext(config)

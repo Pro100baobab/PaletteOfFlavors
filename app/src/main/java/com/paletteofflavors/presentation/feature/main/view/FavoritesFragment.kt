@@ -12,7 +12,9 @@ import android.view.ViewGroup
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.paletteofflavors.presentation.feature.recipes.view.CreateRecipeFragment
@@ -20,14 +22,13 @@ import com.paletteofflavors.presentation.main.MainActivity
 import com.paletteofflavors.presentation.feature.recipes.view.adapter.NetworkRecipeAdapter
 import com.paletteofflavors.presentation.feature.recipes.view.NetworkRecipeDetailsFragment
 import com.paletteofflavors.R
+import com.paletteofflavors.data.local.SessionManager
 import com.paletteofflavors.domain.model.NetworkRecipe
 import com.paletteofflavors.databinding.FragmentFavoritesBinding
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
-
-class FavoritesFragment() : Fragment() {
+class FavoritesFragment : Fragment() {
 
     private val viewModel: FavoritesViewModel by lazy {
         (requireActivity() as MainActivity).favoritesViewModel
@@ -43,13 +44,12 @@ class FavoritesFragment() : Fragment() {
     private lateinit var hintUserRecipe: TextView
     private lateinit var radioGroup: RadioGroup
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
-        return _binding!!.root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -63,7 +63,6 @@ class FavoritesFragment() : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
 
     private fun bindData(){
         hintRecipe = binding.favoritesFragmentMissingItemHint
@@ -84,11 +83,8 @@ class FavoritesFragment() : Fragment() {
     }
 
     private fun setUpListenersAndObservers(){
-
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
-
             viewModel.setRadioButtonId(checkedId)
-
             when (checkedId) {
                 R.id.favorites_fragment_savedRecipes -> updateSavedRecipes()
                 R.id.favorites_fragment_myRecipes -> updateMyRecipes()
@@ -104,91 +100,103 @@ class FavoritesFragment() : Fragment() {
         }
     }
 
-
     private fun updateMyRecipes(){
-        // TODO:
-        //  1) Реалзиовать получение данных о собственных рецептов с сервера.
-        //  2) Реализовать фолбэк: получение рецептов из локальной бд, которая синхронизируется
-        //     с серверной при первом подключении
-    }
-/*
-    // For show recipe's lists
-    private fun updateMyRecipes() {
-        hintuserRecipe.visibility = View.INVISIBLE
+        val userDetails = (requireActivity() as MainActivity).sessionManager.getUsersDetailFromSession()
+        val userId = userDetails[SessionManager.KEY_USER_ID]?.toIntOrNull() ?: -1
+        
+        viewModel.fetchMyRecipes(userId)
+        
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.myRecipes.collect { recipes ->
+                    if (recipes.isEmpty()) {
+                        hintUserRecipe.visibility = View.VISIBLE
+                    } else {
+                        hintUserRecipe.visibility = View.INVISIBLE
+                    }
 
-        viewModel.myRecipes.onEach { recipes ->
-            if (recipes.isEmpty()) {
-                hintuserRecipe.visibility = View.VISIBLE
-            }
-            else{
-                hintuserRecipe.visibility = View.INVISIBLE
-            }
-
-            recipeAdapter = RecipeAdapter(
-                recipeList = recipes,
-                onItemClick = { recipe ->
-                    sharedViewModel.selectRecipe(recipe)    // для актуального отображение
-                    (requireActivity() as MainActivity).replaceMainFragment(RecipeDetailsFragment())
-                },
-                removeItem = { recipe ->
-                    showDeleteRecipeConfirmDialog(recipe)
+                    savedRecipeAdapter = NetworkRecipeAdapter(
+                        onItemClick = { networkRecipe ->
+                            sharedViewModel.selectNetworkRecipe(networkRecipe)
+                            (requireActivity() as MainActivity).replaceMainFragment(
+                                NetworkRecipeDetailsFragment("Favorites")
+                            )
+                        },
+                        onSaveOrDeleteButtonClick = { networkRecipe, _ ->
+                            showDeleteOwnRecipeConfirmDialog(networkRecipe)
+                        },
+                        isSaved = { _ ->
+                            flow { emit(true) } // TODO: проверить тру фолс
+                        }
+                    ).apply {
+                        addRecipes(recipes)
+                    }
+                    recipesRecyclerView.adapter = savedRecipeAdapter
+                    hintRecipe.visibility = View.INVISIBLE
                 }
-            )
-            recipesRecyclerView.adapter = recipeAdapter
-
-            hintRecipe.visibility = View.INVISIBLE
-        }.launchIn(lifecycleScope)
-    }*/
+            }
+        }
+    }
 
     private fun updateSavedRecipes() {
         hintUserRecipe.visibility = View.INVISIBLE
         hintRecipe.visibility = View.INVISIBLE
 
-        viewModel.savedRecipes.onEach { savedRecipes ->
-            if (savedRecipes.isEmpty()) {
-                hintRecipe.visibility = View.VISIBLE
-            } else {
-                hintRecipe.visibility = View.INVISIBLE
-            }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.savedRecipes.collect { savedRecipes ->
+                    if (savedRecipes.isEmpty()) {
+                        hintRecipe.visibility = View.VISIBLE
+                    } else {
+                        hintRecipe.visibility = View.INVISIBLE
+                    }
 
-
-            savedRecipeAdapter = NetworkRecipeAdapter(
-                onItemClick = { networkRecipe ->
-                    sharedViewModel.selectNetworkRecipe(networkRecipe)
-                    (requireActivity() as MainActivity).replaceMainFragment(
-                        NetworkRecipeDetailsFragment("Favorites")
-                    )
-                },
-                onSaveOrDeleteButtonClick = { networkRecipe, _ ->
-                    showDeleteRecipeConfirmDialog(networkRecipe)
-                },
-                isSaved = { _ ->
-                    flow { emit(true) } // все элементы в избранном уже сохранены
+                    savedRecipeAdapter = NetworkRecipeAdapter(
+                        onItemClick = { networkRecipe ->
+                            sharedViewModel.selectNetworkRecipe(networkRecipe)
+                            (requireActivity() as MainActivity).replaceMainFragment(
+                                NetworkRecipeDetailsFragment("Favorites")
+                            )
+                        },
+                        onSaveOrDeleteButtonClick = { networkRecipe, _ ->
+                            showDeleteSavedRecipeConfirmDialog(networkRecipe)
+                        },
+                        isSaved = { _ ->
+                            flow { emit(true) } 
+                        }
+                    ).apply {
+                        addRecipes(savedRecipes)
+                    }
+                    recipesRecyclerView.adapter = savedRecipeAdapter
+                    hintUserRecipe.visibility = View.INVISIBLE
                 }
-            ).apply {
-                addRecipes(savedRecipes)
             }
-            recipesRecyclerView.adapter = savedRecipeAdapter
-
-            hintUserRecipe.visibility = View.INVISIBLE
-        }.launchIn(lifecycleScope)
+        }
     }
 
-
-    private fun showDeleteRecipeConfirmDialog(recipe: NetworkRecipe) {
+    private fun showDeleteSavedRecipeConfirmDialog(recipe: NetworkRecipe) {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Удаление рецепта")
         builder.setMessage("Вы уверены, что хотите удалить рецепт ${recipe.title} из избранного?")
-
-        builder.setPositiveButton("Удалить") { dialog: DialogInterface, _: Int ->
+        builder.setPositiveButton("Удалить") { _, _ ->
             viewModel.deleteSavedRecipe(recipe)
         }
-
-        builder.setNegativeButton("Отменить") { dialog: DialogInterface, _: Int ->
+        builder.setNegativeButton("Отменить") { dialog, _ ->
             dialog.dismiss()
         }
+        builder.create().show()
+    }
 
-        val dialog = builder.create()
-        dialog.show()
+    private fun showDeleteOwnRecipeConfirmDialog(recipe: NetworkRecipe) {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle("Удаление собственного рецепта")
+        builder.setMessage("Вы уверены, что хотите полностью удалить рецепт ${recipe.title}?")
+        builder.setPositiveButton("Удалить") { _, _ ->
+            viewModel.deleteOwnRecipe(recipe)
+        }
+        builder.setNegativeButton("Отменить") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.create().show()
     }
 }

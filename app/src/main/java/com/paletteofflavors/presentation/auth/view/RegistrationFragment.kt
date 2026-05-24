@@ -1,6 +1,7 @@
 package com.paletteofflavors.presentation.auth.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -55,9 +56,11 @@ class RegistrationFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.isUniqueResult.collect { result ->
+                    Log.d("RegistrationFragment", "isUniqueResult collected: $result")
                     if (result == null) return@collect
                     
                     result.onSuccess { (isUnique, errorMsg) ->
+                        Log.d("RegistrationFragment", "isUniqueResult success: isUnique=$isUnique, errorMsg=$errorMsg")
                         if (isUnique) {
                             navigateToOTP()
                         } else {
@@ -65,6 +68,7 @@ class RegistrationFragment : Fragment() {
                             Toast.makeText(requireContext(), errorMsg ?: "User already exists", Toast.LENGTH_SHORT).show()
                         }
                     }.onFailure { e ->
+                        Log.e("RegistrationFragment", "isUniqueResult failure: ${e.message}", e)
                         binding.btnRegister.isEnabled = true
                         Toast.makeText(requireContext(), "Error: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
                     }
@@ -74,22 +78,40 @@ class RegistrationFragment : Fragment() {
     }
 
     private fun navigateToOTP() {
+        Log.d("RegistrationFragment", "navigateToOTP called")
+        val fullName = binding.etFullname.text.toString().trim()
+        val username = binding.etUsername.text.toString().trim()
+        val email = binding.etEmail.text.toString().trim()
+        val phone = binding.countryCodePiker.selectedCountryCodeWithPlus + binding.etPhoneNumber.text.toString().trim()
+        val password = binding.etPassword.text.toString().trim()
+
         vm.run {
-            setFullName(binding.etFullname.text.toString().trim())
-            setUserName(binding.etUsername.text.toString().trim())
-            setEmail(binding.etEmail.text.toString().trim())
-            setPhone(binding.countryCodePiker.selectedCountryCodeWithPlus + binding.etPhoneNumber.text.toString().trim())
-            setPassword(binding.etPassword.text.toString().trim())
+            setFullName(fullName)
+            setUserName(username)
+            setEmail(email)
+            setPhone(phone)
+            setPassword(password)
         }
 
-        val destination = RegistrationFragmentDirections.actionRegistrationFragmentToVerifyOTP(
-            "registration",
-            email = vm.email.value!!,
-            phone = vm.phone.value!!,
-            "email"
-        )
-        findNavController().navigate(destination)
-        vm.clearResults()
+        Log.d("RegistrationFragment", "Data set in VM, email=$email, phone=$phone")
+
+        try {
+            // Clearing unique result so it doesn't trigger again on back navigation
+            vm.clearUniqueResult()
+            
+            val destination = RegistrationFragmentDirections.actionRegistrationFragmentToVerifyOTP(
+                typeOfOperation = "registration",
+                email = email,
+                phone = phone,
+                typeOfConnection = "email"
+            )
+            Log.d("RegistrationFragment", "Navigating to destination: $destination")
+            findNavController().navigate(destination)
+        } catch (e: Exception) {
+            Log.e("RegistrationFragment", "Navigation failed: ${e.message}", e)
+            binding.btnRegister.isEnabled = true
+            Toast.makeText(requireContext(), "Navigation error: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setUpOnClickListeners() {
@@ -107,6 +129,7 @@ class RegistrationFragment : Fragment() {
             }
 
             binding.btnRegister.isEnabled = false
+            Log.d("RegistrationFragment", "Register button clicked, checking uniqueness for: ${binding.etUsername.text}, ${binding.etEmail.text}")
             vm.checkUnique(
                 binding.etUsername.text.toString().trim(),
                 binding.etEmail.text.toString().trim()

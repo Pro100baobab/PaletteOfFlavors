@@ -19,7 +19,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.paletteofflavors.presentation.main.MainActivity
 import com.paletteofflavors.R
 import com.paletteofflavors.databinding.FragmentCreateRecipeBinding
+import com.paletteofflavors.data.local.SessionManager
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.paletteofflavors.presentation.feature.main.view.FavoritesFragment
+import kotlinx.coroutines.launch
 
 class CreateRecipeFragment : Fragment() {
 
@@ -60,6 +65,29 @@ class CreateRecipeFragment : Fragment() {
         setUpSpinners()
         setUpListeners()
         setUpObservers()
+        observeSaveResult()
+    }
+
+    private fun observeSaveResult() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.saveResult.collect { result ->
+                    if (result == null) return@collect
+                    
+                    result.onSuccess { success ->
+                        if (success) {
+                            Toast.makeText(requireContext(), getString(R.string.Save_successful), Toast.LENGTH_SHORT).show()
+                            viewModel.cleanRecipeData()
+                            (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
+                        } else {
+                            Toast.makeText(requireContext(), "Failed to save recipe", Toast.LENGTH_SHORT).show()
+                        }
+                    }.onFailure { e ->
+                        Toast.makeText(requireContext(), "Error: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
     }
 
 
@@ -89,22 +117,14 @@ class CreateRecipeFragment : Fragment() {
     }
 
     private fun saveConfirmDialog(){
-        // Создаем рецепт
-        val recipe = viewModel.buildRecipe()
+        val userDetails = (requireActivity() as MainActivity).sessionManager.getUsersDetailFromSession()
+        val userId = userDetails[SessionManager.KEY_USER_ID]?.toIntOrNull() ?: -1
 
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.Do_save_recipe))
             .setMessage(getString(R.string.sure_to_save))
             .setPositiveButton(getString(R.string.Yes)) { _, _ ->
-
-                // TODO: обращение к серверу для сохранения рецепта + фолбэк
-
-                Toast.makeText(requireContext(),
-                    getString(R.string.Save_successful), Toast.LENGTH_SHORT)
-                    .show()
-                viewModel.cleanRecipeData()
-                (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
-
+                viewModel.saveRecipeToServer(userId)
             }
             .setNegativeButton(getString(R.string.Cancellation), null)
             .show()
