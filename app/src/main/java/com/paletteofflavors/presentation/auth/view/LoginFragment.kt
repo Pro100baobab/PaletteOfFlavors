@@ -77,6 +77,8 @@ class LoginFragment : Fragment() {
             val username = binding.etLoginUsername.text.toString().trim()
             val password = binding.etLoginPassword.text.toString().trim()
 
+            Log.d("LoginFragment", "Login button clicked for username: $username")
+
             if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -91,20 +93,25 @@ class LoginFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.loginResult.collect { result ->
+                    Log.d("LoginFragment", "loginResult collected: $result")
                     val user = result.getOrNull()
                     if (user != null) {
+                        Log.d("LoginFragment", "Login success for ${user.username}")
                         binding.btnLogin.isEnabled = true
                         val activity = requireActivity() as MainActivity
                         handleSuccessfulLogin(activity, user)
                     } else if (result.isSuccess) {
-                        // Initial state or no user found
-                        if (vm.loginResult.value.getOrNull() == null && binding.etLoginUsername.text?.isNotEmpty() == true) {
+                        // Initial state or user not found
+                        if (result.getOrNull() == null && binding.btnLogin.isEnabled == false) {
+                            Log.d("LoginFragment", "Login failed: Invalid credentials")
                             binding.btnLogin.isEnabled = true
                             Toast.makeText(requireContext(), "Invalid credentials", Toast.LENGTH_SHORT).show()
                         }
                     } else if (result.isFailure) {
+                        val error = result.exceptionOrNull()
+                        Log.e("LoginFragment", "Login failed: ${error?.message}", error)
                         binding.btnLogin.isEnabled = true
-                        Toast.makeText(requireContext(), "Login failed: ${result.exceptionOrNull()?.localizedMessage}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), "Login failed: ${error?.localizedMessage}", Toast.LENGTH_LONG).show()
                     }
                 }
             }

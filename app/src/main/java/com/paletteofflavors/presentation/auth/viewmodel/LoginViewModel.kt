@@ -1,5 +1,6 @@
 package com.paletteofflavors.presentation.auth.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -38,11 +39,15 @@ class LoginViewModel(
     val resetPasswordResult: StateFlow<Result<Boolean>> = _resetPasswordResult
 
     fun login(username: String, passwordHash: Int) {
+        _loginResult.value = Result.success(null)
+        Log.d("LoginViewModel", "Login attempt for user: $username")
         viewModelScope.launch {
             try {
                 val user = userRemoteRepository.loginUser(username, passwordHash)
+                Log.d("LoginViewModel", "Login result: ${if (user != null) "Success" else "User not found"}")
                 _loginResult.value = Result.success(user)
             } catch (e: Exception) {
+                Log.e("LoginViewModel", "Login error: ${e.message}", e)
                 _loginResult.value = Result.failure(e)
             }
         }

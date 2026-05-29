@@ -215,6 +215,7 @@ class VerifyOTP : Fragment() {
                             startTimer()
                         }
                     } else {
+                        response.errorBody()?.string()?.let { Log.d("VerifyOTP", it) }
                         withContext(Dispatchers.Main) {
                             binding.typeOfVerification.text = response.errorBody()?.string()
                             Toast.makeText(context, getString(R.string.Error_when_send_code, email), Toast.LENGTH_SHORT).show()
@@ -230,13 +231,18 @@ class VerifyOTP : Fragment() {
     }
 
     private fun onVerificationSuccess() {
+        Log.d("VerifyOTP", "onVerificationSuccess called. email=${vmRegister.email.value}")
         Toast.makeText(context, getString(R.string.success_verification), Toast.LENGTH_SHORT).show()
         if (vm.resetemail.value != null) {
+            Log.d("VerifyOTP", "Navigating to setNewPassword")
             val direction = VerifyOTPDirections.actionVerifyOTPToSetNewPassword(email, phone)
             findNavController().navigate(direction)
         } else if (vmRegister.email.value != null) {
+            Log.d("VerifyOTP", "Triggering vmRegister.register()")
             binding.btnVerifyCode.isEnabled = false
             vmRegister.register()
+        } else {
+            Log.e("VerifyOTP", "onVerificationSuccess: email is null, cannot register!")
         }
     }
 
