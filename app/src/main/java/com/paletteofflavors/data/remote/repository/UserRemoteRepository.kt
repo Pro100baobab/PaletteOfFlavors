@@ -1,5 +1,6 @@
 package com.paletteofflavors.data.remote.repository
 
+import com.paletteofflavors.data.remote.api.imgBB.ImgBBService
 import com.paletteofflavors.data.remote.api.turso.Turso
 import com.paletteofflavors.domain.exception.NoInternetException
 import com.paletteofflavors.domain.model.User
@@ -7,7 +8,8 @@ import com.paletteofflavors.domain.utils.InternetChecker
 
 class UserRemoteRepository(
     private val turso: Turso,
-    private val internetChecker: InternetChecker
+    private val internetChecker: InternetChecker,
+    private val imgBBService: ImgBBService? = null
 ) {
     private fun checkConnection() {
         if (!internetChecker.isConnected()) {
@@ -78,5 +80,20 @@ class UserRemoteRepository(
     suspend fun getFollowing(userId: Int): List<User> {
         checkConnection()
         return turso.getFollowing(userId)
+    }
+
+    suspend fun uploadImageToImgBB(imageBase64: String): String? {
+        checkConnection()
+        val response = imgBBService?.uploadImage(imageBase64 = imageBase64)
+        return if (response?.isSuccessful == true) {
+            response.body()?.data?.url
+        } else {
+            null
+        }
+    }
+
+    suspend fun updateAvatar(userId: Int, avatarUrl: String): Boolean {
+        checkConnection()
+        return turso.updateAvatar(userId, avatarUrl)
     }
 }

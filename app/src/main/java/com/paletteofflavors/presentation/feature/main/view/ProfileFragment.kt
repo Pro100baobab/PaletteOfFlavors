@@ -1,22 +1,32 @@
 package com.paletteofflavors.presentation.feature.main.view
 
+import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.paletteofflavors.R
 import com.paletteofflavors.data.local.SessionManager
 import com.paletteofflavors.databinding.FragmentProfileBinding
@@ -28,8 +38,8 @@ import com.paletteofflavors.presentation.feature.recipes.viewmodel.RecipeSharedV
 import com.paletteofflavors.presentation.main.MainActivity
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import java.util.*
-import androidx.fragment.app.activityViewModels
 
 class ProfileFragment(private val targetUserId: Int? = null) : Fragment() {
 
@@ -44,6 +54,31 @@ class ProfileFragment(private val targetUserId: Int? = null) : Fragment() {
 
     private lateinit var userRecipesAdapter: NetworkRecipeAdapter
     private var currentUserId: Int = -1
+
+    private val requestCameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            takePhoto()
+        } else {
+            Toast.makeText(context, "Camera permission required", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val takePhotoLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            val imageBitmap = result.data?.extras?.get("data") as? Bitmap
+            imageBitmap?.let { uploadImage(it) }
+        }
+    }
+
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let { handleGalleryImage(it) }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -100,8 +135,6 @@ class ProfileFragment(private val targetUserId: Int? = null) : Fragment() {
             binding.changeAvatarButton.visibility = View.VISIBLE
             binding.logoutButton.visibility = View.VISIBLE
         } else {
-            // Если это чужой профиль, данные должны прийти из ViewModel или быть переданы
-            // Пока что просто скрываем кнопки управления
             binding.changeAvatarButton.visibility = View.GONE
             binding.logoutButton.visibility = View.GONE
             // TODO: Получить имя и email пользователя по targetUserId
@@ -118,7 +151,7 @@ class ProfileFragment(private val targetUserId: Int? = null) : Fragment() {
     }
 
     private fun setOnCLickListeners() {
-        binding.changeAvatarButton.setOnClickListener { changeAvatar() }
+        binding.changeAvatarButton.setOnClickListener { showImageSourceDialog() }
         binding.changeCashFlagButton.setOnClickListener { changeCashSettings() }
         binding.changeLanguageButton.setOnClickListener { changeLanguage() }
         binding.logoutButton.setOnClickListener { showConfirmDialog() }
@@ -132,6 +165,51 @@ class ProfileFragment(private val targetUserId: Int? = null) : Fragment() {
             val userId = targetUserId ?: currentUserId
             (requireActivity() as MainActivity).replaceMainFragment(FollowersFragment(userId, "following"))
         }
+    }
+
+    private fun showImageSourceDialog() {
+        val options = arrayOf("Camera", "Gallery")
+        AlertDialog.Builder(context)
+            .setTitle("Choose Image Source")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> checkCameraPermission()
+                    1 -> pickImageLauncher.launch("image/*")
+                }
+            }
+            .show()
+    }
+
+    private fun checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            takePhoto()
+        } else {
+            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    private fun takePhoto() {
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        takePhotoLauncher.launch(intent)
+    }
+
+    private fun handleGalleryImage(uri: Uri) {
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+        bitmap?.let { uploadImage(it) }
+    }
+
+    private fun uploadImage(bitmap: Bitmap) {
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream)
+        val byteArray = byteArrayOutputStream.toByteArray()
+        val imageBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT)
+        
+        profileViewModel.uploadAndSetAvatar(currentUserId, imageBase64)
     }
 
     private fun addAccount() {
@@ -174,10 +252,6 @@ class ProfileFragment(private val targetUserId: Int? = null) : Fragment() {
         }
         requireActivity().finish()
         startActivity(intent)
-    }
-
-    private fun changeAvatar() {
-        Toast.makeText(context, "В разработке", Toast.LENGTH_LONG).show()
     }
 
     private fun changeCashSettings() {
@@ -265,6 +339,23 @@ class ProfileFragment(private val targetUserId: Int? = null) : Fragment() {
                         if (user != null && targetUserId != null && targetUserId != currentUserId) {
                             binding.profileName.text = user.username
                             binding.profileEmail.text = user.email
+                        }
+                    }
+                }
+                launch {
+                    profileViewModel.avatarUrl.collect { url ->
+                        Glide.with(this@ProfileFragment)
+                            .load(url)
+                            .placeholder(R.drawable.account_circle_24dp)
+                            .error(R.drawable.account_circle_24dp)
+                            .into(binding.profileImage)
+                    }
+                }
+                launch {
+                    profileViewModel.uploadStatus.collect { result ->
+                        result?.onFailure { e ->
+                            Toast.makeText(context, "Upload failed: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                            profileViewModel.clearUploadStatus()
                         }
                     }
                 }

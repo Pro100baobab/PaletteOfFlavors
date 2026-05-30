@@ -6,5 +6,6 @@ data class User(
     val username: String,
     val email: String,
     val phoneNumber: String,
-    val passwordHash: Int
+    val passwordHash: Int,
+    val avatarUrl: String? = null
 )

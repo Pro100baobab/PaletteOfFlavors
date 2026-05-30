@@ -62,7 +62,7 @@ class RestaurantsMapFragment : Fragment(), CameraListener, Session.SearchListene
         mapView = binding.mapview
 
         clusterizedCollection =  mapView.mapWindow.map.mapObjects.addClusterizedPlacemarkCollection { cluster ->
-            cluster.appearance.setIcon(ImageProvider.fromResource(requireContext(), R.drawable.baseline_account_circle_24)) // Should be a cluster icon
+            cluster.appearance.setIcon(ImageProvider.fromResource(requireContext(), R.drawable.baseline_account_circle_24))
             cluster.addClusterTapListener { cl ->
                 mapView.mapWindow.map.move(
                     CameraPosition(cl.appearance.geometry,  mapView.mapWindow.map.cameraPosition.zoom + 1, 0f, 0f),

@@ -35,7 +35,8 @@ class Turso(
                                 username = username,
                                 email = nextRow[4].toString(),
                                 phoneNumber = nextRow[5].toString(),
-                                passwordHash = passwordHash
+                                passwordHash = passwordHash,
+                                avatarUrl = nextRow[7]?.toString()
                             )
                         }
                     }
@@ -129,7 +130,8 @@ class Turso(
                                 username = row[1].toString(),
                                 email = row[4].toString(),
                                 phoneNumber = row[5].toString(),
-                                passwordHash = row[2]?.toString()?.toIntOrNull() ?: 0
+                                passwordHash = row[2]?.toString()?.toIntOrNull() ?: 0,
+                                avatarUrl = row[7]?.toString()
                             )
                         }
                     }
@@ -454,6 +456,20 @@ class Turso(
     suspend fun getFollowers(userId: Int): List<User> = getUsersList(UserQueries.getFollowersList(userId))
     suspend fun getFollowing(userId: Int): List<User> = getUsersList(UserQueries.getFollowingList(userId))
 
+    suspend fun updateAvatar(userId: Int, avatarUrl: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+                    conn.execute(UserQueries.updateAvatarQuery(userId, avatarUrl))
+                    true
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Turso", "Error updating avatar", e)
+            false
+        }
+    }
+
     private suspend fun getUsersList(query: String): List<User> = withContext(Dispatchers.IO) {
         val users = mutableListOf<User>()
         try {
@@ -469,7 +485,8 @@ class Turso(
                                     username = row[1].toString(),
                                     email = row[4].toString(),
                                     phoneNumber = row[5].toString(),
-                                    passwordHash = row[2]?.toString()?.toIntOrNull() ?: 0
+                                    passwordHash = row[2]?.toString()?.toIntOrNull() ?: 0,
+                                    avatarUrl = row[7]?.toString()
                                 )
                             )
                             row = rows.nextRow()

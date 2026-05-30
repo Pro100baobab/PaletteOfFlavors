@@ -9,6 +9,7 @@ password - TEXT NOT NULL
 fullname - TEXT
 email - TEXT
 phone_number - TEXT
+avatar_url - TEXT
 created_at - NUMERIC DEFAULT CURRENT_TIMESTAMP
 ```
 

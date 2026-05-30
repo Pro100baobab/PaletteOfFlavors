@@ -36,13 +36,25 @@ class ProfileViewModel(
     private val _targetUser = MutableStateFlow<User?>(null)
     val targetUser: StateFlow<User?> = _targetUser
 
+    private val _avatarUrl = MutableStateFlow<String?>(null)
+    val avatarUrl: StateFlow<String?> = _avatarUrl
+
+    private val _uploadStatus = MutableStateFlow<Result<String>?>(null)
+    val uploadStatus: StateFlow<Result<String>?> = _uploadStatus
+
     fun fetchUserData(userId: Int, isOwnProfile: Boolean = true) {
         viewModelScope.launch {
             try {
-                if (!isOwnProfile) {
-                    _targetUser.value = userRepository.getUserById(userId)
-                }
+                /*val user = if (!isOwnProfile) {
+                    userRepository.getUserById(userId)
+                } else {
+                    userRepository.getUserById(userId)
+                }*/
 
+                val user = userRepository.getUserById(userId)
+                
+                _targetUser.value = user
+                _avatarUrl.value = user?.avatarUrl
                 _recipeCount.value = userRepository.getUserRecipesCount(userId)
                 val stats = userRepository.getFollowStats(userId)
                 _followersCount.value = stats.first
@@ -72,5 +84,30 @@ class ProfileViewModel(
                 // Handle error
             }
         }
+    }
+
+    fun uploadAndSetAvatar(userId: Int, imageBase64: String) {
+        viewModelScope.launch {
+            try {
+                val url = userRepository.uploadImageToImgBB(imageBase64)
+                if (url != null) {
+                    val success = userRepository.updateAvatar(userId, url)
+                    if (success) {
+                        _avatarUrl.value = url
+                        _uploadStatus.value = Result.success(url)
+                    } else {
+                        _uploadStatus.value = Result.failure(Exception("Failed to update database"))
+                    }
+                } else {
+                    _uploadStatus.value = Result.failure(Exception("Failed to upload to ImgBB"))
+                }
+            } catch (e: Exception) {
+                _uploadStatus.value = Result.failure(e)
+            }
+        }
+    }
+
+    fun clearUploadStatus() {
+        _uploadStatus.value = null
     }
 }

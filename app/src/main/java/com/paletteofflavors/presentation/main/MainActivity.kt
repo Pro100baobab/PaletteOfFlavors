@@ -42,6 +42,7 @@ import kotlinx.coroutines.withContext
 import com.paletteofflavors.BuildConfig
 import com.paletteofflavors.data.remote.repository.UserRemoteRepository
 import com.paletteofflavors.data.remote.utils.AndroidInternetChecker
+import com.paletteofflavors.data.remote.api.imgBB.ImgBBService
 import com.paletteofflavors.presentation.auth.di.LoginViewModelFactory
 import com.paletteofflavors.presentation.auth.di.RegistrationViewModelFactory
 import com.paletteofflavors.presentation.feature.main.di.ProfileViewModelFactory
@@ -107,8 +108,15 @@ class MainActivity : AppCompatActivity() {
 
         val turso = Turso()
         val internetChecker = AndroidInternetChecker(applicationContext)
+
+        val imgBBRetrofit = retrofit2.Retrofit.Builder()
+            .baseUrl("https://api.imgbb.com/")
+            .addConverterFactory(retrofit2.converter.gson.GsonConverterFactory.create())
+            .build()
+        val imgBBService = imgBBRetrofit.create(ImgBBService::class.java)
+
         remoteRepository = RecipeRemoteRepository(turso, internetChecker)
-        userRemoteRepository = UserRemoteRepository(turso, internetChecker)
+        userRemoteRepository = UserRemoteRepository(turso, internetChecker, imgBBService)
 
         searchViewModelFactory = SearchViewModelFactory(remoteRepository)
 

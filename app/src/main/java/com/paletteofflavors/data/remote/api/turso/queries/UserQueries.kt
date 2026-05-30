@@ -47,4 +47,7 @@ object UserQueries{
         JOIN Followers f ON u.id = f.followed_id 
         WHERE f.follower_id = $userId
     """.trimIndent()
+
+    fun updateAvatarQuery(userId: Int, avatarUrl: String): String =
+        "UPDATE users SET avatar_url = '$avatarUrl' WHERE id = $userId"
 }
