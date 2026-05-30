@@ -25,23 +25,34 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <ImageButton
+                android:id="@+id/share_button_network_recipe_details"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/baseline_share_24"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/dark_red" />
+
+
             <TextView
                 android:id="@+id/recipe_details_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="20dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="20dp"
                 android:hint="Заголовок"
                 android:textAlignment="viewEnd"
                 android:textColor="@color/dark_red"
                 android:textColorHint="@color/dark_red"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/back_button_network_recipe_details"
+                app:layout_constraintEnd_toStartOf="@+id/share_button_network_recipe_details"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/back_button_network_recipe_details"
                 app:layout_constraintTop_toTopOf="parent" />
-
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/recipe_image"

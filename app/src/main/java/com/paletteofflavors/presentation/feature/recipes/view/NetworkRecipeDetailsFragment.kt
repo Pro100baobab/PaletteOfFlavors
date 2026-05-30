@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -22,6 +21,7 @@ import com.paletteofflavors.presentation.feature.recipes.viewmodel.RecipeDetails
 import com.paletteofflavors.presentation.feature.recipes.viewmodel.RecipeSharedViewModel
 import com.paletteofflavors.presentation.main.MainActivity
 import kotlinx.coroutines.launch
+import android.content.Intent
 
 class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
 
@@ -64,7 +64,6 @@ class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
 
     private fun setUpListeners() {
         binding.backButtonNetworkRecipeDetails.setOnClickListener {
-            // TODO: использовать стек переходов
             (requireActivity() as MainActivity).replaceMainFragment(FavoritesFragment())
         }
 
@@ -86,6 +85,37 @@ class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
         binding.followButton.setOnClickListener {
             viewModel.toggleFollow(userId)
         }
+
+        binding.shareButtonNetworkRecipeDetails.setOnClickListener {
+            val recipe = sharedViewModel.selectedRecipe.value
+            recipe?.let { shareRecipeAsText(it) }
+        }
+    }
+
+    private fun shareRecipeAsText(recipe: NetworkRecipe) {
+        val ingredientsText = recipe.ingredients.joinToString("\n") { "• $it" }
+        
+        val shareBody = """
+            🍳 ${recipe.title}
+            
+            ⏱ Время приготовления: ${recipe.cookTime} мин
+            ⭐ Сложность: ${recipe.complexity}/5
+            
+            📝 Ингредиенты:
+            $ingredientsText
+            
+            👨‍🍳 Способ приготовления:
+            ${recipe.instruction}
+            
+            Отправлено из приложения "Палитра Вкусов"
+        """.trimIndent()
+
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, recipe.title)
+            putExtra(Intent.EXTRA_TEXT, shareBody)
+        }
+        startActivity(Intent.createChooser(intent, "Поделиться рецептом"))
     }
 
     private fun observeData() {
