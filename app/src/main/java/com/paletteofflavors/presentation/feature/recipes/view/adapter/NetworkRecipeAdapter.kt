@@ -17,7 +17,8 @@ import kotlinx.coroutines.launch
 class NetworkRecipeAdapter(
     private val onItemClick: (NetworkRecipe) -> Unit,
     private val onSaveOrDeleteButtonClick: (NetworkRecipe, RecipeHolder) -> Unit,
-    private val isSaved: (Int) -> Flow<Boolean>
+    private val isSaved: (Int) -> Flow<Boolean>,
+    private val useDeleteIcon: Boolean = false
 ): RecyclerView.Adapter<NetworkRecipeAdapter.RecipeHolder>() {
 
 
@@ -73,14 +74,18 @@ class NetworkRecipeAdapter(
 
 
     private fun bindHolder(holder: RecipeHolder, networkRecipe: NetworkRecipe){
-        // Запускаем корутину для наблюдения за Flow
-        adapterScope.launch {
-            isSaved(networkRecipe.recipeId).collect { isSaved ->
-                // Обновляем изображение, когда значение Flow меняется
-                if (isSaved) {
-                    holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
-                } else {
-                    holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_unsaved)
+        if (useDeleteIcon) {
+            holder.savedOrDeletedImageView.setImageResource(R.drawable.delete_24px)
+        } else {
+            // Запускаем корутину для наблюдения за Flow
+            adapterScope.launch {
+                isSaved(networkRecipe.recipeId).collect { isSaved ->
+                    // Обновляем изображение, когда значение Flow меняется
+                    if (isSaved) {
+                        holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
+                    } else {
+                        holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_unsaved)
+                    }
                 }
             }
         }

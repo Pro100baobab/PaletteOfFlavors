@@ -27,6 +27,12 @@ class RecipeDetailsViewModel(
     private val _isLiked = MutableStateFlow(false)
     val isLiked: StateFlow<Boolean> = _isLiked
 
+    private val _ingredients = MutableStateFlow<List<String>>(emptyList())
+    val ingredients: StateFlow<List<String>> = _ingredients
+
+    private val _authorName = MutableStateFlow<String?>(null)
+    val authorName: StateFlow<String?> = _authorName
+
     private var currentRecipe: NetworkRecipe? = null
 
     fun setRecipe(recipe: NetworkRecipe, currentUserId: Int) {
@@ -34,7 +40,32 @@ class RecipeDetailsViewModel(
         _likesCount.value = recipe.likesCount
         _isLiked.value = recipe.likedListOfUsers.contains(currentUserId)
         fetchComments()
+        fetchIngredients()
+        fetchAuthorName()
         checkFollowStatus(currentUserId)
+    }
+
+    private fun fetchIngredients() {
+        val recipeId = currentRecipe?.recipeId ?: return
+        viewModelScope.launch {
+            try {
+                _ingredients.value = recipeRepository.getIngredients(recipeId)
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+
+    private fun fetchAuthorName() {
+        val ownerId = currentRecipe?.ownerId ?: return
+        viewModelScope.launch {
+            try {
+                val user = userRepository.getUserById(ownerId)
+                _authorName.value = user?.username
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
     }
 
     fun fetchComments() {

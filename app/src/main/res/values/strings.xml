@@ -155,6 +155,7 @@
     <string name="success_verification">Верификация успешна!</string>
     <string name="isPublicRecipe">Сделать рецепт публичным</string>
     <string name="restaurants">Рестораны</string>
+    <string name="author_of_recipe">Автор рецепта: %1$s</string>
 
     <string-array name="main_categories">
         <item>@string/breakfast</item>

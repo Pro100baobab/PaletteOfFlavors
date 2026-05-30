@@ -453,6 +453,26 @@ class Turso(
         }
     }
 
+    suspend fun getIngredients(recipeId: Int): List<String> = withContext(Dispatchers.IO) {
+        val ingredients = mutableListOf<String>()
+        try {
+            Libsql.openRemote(dbUrl, dbAuthToken).use { db ->
+                db.connect().use { conn ->
+                    conn.query(RecipeQueries.byIdIngredient(recipeId)).use { rows ->
+                        var row = rows.nextRow()
+                        while (row != null) {
+                            ingredients.add(row[0].toString())
+                            row = rows.nextRow()
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Turso", "Error getting ingredients", e)
+        }
+        ingredients
+    }
+
     suspend fun getFollowers(userId: Int): List<User> = getUsersList(UserQueries.getFollowersList(userId))
     suspend fun getFollowing(userId: Int): List<User> = getUsersList(UserQueries.getFollowingList(userId))
 

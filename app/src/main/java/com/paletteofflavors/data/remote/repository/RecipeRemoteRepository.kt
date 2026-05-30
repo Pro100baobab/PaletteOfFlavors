@@ -36,6 +36,9 @@ class RecipeRemoteRepository(
     suspend fun getUserRecipes(userId: Int, onlyPublic: Boolean = false): List<NetworkRecipe> =
         ifConnected { turso.getAllNetworkRecipes(RecipeQueries.getUserRecipes(userId, onlyPublic)) }
 
+    suspend fun getIngredients(recipeId: Int): List<String> =
+        ifConnected { turso.getIngredients(recipeId) }
+
     suspend fun saveRecipe(recipe: NetworkRecipe, ownerId: Int): Boolean =
         ifConnected { turso.saveRecipe(recipe, ownerId) }
 

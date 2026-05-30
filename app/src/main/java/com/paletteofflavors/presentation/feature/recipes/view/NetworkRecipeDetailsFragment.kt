@@ -143,6 +143,17 @@ class NetworkRecipeDetailsFragment(val fragment: String) : Fragment() {
                     }
                 }
                 launch {
+                    viewModel.ingredients.collect { ingredients ->
+                        binding.recipeDetailsIngredientsList.text = 
+                            ingredients.joinToString("\n") { "• $it" }
+                    }
+                }
+                launch {
+                    viewModel.authorName.collect { name ->
+                        binding.authorLabel.text = getString(R.string.author_of_recipe, name ?: "")
+                    }
+                }
+                launch {
                     viewModel.isLiked.collect { isLiked ->
                         val icon = if (isLiked) R.drawable.favorites_icon else R.drawable.icon_unsaved
                         binding.likesCount.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)

@@ -84,7 +84,6 @@ class CreateRecipeViewModel(
         _saveResult.value = null
     }
 
-    /** Формирует объект NetworkRecipe без сохранения в локальную БД. */
     fun buildRecipe(): NetworkRecipe {
         val ingredientsList = _ingredients.value?.split("\n")?.filter {
             it.isNotBlank()

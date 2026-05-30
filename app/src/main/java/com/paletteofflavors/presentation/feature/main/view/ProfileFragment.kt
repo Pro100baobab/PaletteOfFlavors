@@ -112,7 +112,8 @@ class ProfileFragment(private val targetUserId: Int? = null) : Fragment() {
                     showDeleteOwnRecipeConfirmDialog(recipe)
                 }
             },
-            isSaved = { _ -> flow { emit(false) } }
+            isSaved = { _ -> flow { emit(false) } },
+            useDeleteIcon = (targetUserId == null || targetUserId == currentUserId)
         )
         binding.userRecipesRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.userRecipesRecyclerView.adapter = userRecipesAdapter

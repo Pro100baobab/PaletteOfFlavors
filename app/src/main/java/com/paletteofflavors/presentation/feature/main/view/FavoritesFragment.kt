@@ -126,8 +126,9 @@ class FavoritesFragment : Fragment() {
                             showDeleteOwnRecipeConfirmDialog(networkRecipe)
                         },
                         isSaved = { _ ->
-                            flow { emit(true) } // TODO: проверить тру фолс
-                        }
+                            flow { emit(false) }
+                        },
+                        useDeleteIcon = true
                     ).apply {
                         addRecipes(recipes)
                     }
@@ -161,9 +162,10 @@ class FavoritesFragment : Fragment() {
                         onSaveOrDeleteButtonClick = { networkRecipe, _ ->
                             showDeleteSavedRecipeConfirmDialog(networkRecipe)
                         },
-                        isSaved = { _ ->
-                            flow { emit(true) } 
-                        }
+                        isSaved = { id -> 
+                            viewModel.isRecipeSaved(id)
+                        },
+                        useDeleteIcon = false
                     ).apply {
                         addRecipes(savedRecipes)
                     }
