@@ -27,6 +27,7 @@ android {
 
         buildConfigField("String", "TURSO_AUTH_TOKEN", "\"eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NDQ5MDcyMjMsImlkIjoiZTU4ZTQ5MGEtZmVhYi00MzRiLTgxYTYtNjU1NGM2YjJlZGEwIiwicmlkIjoiMzY2OWJlZTYtYmE4Zi00ODc3LTk4MmItNjYxYzAwMDM5ZGNhIn0.af-7zDFU8XyhiIRP21CGehtSK-00AJGgnuX1y9lXAY_OtEtYn0yervXX31zFzuZGqiEDCO8VACfvjXUi3eyoAg\"")
         buildConfigField("String", "TURSO_DATABASE_URL", "\"libsql://vkr-baobab2049.aws-us-east-1.turso.io\"")
+        buildConfigField("String","YANDEX_MAP_KIT_KEY", "\"924c0c7b-0260-4afe-b92f-3b370e593384\"")
     }
 
     buildTypes {
@@ -143,5 +144,7 @@ dependencies {
 
 
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+
+    implementation(libs.yandex.maps.mobile)
 
 }

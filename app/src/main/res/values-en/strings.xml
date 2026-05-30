@@ -158,4 +158,5 @@
     <string name="invalid_verification_code">Invalid verification code</string>
     <string name="success_verification">Verification successful!</string>
     <string name="isPublicRecipe">Сделать рецепт публичным</string>
+    <string name="restaurants">Рестораны</string>
 </resources>

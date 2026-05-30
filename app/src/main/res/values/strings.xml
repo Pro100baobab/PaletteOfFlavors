@@ -154,6 +154,7 @@
     <string name="invalid_verification_code">Неверный код подтверждения</string>
     <string name="success_verification">Верификация успешна!</string>
     <string name="isPublicRecipe">Сделать рецепт публичным</string>
+    <string name="restaurants">Рестораны</string>
 
     <string-array name="main_categories">
         <item>@string/breakfast</item>

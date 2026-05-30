@@ -36,6 +36,7 @@ import com.paletteofflavors.presentation.feature.main.view.FavoritesFragment
 import com.paletteofflavors.presentation.feature.main.view.FridgeFragment
 import com.paletteofflavors.presentation.feature.main.view.ProfileFragment
 import com.paletteofflavors.presentation.feature.main.view.SearchFragment
+import com.paletteofflavors.presentation.feature.main.view.RestaurantsMapFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
 import com.paletteofflavors.BuildConfig
@@ -97,6 +98,7 @@ class MainActivity : AppCompatActivity() {
                     R.id.navigation_favorites -> replaceMainFragment(FavoritesFragment())
                     R.id.navigation_pantry -> replaceMainFragment(FridgeFragment())
                     R.id.navigation_profile -> replaceMainFragment(ProfileFragment())
+                    R.id.navigation_restaurantsMap -> replaceMainFragment(RestaurantsMapFragment())
                 }
                 navBottomViewModel.setSelectedNavItem(item.itemId)
             }
