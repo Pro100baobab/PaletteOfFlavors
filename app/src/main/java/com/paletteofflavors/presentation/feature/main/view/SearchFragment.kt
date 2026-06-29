@@ -30,12 +30,8 @@ import com.paletteofflavors.domain.model.NetworkRecipe
 import com.paletteofflavors.databinding.FragmentSearchBinding
 import com.paletteofflavors.presentation.feature.main.viewmodel.FavoritesViewModel
 import com.paletteofflavors.presentation.feature.main.viewmodel.SearchViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Locale
 
 
@@ -86,6 +82,9 @@ class SearchFragment : Fragment() {
     }
 
     private fun setUpRecyclerView(){
+        binding.CoordinatorLayout.visibility = View.VISIBLE
+        binding.filteredContent.visibility = View.GONE
+
         recipesRecyclerView = binding.recipesRecyclerView
         recipesRecyclerView.layoutManager = LinearLayoutManager(context)
 
@@ -191,6 +190,9 @@ class SearchFragment : Fragment() {
                 ""
             }
         }
+
+        binding.CoordinatorLayout.visibility = View.GONE
+        binding.filteredContent.visibility = View.VISIBLE
 
         if(formattedWords.isEmpty())
             searchViewModel.searchAll()
