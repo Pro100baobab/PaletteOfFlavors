@@ -3,15 +3,14 @@ package com.paletteofflavors.data.local
 import android.content.Context
 import android.content.SharedPreferences
 
-// Shared Preferences
+
 class SessionManager(
     _context: Context,
     sessionName: String
 ){
     var usersSession: SharedPreferences = _context.getSharedPreferences(sessionName, Context.MODE_PRIVATE);
-    var editor: SharedPreferences.Editor = usersSession.edit();    // разрешает редактировать сеанс внутри пользовательского сеанса
+    var editor: SharedPreferences.Editor = usersSession.edit();
     var context: Context = _context;
-
 
     companion object {
 
@@ -30,7 +29,6 @@ class SessionManager(
         const val KEY_PHONE_NUMBER = "phoneNumber"
         const val KEY_PASSWORD = "password"
 
-
         //RememberMe variables
         const val IS_REMEMBERME = "IsRememberMe"
         const val KEY_SESSION_USERNAME = "username"
@@ -40,7 +38,7 @@ class SessionManager(
         const val IS_VERIFICATION_CODE = "IsVerificationCode"
         const val KEY_CODE = "verificationCode"
         const val KEY_TIME = "timerEndTime"
-        const val TIMER_DURATION: Long = 60000 // 1 минута
+        const val TIMER_DURATION: Long = 60000
 
         //BaseSettings variables
         const val IS_BASESETINGS = "IsBaseSettings"
@@ -53,11 +51,10 @@ class SessionManager(
         editor.putBoolean(KEY_CASH, cashFlag)
         editor.commit()
     }
+
     fun checkBaseSettings(): Boolean{
         return usersSession.getBoolean(IS_BASESETINGS, false)
     }
-
-
 
     // Functions for LogIn Session
     fun createLoginSession(userId: Int, fullName: String, username: String, email: String, phoneNumber: String, password: String){
@@ -73,6 +70,7 @@ class SessionManager(
 
         editor.commit()
     }
+
     fun getUsersDetailFromSession(): HashMap<String, String?>{
         val userData = HashMap<String, String?>()
 
@@ -85,12 +83,10 @@ class SessionManager(
 
         return userData;
     }
+
     fun checkLogin(): Boolean{
         return usersSession.getBoolean(IS_LOGIN, false)
     }
-
-
-
 
     // function for RememberMe Session
     fun createRememberMeSession(username: String, password: String){
@@ -102,6 +98,7 @@ class SessionManager(
 
         editor.commit()
     }
+
     fun getRememberMeDetailsFromSession(): HashMap<String, String?>{
         val userData = HashMap<String, String?>()
 
@@ -110,12 +107,10 @@ class SessionManager(
 
         return userData;
     }
+
     fun checkRememberMe(): Boolean{
         return usersSession.getBoolean(IS_REMEMBERME, false)
     }
-
-
-
 
     // function for VerificationCode Session
     fun createCodeVerificationSession(verificationCode: String){
@@ -126,19 +121,16 @@ class SessionManager(
 
         editor.apply()
     }
+
     fun checkVerificationCode(): Boolean = usersSession.getBoolean(IS_VERIFICATION_CODE, false)
-
     fun getVerificationCodeSessionDetails(): String? = usersSession.getString(KEY_CODE, null)
-
     fun getVerificationCodeTimer(): Long = usersSession.getLong(KEY_TIME, 0)
-
     fun isVerificationCodeTimerRunning(): Boolean = usersSession.getLong(KEY_TIME, 0) > System.currentTimeMillis()
 
     fun clearVerificationCodeTimer() {
         editor.remove(KEY_TIME)
         editor.apply()
     }
-
 
     // Logout from current session (general)
     fun logoutUserSession(){

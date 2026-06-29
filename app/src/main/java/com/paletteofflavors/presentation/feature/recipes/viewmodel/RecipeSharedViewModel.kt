@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-/** Хранит данные о последнем выбранном NetworkRecipe рецепте */
+
 class RecipeSharedViewModel : ViewModel() {
     private val _selectedRecipe = MutableStateFlow<NetworkRecipe?>(null)
     val selectedRecipe = _selectedRecipe.asStateFlow()

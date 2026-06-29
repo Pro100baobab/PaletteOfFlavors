@@ -55,8 +55,7 @@ class SearchFragment : Fragment() {
         (requireActivity() as MainActivity).searchViewModelFactory
     }
 
-    // Нужно для кешированных рецептов (пока используется FavoritesViewModel, будет исправлено позже)
-    // TODO: сделать cachedRecipeViewModel либо прописывать фолбэк с кешированием в самом репозитории
+    // Нужно для кешированных рецептов (пока используется FavoritesViewModel и не вынесено из нее)
     private val cachedRecipeViewModel: FavoritesViewModel by lazy {
         (requireActivity() as MainActivity).favoritesViewModel
     }
@@ -85,10 +84,6 @@ class SearchFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
-
-
-
 
     private fun setUpRecyclerView(){
         recipesRecyclerView = binding.recipesRecyclerView
@@ -191,7 +186,7 @@ class SearchFragment : Fragment() {
 
         val formattedWords = searchWords.map { word ->
             if (word.isNotEmpty()) {
-                word.substring(0, 1).uppercase() + word.substring(1) // Первая буква в верхний регистр, остальное - как есть
+                word.substring(0, 1).uppercase() + word.substring(1)
             } else {
                 ""
             }
@@ -217,44 +212,6 @@ class SearchFragment : Fragment() {
 
         searchViewModel.searchBySecondaryCategory(secondaryCategory)
     }
-
-    /*
-    // Поиск в кеше
-    private fun searchFromCache(){
-        cachedRecipeViewModel.cashedRecipes.onEach { networkRecipes ->
-
-            networkRecipeAdapter = NetworkRecipeAdapter(
-                onItemClick = { networkRecipe ->
-                    sharedViewModel.selectNetworkRecipe(networkRecipe)
-                    (requireActivity() as MainActivity).replaceMainFragment(
-                        NetworkRecipeDetailsFragment("Search")
-                    )
-                },
-                onSaveOrDeleteButtonClick = { recipe, holder ->
-                    if (holder.savedOrDeletedImageView.drawable.constantState ==
-                        ContextCompat.getDrawable(
-                            holder.itemView.context,
-                            R.drawable.icon_saved
-                        )?.constantState
-                    ) {
-                        showDeleteRecipeConfirmDialog(recipe, holder)
-                    } else {
-                        cachedRecipeViewModel.addSavedRecipe(recipe)
-                        holder.savedOrDeletedImageView.setImageResource(R.drawable.icon_saved)
-                    }
-                },
-                isSaved = { recipeId ->
-                    cachedRecipeViewModel.isRecipeSaved(recipeId)  // Возвращем сохранен или нет рецепт
-                }
-            ).apply {
-                // Добавляем все рецепты сразу
-                addRecipes(networkRecipes)
-            }
-            recipesRecyclerView.adapter = networkRecipeAdapter
-        }.launchIn(lifecycleScope)
-
-    }
-    */
 
     private fun searchFromCache() {
         lifecycleScope.launch {
@@ -318,14 +275,12 @@ class SearchFragment : Fragment() {
             searchViewModel.isNetworkError.collect { isError ->
                 if (isError) {
                     Toast.makeText(requireContext(), "Используем кешированные рецепты", Toast.LENGTH_LONG).show()
-                    searchFromCache()    // загружаем данные из кэша
+                    searchFromCache()
                 }
             }
         }
-        // Можно также наблюдать errorEvent для других ошибок
     }
 
-    // Окно подтверждения для удаления рецепта
     private fun showDeleteRecipeConfirmDialog(
         savedRecipe: NetworkRecipe,
         holder: NetworkRecipeAdapter.RecipeHolder

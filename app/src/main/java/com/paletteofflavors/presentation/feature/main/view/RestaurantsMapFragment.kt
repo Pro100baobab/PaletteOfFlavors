@@ -176,7 +176,7 @@ class RestaurantsMapFragment : Fragment(), CameraListener, Session.SearchListene
         binding.restaurantDescription.text = metadata.categories.joinToString { it.name }
         
         binding.restaurantInfoCard.setOnClickListener {
-            // Can open details here
+            // For details
         }
     }
 

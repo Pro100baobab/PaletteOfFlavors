@@ -17,7 +17,7 @@ interface SavedRecipeDao {
     suspend fun delete(recipe: SavedRecipeEntity)
 
     @Query("SELECT * FROM savedRecipes")
-    fun getAllRecipes(): Flow<List<SavedRecipeEntity>> // Flow для автоматических обновлений
+    fun getAllRecipes(): Flow<List<SavedRecipeEntity>>
 
     @Query("SELECT * FROM savedRecipes WHERE recipeId = :id")
     suspend fun getRecipeById(id: Int): SavedRecipeEntity?

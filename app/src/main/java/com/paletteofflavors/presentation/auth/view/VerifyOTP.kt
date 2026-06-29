@@ -237,11 +237,13 @@ class VerifyOTP : Fragment() {
             Log.d("VerifyOTP", "Navigating to setNewPassword")
             val direction = VerifyOTPDirections.actionVerifyOTPToSetNewPassword(email, phone)
             findNavController().navigate(direction)
-        } else if (vmRegister.email.value != null) {
+        }
+        else if (vmRegister.email.value != null) {
             Log.d("VerifyOTP", "Triggering vmRegister.register()")
             binding.btnVerifyCode.isEnabled = false
             vmRegister.register()
-        } else {
+        }
+        else {
             Log.e("VerifyOTP", "onVerificationSuccess: email is null, cannot register!")
         }
     }

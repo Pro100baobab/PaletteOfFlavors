@@ -138,7 +138,6 @@ class ProfileFragment(private val targetUserId: Int? = null) : Fragment() {
         } else {
             binding.changeAvatarButton.visibility = View.GONE
             binding.logoutButton.visibility = View.GONE
-            // TODO: Получить имя и email пользователя по targetUserId
         }
         
         val isCashing = activity.sessionManagerBaseSettings.usersSession.getBoolean(

@@ -90,6 +90,27 @@ class MainActivity : AppCompatActivity() {
             }, 100)
         }
 
+        setUpRepositories()
+        setUpViewModels()
+        SetUpBaseSettingsSession()
+    }
+
+    private fun setUpRepositories(){
+        val turso = Turso()
+        val internetChecker = AndroidInternetChecker(applicationContext)
+
+        val imgBBRetrofit = retrofit2.Retrofit.Builder()
+            .baseUrl("https://api.imgbb.com/")
+            .addConverterFactory(retrofit2.converter.gson.GsonConverterFactory.create())
+            .build()
+        val imgBBService = imgBBRetrofit.create(ImgBBService::class.java)
+
+        remoteRepository = RecipeRemoteRepository(turso, internetChecker)
+        userRemoteRepository = UserRemoteRepository(turso, internetChecker, imgBBService)
+    }
+
+    private fun setUpViewModels(){
+
         navBottomViewModel = ViewModelProvider(this)[NavBottomViewModel::class.java]
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->
@@ -106,25 +127,12 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        val turso = Turso()
-        val internetChecker = AndroidInternetChecker(applicationContext)
-
-        val imgBBRetrofit = retrofit2.Retrofit.Builder()
-            .baseUrl("https://api.imgbb.com/")
-            .addConverterFactory(retrofit2.converter.gson.GsonConverterFactory.create())
-            .build()
-        val imgBBService = imgBBRetrofit.create(ImgBBService::class.java)
-
-        remoteRepository = RecipeRemoteRepository(turso, internetChecker)
-        userRemoteRepository = UserRemoteRepository(turso, internetChecker, imgBBService)
-
         searchViewModelFactory = SearchViewModelFactory(remoteRepository)
 
         loginViewModel = ViewModelProvider(this, LoginViewModelFactory(userRemoteRepository))[LoginViewModel::class.java]
         viewModelRegistration = ViewModelProvider(this, RegistrationViewModelFactory(userRemoteRepository))[RegistrationViewModel::class.java]
-
         createRecipeViewModel = ViewModelProvider(this, CreateRecipeViewModelFactory(remoteRepository))[CreateRecipeViewModel::class.java]
-        
+
         favoritesViewModel = ViewModelProvider(this, FavoritesViewModelFactory(
             RecipeRepository(database.savedRecipeDao(), database.cachedRecipeDao()),
             remoteRepository
@@ -132,9 +140,8 @@ class MainActivity : AppCompatActivity() {
 
         recipeDetailsViewModel = ViewModelProvider(this, RecipeDetailsViewModelFactory(remoteRepository, userRemoteRepository))[RecipeDetailsViewModel::class.java]
         profileViewModel = ViewModelProvider(this, ProfileViewModelFactory(remoteRepository, userRemoteRepository))[ProfileViewModel::class.java]
-
-        SetUpBaseSettingsSession()
     }
+
 
     override fun onStart() {
         super.onStart()
@@ -150,8 +157,7 @@ class MainActivity : AppCompatActivity() {
             binding.bottomNavigation.selectedItemId = R.id.navigation_search
         }
 
-        initDatabase()
-        checkIsLogin()  
+        checkIsLogin()
         cacheRecipesData()
     }
 
@@ -240,14 +246,6 @@ class MainActivity : AppCompatActivity() {
     fun returnNavigation() {
         binding.bottomNavigation.visibility = View.VISIBLE
         binding.appContent.isVisible = true
-    }
-
-    private fun initDatabase() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val dbFileBasePath = this@MainActivity.filesDir.path
-            val dbUrl = BuildConfig.TURSO_DATABASE_URL
-            val dbAuthToken = BuildConfig.TURSO_AUTH_TOKEN
-        }
     }
 
     override fun attachBaseContext(newBase: Context) {

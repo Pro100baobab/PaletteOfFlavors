@@ -22,5 +22,3 @@ data class SavedRecipeEntity(
     val likedListOfUsers: List<Int>,
     val savedListOfUsers: List<Int>,
 )
-
-// TODO: SavedRecipeEntity: обновить room-сущности после пересмотра сущностей серверной БД

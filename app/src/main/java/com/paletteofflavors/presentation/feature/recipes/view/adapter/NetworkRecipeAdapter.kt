@@ -38,7 +38,7 @@ class NetworkRecipeAdapter(
     }
 
     private val recipes = mutableListOf<NetworkRecipe>()
-    private val adapterScope = CoroutineScope(Dispatchers.Main) // Create a CoroutineScope for the adapter
+    private val adapterScope = CoroutineScope(Dispatchers.Main)
 
     fun addRecipe(recipe: NetworkRecipe) {
         recipes.add(recipe)

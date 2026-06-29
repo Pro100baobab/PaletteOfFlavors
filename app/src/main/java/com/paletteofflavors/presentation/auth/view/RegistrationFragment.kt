@@ -28,7 +28,6 @@ import kotlinx.coroutines.launch
 class RegistrationFragment : Fragment() {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding get() = _binding!!
-
     private lateinit var vm: RegistrationViewModel
 
     override fun onCreateView(
@@ -96,7 +95,6 @@ class RegistrationFragment : Fragment() {
         Log.d("RegistrationFragment", "Data set in VM, email=$email, phone=$phone")
 
         try {
-            // Clearing unique result so it doesn't trigger again on back navigation
             vm.clearUniqueResult()
             
             val destination = RegistrationFragmentDirections.actionRegistrationFragmentToVerifyOTP(

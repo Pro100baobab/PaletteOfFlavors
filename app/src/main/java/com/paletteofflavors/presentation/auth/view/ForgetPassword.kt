@@ -47,7 +47,7 @@ class ForgetPassword : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.findUserResult.collect { result ->
-                    // Initial success(null) is skipped or handled
+
                     val phoneNumber = result.getOrNull()
                     if (phoneNumber != null) {
                         binding.forgetPasswordContinue.isEnabled = true
@@ -55,9 +55,9 @@ class ForgetPassword : Fragment() {
                         val direction = ForgetPasswordDirections.actionForgetPasswordToMakeSelection(email, phoneNumber)
                         findNavController().navigate(direction)
                         vm.clearResults()
-                    } else if (result.isSuccess && binding.forgetPasswordContinue.isEnabled == false) {
-                         // This was a failed search or initial state. 
-                         // If it's a failed search (success(null) after calling findUserByEmail), show error
+                    }
+                    else if (result.isSuccess && binding.forgetPasswordContinue.isEnabled == false) {
+
                          if (vm.findUserResult.value.getOrNull() == null) {
                              binding.forgetPasswordContinue.isEnabled = true
                              if (binding.emailForReset.text?.isNotEmpty() == true) {

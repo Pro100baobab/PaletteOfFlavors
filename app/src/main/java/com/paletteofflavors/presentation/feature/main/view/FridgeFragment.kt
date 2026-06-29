@@ -196,7 +196,7 @@ class FridgeFragment : Fragment() {
                 "Ищем рецепты с ${fridgeViewModel.getselectedIngredientsCount()} ингредиентами",
                 Toast.LENGTH_SHORT
             ).show()
-            postQuery(requireActivity() as MainActivity, requireContext())
+            postQuery(requireActivity() as MainActivity)
         }
 
         binding.backToFridgeButton.setOnClickListener {
@@ -219,7 +219,6 @@ class FridgeFragment : Fragment() {
         return context?.createConfigurationContext(configuration)?.getString(resId) ?: ""
     }
 
-    // Open and close drop list
     private fun mostHaveVisible(Direction: Direction, imageView: ImageView) {
 
         val arrowForward = R.drawable.arrow_forward_24px
@@ -348,28 +347,15 @@ class FridgeFragment : Fragment() {
         recipesRecyclerView.adapter = networkRecipeAdapter
     }
 
-    fun postQuery(activity: MainActivity, context: Context) {
+    fun postQuery(activity: MainActivity) {
 
         val TursoConnection = Turso()
-        /*
-        if (!TursoConnection.checkInternetConnection(requireContext())) {
-            Toast.makeText(requireContext(), "Используем кешированные рецепты", Toast.LENGTH_LONG)
-                .show()
 
-            searchFromCachedRecipes()
-
-            binding.fridgeIngredientsContent.visibility = View.GONE
-            return
-        }*/
-
-
-        // Если есть подключение к интернету
         recyclerViewForNetwork(activity)
         lifecycleScope.launch {
             executeQuery(TursoConnection)
         }
         binding.fridgeIngredientsContent.visibility = View.GONE
-
     }
 
     private fun executeQuery(TursoConnection: Turso) {

@@ -14,8 +14,6 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 
-// Singleton-паттерн для жизненного цикла БД
-
 @Database(
     entities = [CachedRecipeEntity::class, SavedRecipeEntity::class],
     version = 4

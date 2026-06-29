@@ -16,7 +16,6 @@ import com.paletteofflavors.domain.utils.maskHideChars
 
 class MakeSelection : Fragment() {
 
-    //Save Arg navigation
     private val args: MakeSelectionArgs by navArgs()
 
     var email: String = ""
@@ -50,8 +49,6 @@ class MakeSelection : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
-
 
     private fun setUpViewModel() {
         vm = (requireActivity() as MainActivity).loginViewModel

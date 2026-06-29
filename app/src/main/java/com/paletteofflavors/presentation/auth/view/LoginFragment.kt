@@ -100,14 +100,15 @@ class LoginFragment : Fragment() {
                         binding.btnLogin.isEnabled = true
                         val activity = requireActivity() as MainActivity
                         handleSuccessfulLogin(activity, user)
-                    } else if (result.isSuccess) {
-                        // Initial state or user not found
+                    }
+                    else if (result.isSuccess) {
                         if (result.getOrNull() == null && binding.btnLogin.isEnabled == false) {
                             Log.d("LoginFragment", "Login failed: Invalid credentials")
                             binding.btnLogin.isEnabled = true
                             Toast.makeText(requireContext(), "Invalid credentials", Toast.LENGTH_SHORT).show()
                         }
-                    } else if (result.isFailure) {
+                    }
+                    else if (result.isFailure) {
                         val error = result.exceptionOrNull()
                         Log.e("LoginFragment", "Login failed: ${error?.message}", error)
                         binding.btnLogin.isEnabled = true
@@ -188,7 +189,7 @@ class LoginFragment : Fragment() {
             binding.rememberMe.isChecked = true
         } else {
             binding.rememberMe.isChecked = false
-            // If RememberMe is false, ensure fields are empty (unless user already typed something)
+
             if (vm.username.value.isNullOrEmpty()) {
                 binding.etLoginUsername.setText("")
             }

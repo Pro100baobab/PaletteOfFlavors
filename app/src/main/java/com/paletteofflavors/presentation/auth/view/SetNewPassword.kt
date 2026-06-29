@@ -24,7 +24,6 @@ class SetNewPassword : Fragment() {
     private val binding get() = _binding!!
 
     private val args: SetNewPasswordArgs by navArgs()
-
     private var email = ""
     private var phone = ""
     

@@ -47,7 +47,7 @@ class AuthorizationFragment : Fragment() {
         }
 
         binding.aboutUs.setOnClickListener {
-            // Soon TODO: AboutUSPage
+            // AboutUSPage
         }
     }
 }

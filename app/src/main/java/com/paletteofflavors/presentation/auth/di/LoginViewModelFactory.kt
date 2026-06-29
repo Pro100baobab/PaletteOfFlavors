@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.paletteofflavors.data.remote.repository.UserRemoteRepository
 import com.paletteofflavors.presentation.auth.viewmodel.LoginViewModel
 
-// TODO: сравнить, почему в консрукторе search нет репозитория, а тут есть
+
 class LoginViewModelFactory(
     private val userRemoteRepository: UserRemoteRepository
 ) : ViewModelProvider.Factory {

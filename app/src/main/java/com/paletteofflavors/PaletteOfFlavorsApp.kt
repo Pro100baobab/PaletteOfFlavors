@@ -9,3 +9,4 @@ class PaletteOfFlavorsApp : Application() {
         MapKitFactory.setApiKey(BuildConfig.YANDEX_MAP_KIT_KEY)
     }
 }
+// TODO: перенести создание репозиториев и провайдеров из MainActivity

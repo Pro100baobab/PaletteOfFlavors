@@ -29,6 +29,7 @@ android {
         buildConfigField("String", "TURSO_DATABASE_URL", "\"libsql://vkr-baobab2049.aws-us-east-1.turso.io\"")
         buildConfigField("String","YANDEX_MAP_KIT_KEY", "\"924c0c7b-0260-4afe-b92f-3b370e593384\"")
         buildConfigField("String", "IMGBB_KEY", "\"29b06c1edf8c93671071aff181d5162d\"")
+        buildConfigField("String", "GOOGLE_SCRIPT_URL", "\"https://script.google.com/macros/s/AKfycbyMdw5WXBcXs13Igoi3wE5PTR3OszGlqsyUH4F3n4c5w0Ntqm2heBVx3n9L2L6rS2Hw/exec\"")
     }
 
     buildTypes {
@@ -43,6 +44,7 @@ android {
             buildConfigField("String", "TURSO_DATABASE_URL", "\"libsql://vkr-baobab2049.aws-us-east-1.turso.io\"")
             buildConfigField("String","YANDEX_MAP_KIT_KEY", "\"924c0c7b-0260-4afe-b92f-3b370e593384\"")
             buildConfigField("String", "IMGBB_KEY", "\"29b06c1edf8c93671071aff181d5162d\"")
+            buildConfigField("String", "GOOGLE_SCRIPT_URL", "\"https://script.google.com/macros/s/AKfycbyMdw5WXBcXs13Igoi3wE5PTR3OszGlqsyUH4F3n4c5w0Ntqm2heBVx3n9L2L6rS2Hw/exec\"")
         }
     }
     compileOptions {

@@ -11,10 +11,8 @@ import com.paletteofflavors.databinding.FragmentPasswordSuccessUpdatedBinding
 
 
 class PasswordSuccessUpdated : Fragment() {
-
     private lateinit var _binding: FragmentPasswordSuccessUpdatedBinding
     private val binding get() = _binding
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

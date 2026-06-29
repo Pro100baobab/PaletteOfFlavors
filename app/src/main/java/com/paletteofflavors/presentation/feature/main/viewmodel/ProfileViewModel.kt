@@ -45,12 +45,6 @@ class ProfileViewModel(
     fun fetchUserData(userId: Int, isOwnProfile: Boolean = true) {
         viewModelScope.launch {
             try {
-                /*val user = if (!isOwnProfile) {
-                    userRepository.getUserById(userId)
-                } else {
-                    userRepository.getUserById(userId)
-                }*/
-
                 val user = userRepository.getUserById(userId)
                 
                 _targetUser.value = user

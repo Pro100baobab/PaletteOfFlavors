@@ -4,7 +4,7 @@ import android.util.Patterns
 import android.widget.EditText
 import com.hbb20.CountryCodePicker
 
-// Validation functions
+
 fun isValidFullName(fullnameEditText: EditText): Boolean {
     val fullName = fullnameEditText.text.toString().trim()
     val pattern = Regex("^\\p{L}{2,15}(\\s\\p{L}{2,15})+$") // Минимум 2 слова по 2-15 символов
